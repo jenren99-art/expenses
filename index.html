@@ -870,7 +870,7 @@ const initialBills = [
 // 4. Add the URL you open this file from to "Authorised JavaScript origins"
 //    e.g. if you open via file:// use http://localhost, or host it via a simple server
 // 5. Paste your Client ID below
-const GOOGLE_CLIENT_ID = '1015091367577-ub851ume7e1eg2mp0j9e92rqdok54c8c.apps.googleusercontent.com'; // ← replace this
+const GOOGLE_CLIENT_ID = '1015091367577-ub851ume7e1eg2mp0j9e92rqdok54c8c.apps.googleusercontent.com';
 
 const DRIVE_FILE_NAME = 'expenses2026_data.json';
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
@@ -1228,16 +1228,19 @@ function renderDashboard() {
   }
 }
 
-function startEdit(id, field, currentVal, tdEl) {
+function startEdit(id, field, currentVal, tdEl, event) {
+  if (event) event.stopPropagation();
   // Don't double-edit
   if (tdEl.querySelector('.cell-input')) return;
   const original = tdEl.innerHTML;
+  const isDate = field === 'due' || field === 'paidDate';
 
   let input;
-  if (field === 'due' || field === 'paidDate') {
+  if (isDate) {
     input = document.createElement('input');
     input.type = 'date';
-    input.value = currentVal || '';
+    // Ensure value is in YYYY-MM-DD format
+    input.value = (currentVal && currentVal.match(/^\d{4}-\d{2}-\d{2}/)) ? currentVal.substring(0,10) : '';
   } else if (field === 'amount') {
     input = document.createElement('input');
     input.type = 'number';
@@ -1271,6 +1274,7 @@ function startEdit(id, field, currentVal, tdEl) {
     const b = bills().find(b => b.id === id);
     if (!b) return;
     const val = input.value;
+    if (!val && isDate) { tdEl.innerHTML = original; return; } // don't save empty date
     if (field === 'amount') b.amount = parseFloat(val) || 0;
     else b[field] = val;
     saveState(); render();
@@ -1280,14 +1284,23 @@ function startEdit(id, field, currentVal, tdEl) {
 
   input.addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); commit(); }
-    if (e.key === 'Escape') cancel();
+    if (e.key === 'Escape') { e.preventDefault(); cancel(); }
   });
-  input.addEventListener('blur', () => setTimeout(commit, 100));
+
+  // For date fields: commit on change (user picked a date) rather than blur
+  if (isDate) {
+    input.addEventListener('change', () => commit());
+  } else {
+    input.addEventListener('blur', () => setTimeout(commit, 150));
+  }
+
+  // Stop clicks inside input from bubbling up to td onclick
+  input.addEventListener('click', e => e.stopPropagation());
 
   tdEl.innerHTML = '';
   tdEl.appendChild(input);
   input.focus();
-  if (input.select) input.select();
+  if (input.select && !isDate) input.select();
 }
 
 function deleteBill(id) {
@@ -1300,15 +1313,15 @@ function renderBills() {
   const bs = bills();
   document.getElementById('bills-count').textContent = bs.length + ' bills';
   document.getElementById('bills-table').innerHTML = bs.map(b => `<tr>
-    <td class="editable" onclick="startEdit(${b.id},'name',${JSON.stringify(b.name)},this)">
+    <td class="editable" onclick="startEdit(${b.id},'name',${JSON.stringify(b.name)},this,event)">
       <strong>${b.name}</strong>
       <span style="margin-left:6px;font-size:11px;background:var(--paper-2);color:var(--ink-3);padding:2px 7px;border-radius:10px">${b.category}</span>
       ${b.notes ? `<br><span style="font-size:11px;color:var(--ink-3)">${b.notes}</span>` : ''}
     </td>
-    <td class="amount editable" onclick="startEdit(${b.id},'amount',${b.amount},this)">${fmt(b.amount)}</td>
-    <td class="editable" onclick="startEdit(${b.id},'due',${JSON.stringify(b.due)},this)"><span class="due-date ${dueDateClass(b)}">${formatDate(b.due)}</span></td>
-    <td class="editable" onclick="startEdit(${b.id},'paidDate',${JSON.stringify(b.paidDate)},this)"><span style="font-size:13px;color:${b.paid ? 'var(--green)' : 'var(--ink-3)'}">${b.paid ? formatDate(b.paidDate) : '—'}</span></td>
-    <td class="editable" onclick="startEdit(${b.id},'source',${JSON.stringify(b.source)},this)" style="font-size:12px;color:var(--ink-3)">${b.source}</td>
+    <td class="amount editable" onclick="startEdit(${b.id},'amount',${b.amount},this,event)">${fmt(b.amount)}</td>
+    <td class="editable" onclick="startEdit(${b.id},'due',${JSON.stringify(b.due)},this,event)"><span class="due-date ${dueDateClass(b)}">${formatDate(b.due)}</span></td>
+    <td class="editable" onclick="startEdit(${b.id},'paidDate',${JSON.stringify(b.paidDate)},this,event)"><span style="font-size:13px;color:${b.paid ? 'var(--green)' : 'var(--ink-3)'}">${b.paid ? formatDate(b.paidDate) : '—'}</span></td>
+    <td class="editable" onclick="startEdit(${b.id},'source',${JSON.stringify(b.source)},this,event)" style="font-size:12px;color:var(--ink-3)">${b.source}</td>
     <td>${statusChip(b)}</td>
     <td><button class="delete-btn" onclick="deleteBill(${b.id})" title="Delete">✕</button></td>
   </tr>`).join('');
