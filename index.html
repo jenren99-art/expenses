@@ -488,41 +488,20 @@
   .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
-  /* ── INLINE EDITING ── */
-  td.editable { cursor: pointer; position: relative; }
-  td.editable:hover { background: var(--paper-2); }
-  td.editable:hover::after {
-    content: '✎';
-    position: absolute;
-    right: 6px; top: 50%;
-    transform: translateY(-50%);
-    font-size: 11px;
-    color: var(--ink-4);
-  }
-  .cell-input {
-    width: 100%;
-    padding: 4px 6px;
-    border: 1.5px solid var(--accent);
-    border-radius: 5px;
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    color: var(--ink);
-    background: #fff;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(200,73,26,0.1);
-  }
-  .cell-input[type="date"] { font-family: 'DM Sans', sans-serif; font-size: 13px; }
-  .delete-btn {
-    background: none;
-    border: none;
-    color: var(--ink-4);
+  /* ── EDIT BUTTON ── */
+  .edit-btn {
+    background: var(--paper-2);
+    border: 1px solid var(--border);
+    color: var(--ink-3);
     cursor: pointer;
-    font-size: 14px;
-    padding: 2px 6px;
-    border-radius: 4px;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 6px;
     transition: all 0.15s;
+    white-space: nowrap;
+    font-family: 'DM Sans', sans-serif;
   }
-  .delete-btn:hover { color: var(--red); background: var(--red-light); }
+  .edit-btn:hover { color: var(--ink); background: var(--paper-3); border-color: var(--ink-4); }
 
   /* ── AUTH BANNER ── */
   .auth-banner {
@@ -682,7 +661,7 @@
           <div class="card">
             <table>
               <thead><tr>
-                <th>Bill</th><th>Amount</th><th>Due</th><th>Status</th>
+                <th>Bill</th><th>Amount</th><th>Due</th><th>Status</th><th></th>
               </tr></thead>
               <tbody id="upcoming-table"></tbody>
             </table>
@@ -710,9 +689,11 @@
 
       <!-- BUDGET VIEW -->
       <div class="view" id="view-budget">
-        <div class="notice">💡 Budget targets are set in your Budget sheet. Spending tracked against credit card targets.</div>
         <div class="section">
-          <div class="section-title" style="margin-bottom:14px">Spending vs. Budget</div>
+          <div class="section-header">
+            <div class="section-title">Spending vs. Budget</div>
+            <button class="btn btn-ghost" onclick="openBudgetModal()">+ Add Category</button>
+          </div>
           <div class="card">
             <div class="budget-grid" id="budget-grid"></div>
           </div>
@@ -722,14 +703,17 @@
       <!-- SAVINGS VIEW -->
       <div class="view" id="view-savings">
         <div class="section">
-          <div class="section-title" style="margin-bottom:14px">Savings Accounts</div>
+          <div class="section-header">
+            <div class="section-title">Savings Accounts</div>
+            <button class="btn btn-ghost" onclick="openSavingsModal()">+ Add Account</button>
+          </div>
           <div class="savings-grid" id="savings-grid"></div>
         </div>
         <div class="section">
           <div class="section-title" style="margin-bottom:14px">Monthly Savings Breakdown</div>
           <div class="card">
             <table>
-              <thead><tr><th>Account</th><th>Monthly Target</th><th>YTD Progress</th><th>Annual Goal</th></tr></thead>
+              <thead><tr><th>Account</th><th>Monthly Target</th><th>YTD Progress</th><th>Annual Goal</th><th></th></tr></thead>
               <tbody id="savings-table"></tbody>
             </table>
           </div>
@@ -739,7 +723,27 @@
       <!-- CARDS VIEW -->
       <div class="view" id="view-cards">
         <div class="section">
-          <div class="section-title" style="margin-bottom:14px">Credit Cards</div>
+          <div class="section-header">
+            <div class="section-title">Credit Cards</div>
+            <button class="btn btn-ghost" onclick="openCardModal()">+ Add Card</button>
+          </div>
+          <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+            <div class="stat-card orange">
+              <div class="stat-label">Total Balance</div>
+              <div class="stat-value" id="cc-stat-balance">—</div>
+              <div class="stat-sub">All cards combined</div>
+            </div>
+            <div class="stat-card green">
+              <div class="stat-label">Total Budget</div>
+              <div class="stat-value" id="cc-stat-target">—</div>
+              <div class="stat-sub">Monthly targets combined</div>
+            </div>
+            <div class="stat-card gold">
+              <div class="stat-label">Over / Under</div>
+              <div class="stat-value" id="cc-stat-diff">—</div>
+              <div class="stat-sub" id="cc-stat-diff-label">vs. budget</div>
+            </div>
+          </div>
           <div class="cc-grid" id="cc-grid"></div>
         </div>
       </div>
@@ -749,22 +753,25 @@
         <div class="stat-grid" style="grid-template-columns: repeat(3,1fr)">
           <div class="stat-card orange">
             <div class="stat-label">Monthly Total</div>
-            <div class="stat-value">$401</div>
-            <div class="stat-sub">All subscriptions</div>
+            <div class="stat-value" id="sub-stat-total">—</div>
+            <div class="stat-sub" id="sub-stat-count">All subscriptions</div>
           </div>
           <div class="stat-card green">
             <div class="stat-label">Business Deductible</div>
-            <div class="stat-value">$241</div>
-            <div class="stat-sub">6 items</div>
+            <div class="stat-value" id="sub-stat-biz">—</div>
+            <div class="stat-sub" id="sub-stat-biz-count">items</div>
           </div>
           <div class="stat-card gold">
             <div class="stat-label">Personal Only</div>
-            <div class="stat-value">$160</div>
-            <div class="stat-sub">Nautilus</div>
+            <div class="stat-value" id="sub-stat-personal">—</div>
+            <div class="stat-sub" id="sub-stat-personal-count">items</div>
           </div>
         </div>
         <div class="section">
-          <div class="section-title" style="margin-bottom:14px">All Subscriptions</div>
+          <div class="section-header">
+            <div class="section-title">All Subscriptions</div>
+            <button class="btn btn-ghost" onclick="openSubModal()">+ Add Subscription</button>
+          </div>
           <div class="card">
             <div class="sub-list" id="sub-list"></div>
           </div>
@@ -792,10 +799,152 @@
   </main>
 </div>
 
-<!-- ADD BILL MODAL -->
+<!-- ADD / EDIT SAVINGS MODAL -->
+<div class="modal-overlay" id="savings-modal">
+  <div class="modal">
+    <div class="modal-title" id="savings-modal-title">Add Savings Account</div>
+    <input type="hidden" id="sv-id" value="">
+    <div class="form-row-2">
+      <div>
+        <label class="form-label">Account Name</label>
+        <input class="form-input" id="sv-name" type="text" placeholder="e.g. FHSA">
+      </div>
+      <div>
+        <label class="form-label">Icon / Emoji</label>
+        <input class="form-input" id="sv-icon" type="text" placeholder="🏦" maxlength="2">
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div>
+        <label class="form-label">Monthly Contribution</label>
+        <input class="form-input" id="sv-monthly" type="number" placeholder="0.00" step="0.01">
+      </div>
+      <div>
+        <label class="form-label">Annual Goal</label>
+        <input class="form-input" id="sv-annual" type="number" placeholder="0.00" step="0.01">
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">YTD Balance</label>
+      <input class="form-input" id="sv-ytd" type="number" placeholder="0.00" step="0.01">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Colour</label>
+      <input class="form-input" id="sv-color" type="color" value="#3a6ea8" style="height:42px;padding:4px 8px;cursor:pointer">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="savings-modal-delete-btn" onclick="deleteSavingsFromModal()" style="display:none;margin-right:auto;color:var(--red)">Delete</button>
+      <button class="btn btn-ghost" onclick="closeSavingsModal()">Cancel</button>
+      <button class="btn btn-primary" id="savings-modal-save-btn" onclick="saveSavingsModal()">Add Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD / EDIT BUDGET CATEGORY MODAL -->
+<div class="modal-overlay" id="budget-modal">
+  <div class="modal">
+    <div class="modal-title" id="budget-modal-title">Add Budget Category</div>
+    <input type="hidden" id="bg-id" value="">
+    <div class="form-row">
+      <label class="form-label">Category Name</label>
+      <input class="form-input" id="bg-name" type="text" placeholder="e.g. Entertainment">
+    </div>
+    <div class="form-row-2">
+      <div>
+        <label class="form-label">Amount Spent</label>
+        <input class="form-input" id="bg-spent" type="number" placeholder="0.00" step="0.01">
+      </div>
+      <div>
+        <label class="form-label">Monthly Target</label>
+        <input class="form-input" id="bg-target" type="number" placeholder="0.00" step="0.01">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="budget-modal-delete-btn" onclick="deleteBudgetFromModal()" style="display:none;margin-right:auto;color:var(--red)">Delete</button>
+      <button class="btn btn-ghost" onclick="closeBudgetModal()">Cancel</button>
+      <button class="btn btn-primary" id="budget-modal-save-btn" onclick="saveBudgetModal()">Add Category</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD / EDIT CREDIT CARD MODAL -->
+<div class="modal-overlay" id="card-modal">
+  <div class="modal">
+    <div class="modal-title" id="card-modal-title">Add Credit Card</div>
+    <input type="hidden" id="cf-id" value="">
+    <div class="form-row-2">
+      <div>
+        <label class="form-label">Card Name</label>
+        <input class="form-input" id="cf-name" type="text" placeholder="e.g. TD Visa">
+      </div>
+      <div>
+        <label class="form-label">Last 4 Digits</label>
+        <input class="form-input" id="cf-last4" type="text" maxlength="4" placeholder="0000">
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div>
+        <label class="form-label">Current Balance (CAD)</label>
+        <input class="form-input" id="cf-balance" type="number" placeholder="0.00" step="0.01">
+      </div>
+      <div>
+        <label class="form-label">Monthly Budget Target</label>
+        <input class="form-input" id="cf-target" type="number" placeholder="0.00" step="0.01">
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Reward Perks / Notes</label>
+      <input class="form-input" id="cf-perks" type="text" placeholder="e.g. 2% cashback on groceries">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Card Colour</label>
+      <input class="form-input" id="cf-color" type="color" value="#1a1a18" style="height:42px;padding:4px 8px;cursor:pointer">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="card-modal-delete-btn" onclick="deleteCardFromModal()" style="display:none;margin-right:auto;color:var(--red)">Delete</button>
+      <button class="btn btn-ghost" onclick="closeCardModal()">Cancel</button>
+      <button class="btn btn-primary" id="card-modal-save-btn" onclick="saveCardModal()">Add Card</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD / EDIT SUBSCRIPTION MODAL -->
+<div class="modal-overlay" id="sub-modal">
+  <div class="modal">
+    <div class="modal-title" id="sub-modal-title">Add Subscription</div>
+    <input type="hidden" id="sf-id" value="">
+    <div class="form-row">
+      <label class="form-label">Name</label>
+      <input class="form-input" id="sf-name" type="text" placeholder="e.g. Netflix">
+    </div>
+    <div class="form-row-2">
+      <div>
+        <label class="form-label">Monthly Amount (CAD)</label>
+        <input class="form-input" id="sf-amount" type="number" placeholder="0.00" step="0.01">
+      </div>
+      <div>
+        <label class="form-label">Type</label>
+        <select class="form-input" id="sf-biz">
+          <option value="false">👤 Personal</option>
+          <option value="true">🧾 Business deduction</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Colour</label>
+      <input class="form-input" id="sf-color" type="color" value="#555555" style="height:42px;padding:4px 8px;cursor:pointer">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="sub-modal-delete-btn" onclick="deleteSubFromModal()" style="display:none;margin-right:auto;color:var(--red)">Delete</button>
+      <button class="btn btn-ghost" onclick="closeSubModal()">Cancel</button>
+      <button class="btn btn-primary" id="sub-modal-save-btn" onclick="saveSubModal()">Add Subscription</button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="modal">
   <div class="modal">
-    <div class="modal-title">Add Bill</div>
+    <div class="modal-title" id="modal-title">Add Bill</div>
+    <input type="hidden" id="f-id" value="">
     <div class="form-row">
       <label class="form-label">Bill / Payee</label>
       <input class="form-input" id="f-name" type="text" placeholder="e.g. Hydro-Québec">
@@ -803,7 +952,7 @@
     <div class="form-row-2">
       <div>
         <label class="form-label">Amount (CAD)</label>
-        <input class="form-input" id="f-amount" type="number" placeholder="0.00">
+        <input class="form-input" id="f-amount" type="number" placeholder="0.00" step="0.01">
       </div>
       <div>
         <label class="form-label">Category</label>
@@ -823,6 +972,12 @@
         <input class="form-input" id="f-due" type="date">
       </div>
       <div>
+        <label class="form-label">Date Paid</label>
+        <input class="form-input" id="f-paidDate" type="date">
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div>
         <label class="form-label">Source / Pay From</label>
         <select class="form-input" id="f-source">
           <option>Pay 1</option>
@@ -831,14 +986,22 @@
           <option>N/A</option>
         </select>
       </div>
+      <div>
+        <label class="form-label">Paid?</label>
+        <select class="form-input" id="f-paid">
+          <option value="false">No</option>
+          <option value="true">Yes</option>
+        </select>
+      </div>
     </div>
     <div class="form-row">
       <label class="form-label">Notes</label>
       <input class="form-input" id="f-notes" type="text" placeholder="Optional notes">
     </div>
     <div class="modal-actions">
+      <button class="btn btn-ghost" id="modal-delete-btn" onclick="deleteBillFromModal()" style="display:none;margin-right:auto;color:var(--red)">Delete</button>
       <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="addBill()">Add Bill</button>
+      <button class="btn btn-primary" id="modal-save-btn" onclick="saveBillModal()">Add Bill</button>
     </div>
   </div>
 </div>
@@ -873,12 +1036,15 @@ const initialBills = [
 const GOOGLE_CLIENT_ID = '1015091367577-ub851ume7e1eg2mp0j9e92rqdok54c8c.apps.googleusercontent.com';
 
 const DRIVE_FILE_NAME = 'expenses2026_data.json';
-const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
+const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 
 let driveFileId = null;
 let accessToken = null;
+let tokenClient = null;
 let saveTimer = null;
 let pendingSave = false;
+let tokenRefreshPending = false;
+let afterRefreshCallbacks = [];
 
 // ── Auth ──
 
@@ -892,53 +1058,77 @@ function initGoogleAuth() {
   script.src = 'https://accounts.google.com/gsi/client';
   script.onload = () => {
     google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: () => {} });
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: DRIVE_SCOPE,
+      callback: (resp) => {
+        tokenRefreshPending = false;
+        if (resp.error) { showAuthBanner('error'); initLocalFallback(); return; }
+        const firstToken = !accessToken;
+        accessToken = resp.access_token;
+        // Schedule token refresh 5 min before expiry (tokens last ~1hr)
+        setTimeout(() => { accessToken = null; }, (resp.expires_in - 300) * 1000);
+        showSyncStatus('connected');
+        // Flush any callbacks waiting on the fresh token
+        const cbs = afterRefreshCallbacks.splice(0);
+        cbs.forEach(fn => fn());
+        // On first auth, load data from Drive
+        if (firstToken) loadFromDrive();
+      },
+    });
     requestToken();
   };
   script.onerror = () => { showAuthBanner('offline'); initLocalFallback(); };
   document.head.appendChild(script);
 }
 
-function requestToken() {
-  const client = google.accounts.oauth2.initTokenClient({
-    client_id: GOOGLE_CLIENT_ID,
-    scope: DRIVE_SCOPE,
-    callback: (resp) => {
-      if (resp.error) { showAuthBanner('error'); initLocalFallback(); return; }
-      accessToken = resp.access_token;
-      showSyncStatus('connected');
-      loadFromDrive();
-    },
-  });
-  client.requestAccessToken({ prompt: '' }); // silent first; prompts if needed
+function requestToken(afterRefresh) {
+  if (afterRefresh) afterRefreshCallbacks.push(afterRefresh);
+  if (tokenRefreshPending) return; // already in progress
+  tokenRefreshPending = true;
+  tokenClient.requestAccessToken({ prompt: afterRefreshCallbacks.length > 1 ? '' : '' });
 }
 
 // ── Drive file ops ──
 
 async function driveRequest(url, options = {}) {
+  // If no token, wait for one
+  if (!accessToken) {
+    await new Promise(resolve => requestToken(resolve));
+  }
   const headers = { Authorization: `Bearer ${accessToken}`, ...options.headers };
   const resp = await fetch(url, { ...options, headers });
-  if (resp.status === 401) { accessToken = null; requestToken(); throw new Error('auth'); }
+  if (resp.status === 401) {
+    // Token rejected — clear it and retry once with a fresh one
+    accessToken = null;
+    await new Promise(resolve => requestToken(resolve));
+    const retryHeaders = { Authorization: `Bearer ${accessToken}`, ...options.headers };
+    return fetch(url, { ...options, headers: retryHeaders });
+  }
   return resp;
 }
 
 async function findOrCreateFile() {
-  // Search appDataFolder for our file
+  // Search Drive for our file
   const search = await driveRequest(
-    `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name='${DRIVE_FILE_NAME}'&fields=files(id,name)`
+    `https://www.googleapis.com/drive/v3/files?q=name='${DRIVE_FILE_NAME}'+and+trashed=false&fields=files(id,name)&spaces=drive`
   );
   const data = await search.json();
+  console.log('File search result:', data);
   if (data.files && data.files.length > 0) {
     driveFileId = data.files[0].id;
+    console.log('Found existing file:', driveFileId);
     return driveFileId;
   }
-  // Create it
-  const meta = { name: DRIVE_FILE_NAME, parents: ['appDataFolder'] };
+  // Create it in Drive root
+  const meta = { name: DRIVE_FILE_NAME, mimeType: 'application/json' };
   const create = await driveRequest('https://www.googleapis.com/drive/v3/files', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(meta),
   });
   const created = await create.json();
+  console.log('Created new file:', created);
   driveFileId = created.id;
   return driveFileId;
 }
@@ -947,36 +1137,56 @@ async function loadFromDrive() {
   showSyncStatus('loading');
   try {
     await findOrCreateFile();
-    const resp = await driveRequest(
-      `https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`
+    // Get file metadata to check size first
+    const meta = await driveRequest(
+      `https://www.googleapis.com/drive/v3/files/${driveFileId}?fields=size`
     );
-    if (resp.status === 204 || resp.headers.get('content-length') === '0') {
-      // Empty file — seed with initial data
+    const metaData = await meta.json();
+    console.log('File metadata:', metaData);
+
+    if (!metaData.size || metaData.size === '0') {
+      console.log('Empty file — seeding with defaults');
       initData(null);
     } else {
+      const resp = await driveRequest(
+        `https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`
+      );
       const text = await resp.text();
+      console.log('Loaded data length:', text.length);
       try { initData(JSON.parse(text)); }
-      catch(e) { initData(null); }
+      catch(e) { console.error('Parse error:', e); initData(null); }
     }
     showSyncStatus('saved');
     render();
   } catch(e) {
-    if (e.message !== 'auth') { showSyncStatus('error'); initLocalFallback(); }
+    console.error('Load error:', e);
+    showSyncStatus('error');
+    initLocalFallback();
   }
 }
 
 async function writeToDrive() {
-  if (!accessToken || !driveFileId) { saveLocalFallback(); return; }
+  if (!driveFileId) {
+    try { await findOrCreateFile(); } catch(e) { console.error('findOrCreate failed:', e); showSyncStatus('error'); return; }
+  }
   showSyncStatus('saving');
-  const payload = JSON.stringify({ billsStore, nextId });
+  const payload = JSON.stringify({ billsStore, nextId, subscriptions, creditCards, savings, budgetCategories });
+  console.log('Writing to Drive, fileId:', driveFileId, 'token present:', !!accessToken);
   try {
-    await driveRequest(
+    const resp = await driveRequest(
       `https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`,
       { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: payload }
     );
+    const respText = await resp.text();
+    console.log('Drive write response:', resp.status, respText.substring(0, 300));
+    if (!resp.ok) {
+      showSyncStatus('error');
+      return;
+    }
     showSyncStatus('saved');
   } catch(e) {
-    if (e.message !== 'auth') showSyncStatus('error');
+    console.error('Write error:', e);
+    showSyncStatus('error');
   }
 }
 
@@ -991,7 +1201,7 @@ function saveState() {
 // ── Local fallback (backup + offline) ──
 
 function saveLocalFallback() {
-  try { localStorage.setItem('expenses2026_backup', JSON.stringify({ billsStore, nextId })); }
+  try { localStorage.setItem('expenses2026_backup', JSON.stringify({ billsStore, nextId, subscriptions, creditCards, savings, budgetCategories })); }
   catch(e) {}
 }
 
@@ -1007,8 +1217,16 @@ function initData(saved) {
   if (saved && saved.billsStore) {
     Object.entries(saved.billsStore).forEach(([k, v]) => { billsStore[parseInt(k)] = v; });
     nextId = saved.nextId || 100;
+    subscriptions = saved.subscriptions || JSON.parse(JSON.stringify(initialSubscriptions));
+    creditCards = saved.creditCards || JSON.parse(JSON.stringify(initialCreditCards));
+    savings = saved.savings || JSON.parse(JSON.stringify(initialSavings));
+    budgetCategories = saved.budgetCategories || JSON.parse(JSON.stringify(initialBudgetCategories));
   } else {
     billsStore[4] = JSON.parse(JSON.stringify(initialBills));
+    subscriptions = JSON.parse(JSON.stringify(initialSubscriptions));
+    creditCards = JSON.parse(JSON.stringify(initialCreditCards));
+    savings = JSON.parse(JSON.stringify(initialSavings));
+    budgetCategories = JSON.parse(JSON.stringify(initialBudgetCategories));
   }
 }
 
@@ -1059,38 +1277,40 @@ const billsStore = {};
 for (let i=0; i<12; i++) billsStore[i] = [];
 let nextId = 100;
 
-const savings = [
-  { name:'RRSP', icon:'🏦', monthly:300, ytd:1500, annual:3600, color:'#3a6ea8' },
-  { name:'TFSA', icon:'🌿', monthly:285, ytd:1425, annual:3420, color:'#2a7a4f' },
-  { name:'HISA', icon:'💧', monthly:285, ytd:1425, annual:3420, color:'#c8491a' },
+const initialSavings = [
+  { id:1, name:'RRSP', icon:'🏦', monthly:300, ytd:1500, annual:3600, color:'#3a6ea8' },
+  { id:2, name:'TFSA', icon:'🌿', monthly:285, ytd:1425, annual:3420, color:'#2a7a4f' },
+  { id:3, name:'HISA', icon:'💧', monthly:285, ytd:1425, annual:3420, color:'#c8491a' },
 ];
+let savings = [];
 
-const creditCards = [
-  { name:'NEO Elite', last4:'9862', balance:1750, target:1600, color:'#1a1a18', perks:'Gas 3% · Groceries 5% · Recurring 4%' },
-  { name:'Wealthsimple Visa', last4:'', balance:3938.61, target:1500, color:'#2a5a3a', perks:'Everything else 2% · Amazon shopping' },
-  { name:'CIBC Visa', last4:'', balance:66.36, target:500, color:'#8b1a1a', perks:'Costco only' },
-  { name:'Canadian Tire', last4:'', balance:65, target:0, color:'#5a3a1a', perks:'CT purchases' },
+const initialBudgetCategories = [
+  { id:1, name:'Groceries', spent:820, target:1500 },
+  { id:2, name:'Restaurants', spent:145, target:200 },
+  { id:3, name:'Gas', spent:78, target:100 },
+  { id:4, name:'Amazon / Shopping', spent:210, target:100 },
+  { id:5, name:'Clothing', spent:0, target:200 },
+  { id:6, name:'Subscriptions', spent:400.80, target:400 },
 ];
+let budgetCategories = [];
+  { id:1, name:'NEO Elite', last4:'9862', balance:1750, target:1600, color:'#1a1a18', perks:'Gas 3% · Groceries 5% · Recurring 4%' },
+  { id:2, name:'Wealthsimple Visa', last4:'', balance:3938.61, target:1500, color:'#2a5a3a', perks:'Everything else 2% · Amazon shopping' },
+  { id:3, name:'CIBC Visa', last4:'', balance:66.36, target:500, color:'#8b1a1a', perks:'Costco only' },
+  { id:4, name:'Canadian Tire', last4:'', balance:65, target:0, color:'#5a3a1a', perks:'CT purchases' },
+];
+let creditCards = [];
 
-const subscriptions = [
-  { name:'Prime', amount:8.25, biz:false, color:'#232f3e' },
-  { name:'Apple', amount:25.35, biz:true, color:'#555' },
-  { name:'Spotify', amount:24.13, biz:true, color:'#1db954' },
-  { name:'Google 100GB', amount:2.68, biz:true, color:'#4285f4' },
-  { name:'OpenAI', amount:33.39, biz:true, color:'#10a37f' },
-  { name:'Nautilus', amount:160.00, biz:false, color:'#0066cc' },
-  { name:'Alcami', amount:47.00, biz:true, color:'#8b5cf6' },
-  { name:'Opus', amount:100.00, biz:true, color:'#e11d48' },
+const initialSubscriptions = [
+  { id:1, name:'Prime', amount:8.25, biz:false, color:'#232f3e' },
+  { id:2, name:'Apple', amount:25.35, biz:true, color:'#555' },
+  { id:3, name:'Spotify', amount:24.13, biz:true, color:'#1db954' },
+  { id:4, name:'Google 100GB', amount:2.68, biz:true, color:'#4285f4' },
+  { id:5, name:'OpenAI', amount:33.39, biz:true, color:'#10a37f' },
+  { id:6, name:'Nautilus', amount:160.00, biz:false, color:'#0066cc' },
+  { id:7, name:'Alcami', amount:47.00, biz:true, color:'#8b5cf6' },
+  { id:8, name:'Opus', amount:100.00, biz:true, color:'#e11d48' },
 ];
-
-const budgetCategories = [
-  { name:'Groceries', spent:820, target:1500 },
-  { name:'Restaurants', spent:145, target:200 },
-  { name:'Gas', spent:78, target:100 },
-  { name:'Amazon / Shopping', spent:210, target:100 },
-  { name:'Clothing', spent:0, target:200 },
-  { name:'Subscriptions', spent:400.80, target:400 },
-];
+let subscriptions = [];
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 
@@ -1099,8 +1319,9 @@ function fmt(n) { return '$' + n.toLocaleString('en-CA', {minimumFractionDigits:
 function daysBetween(dateStr) {
   if (!dateStr) return null;
   const today = new Date(); today.setHours(0,0,0,0);
-  const d = new Date(dateStr); d.setHours(0,0,0,0);
-  return Math.round((d - today) / 86400000);
+  const [y, m, d] = dateStr.substring(0,10).split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  return Math.round((date - today) / 86400000);
 }
 
 function dueDateClass(bill) {
@@ -1122,8 +1343,10 @@ function statusChip(bill) {
 
 function formatDate(dateStr) {
   if (!dateStr) return '—';
-  const d = new Date(dateStr);
-  return d.toLocaleDateString('en-CA', {month:'short', day:'numeric'});
+  // Parse as local date (split avoids UTC midnight timezone shift)
+  const [y, m, d] = dateStr.substring(0,10).split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  return date.toLocaleDateString('en-CA', {month:'short', day:'numeric'});
 }
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
@@ -1145,20 +1368,72 @@ function markAllPaid() {
 
 // ─── MODAL ───────────────────────────────────────────────────────────────────
 
-function openModal() { document.getElementById('modal').classList.add('open'); }
+function openModal() {
+  // Add mode
+  document.getElementById('modal-title').textContent = 'Add Bill';
+  document.getElementById('modal-save-btn').textContent = 'Add Bill';
+  document.getElementById('modal-delete-btn').style.display = 'none';
+  document.getElementById('f-id').value = '';
+  ['f-name','f-amount','f-due','f-paidDate','f-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-category').value = 'Fixed';
+  document.getElementById('f-source').value = 'Pay 1';
+  document.getElementById('f-paid').value = 'false';
+  document.getElementById('modal').classList.add('open');
+}
+
+function openEditModal(id) {
+  const b = bills().find(b => b.id === id);
+  if (!b) return;
+  document.getElementById('modal-title').textContent = 'Edit Bill';
+  document.getElementById('modal-save-btn').textContent = 'Save Changes';
+  document.getElementById('modal-delete-btn').style.display = 'inline-flex';
+  document.getElementById('f-id').value = id;
+  document.getElementById('f-name').value = b.name || '';
+  document.getElementById('f-amount').value = b.amount || '';
+  document.getElementById('f-due').value = b.due ? b.due.substring(0,10) : '';
+  document.getElementById('f-paidDate').value = b.paidDate ? b.paidDate.substring(0,10) : '';
+  document.getElementById('f-notes').value = b.notes || '';
+  document.getElementById('f-category').value = b.category || 'Fixed';
+  document.getElementById('f-source').value = b.source || 'Pay 1';
+  document.getElementById('f-paid').value = b.paid ? 'true' : 'false';
+  document.getElementById('modal').classList.add('open');
+}
+
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
 
-function addBill() {
+function saveBillModal() {
+  const id = document.getElementById('f-id').value;
   const name = document.getElementById('f-name').value.trim();
   const amount = parseFloat(document.getElementById('f-amount').value);
   const due = document.getElementById('f-due').value;
+  const paidDate = document.getElementById('f-paidDate').value;
   const source = document.getElementById('f-source').value;
   const category = document.getElementById('f-category').value;
   const notes = document.getElementById('f-notes').value;
+  const paid = document.getElementById('f-paid').value === 'true';
   if (!name || isNaN(amount)) return;
-  bills().push({ id: nextId++, name, amount, due, paid: false, paidDate: '', source, category, notes, ideal: 0 });
+
+  if (id) {
+    // Edit existing
+    const b = bills().find(b => b.id === parseInt(id));
+    if (b) {
+      b.name = name; b.amount = amount; b.due = due;
+      b.paidDate = paidDate; b.source = source;
+      b.category = category; b.notes = notes; b.paid = paid;
+    }
+  } else {
+    // Add new
+    bills().push({ id: nextId++, name, amount, due, paid, paidDate, source, category, notes, ideal: 0 });
+  }
   closeModal();
-  ['f-name','f-amount','f-due','f-notes'].forEach(id => document.getElementById(id).value = '');
+  saveState(); render();
+}
+
+function deleteBillFromModal() {
+  const id = parseInt(document.getElementById('f-id').value);
+  if (!id || !confirm('Remove this bill?')) return;
+  billsStore[currentMonth] = billsStore[currentMonth].filter(b => b.id !== id);
+  closeModal();
   saveState(); render();
 }
 
@@ -1206,11 +1481,14 @@ function renderDashboard() {
   // Pay 1 items
   const pc1 = document.getElementById('pc1-items');
   pc1.innerHTML = pay1Bills.map(b => `<div class="pc-item"><span class="pc-item-name">${b.name}</span><span class="pc-item-amt">${fmt(b.amount)}</span></div>`).join('');
-  document.getElementById('pc1-remaining').textContent = fmt(Math.max(0, 2828 - pay1Alloc));
+  document.getElementById('pc1-remaining').textContent = fmt(Math.max(0, 2828 - pay1Alloc) || Math.abs(2828 - pay1Alloc));
+  document.getElementById('pc1-remaining').style.color = pay1Alloc > 2828 ? 'var(--red)' : 'var(--green)';
+  document.getElementById('pc1-remaining').textContent = fmt(Math.abs(2828 - pay1Alloc));
 
   const pc2 = document.getElementById('pc2-items');
   pc2.innerHTML = pay2Bills.map(b => `<div class="pc-item"><span class="pc-item-name">${b.name}</span><span class="pc-item-amt">${fmt(b.amount)}</span></div>`).join('');
-  document.getElementById('pc2-remaining').textContent = fmt(Math.max(0, 2828 - pay2Alloc));
+  document.getElementById('pc2-remaining').textContent = fmt(Math.abs(2828 - pay2Alloc));
+  document.getElementById('pc2-remaining').style.color = pay2Alloc > 2828 ? 'var(--red)' : 'var(--green)';
 
   // Upcoming table
   const upcoming = [...unpaid].sort((a,b) => new Date(a.due)-new Date(b.due));
@@ -1224,127 +1502,163 @@ function renderDashboard() {
       <td class="amount">${fmt(b.amount)}</td>
       <td><span class="due-date ${dueDateClass(b)}">${formatDate(b.due)}</span></td>
       <td>${statusChip(b)}</td>
+      <td><button class="edit-btn" onclick="openEditModal(${b.id})">✎ Edit</button></td>
     </tr>`).join('');
   }
-}
-
-function startEdit(id, field, currentVal, tdEl, event) {
-  if (event) event.stopPropagation();
-  // Don't double-edit
-  if (tdEl.querySelector('.cell-input')) return;
-  const original = tdEl.innerHTML;
-  const isDate = field === 'due' || field === 'paidDate';
-
-  let input;
-  if (isDate) {
-    input = document.createElement('input');
-    input.type = 'date';
-    // Ensure value is in YYYY-MM-DD format
-    input.value = (currentVal && currentVal.match(/^\d{4}-\d{2}-\d{2}/)) ? currentVal.substring(0,10) : '';
-  } else if (field === 'amount') {
-    input = document.createElement('input');
-    input.type = 'number';
-    input.step = '0.01';
-    input.value = currentVal;
-  } else if (field === 'source') {
-    input = document.createElement('select');
-    ['Pay 1','Pay 2','Auto-debit','N/A'].forEach(opt => {
-      const o = document.createElement('option');
-      o.value = opt; o.textContent = opt;
-      if (opt === currentVal) o.selected = true;
-      input.appendChild(o);
-    });
-  } else if (field === 'category') {
-    input = document.createElement('select');
-    ['Fixed','Credit Card','Savings','Tax','Insurance','Other'].forEach(opt => {
-      const o = document.createElement('option');
-      o.value = opt; o.textContent = opt;
-      if (opt === currentVal) o.selected = true;
-      input.appendChild(o);
-    });
-  } else {
-    input = document.createElement('input');
-    input.type = 'text';
-    input.value = currentVal || '';
-  }
-
-  input.className = 'cell-input';
-
-  const commit = () => {
-    const b = bills().find(b => b.id === id);
-    if (!b) return;
-    const val = input.value;
-    if (!val && isDate) { tdEl.innerHTML = original; return; } // don't save empty date
-    if (field === 'amount') b.amount = parseFloat(val) || 0;
-    else b[field] = val;
-    saveState(); render();
-  };
-
-  const cancel = () => { tdEl.innerHTML = original; };
-
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); commit(); }
-    if (e.key === 'Escape') { e.preventDefault(); cancel(); }
-  });
-
-  // For date fields: commit on change (user picked a date) rather than blur
-  if (isDate) {
-    input.addEventListener('change', () => commit());
-  } else {
-    input.addEventListener('blur', () => setTimeout(commit, 150));
-  }
-
-  // Stop clicks inside input from bubbling up to td onclick
-  input.addEventListener('click', e => e.stopPropagation());
-
-  tdEl.innerHTML = '';
-  tdEl.appendChild(input);
-  input.focus();
-  if (input.select && !isDate) input.select();
-}
-
-function deleteBill(id) {
-  if (!confirm('Remove this bill?')) return;
-  billsStore[currentMonth] = billsStore[currentMonth].filter(b => b.id !== id);
-  saveState(); render();
 }
 
 function renderBills() {
   const bs = bills();
   document.getElementById('bills-count').textContent = bs.length + ' bills';
   document.getElementById('bills-table').innerHTML = bs.map(b => `<tr>
-    <td class="editable" onclick="startEdit(${b.id},'name',${JSON.stringify(b.name)},this,event)">
+    <td>
       <strong>${b.name}</strong>
       <span style="margin-left:6px;font-size:11px;background:var(--paper-2);color:var(--ink-3);padding:2px 7px;border-radius:10px">${b.category}</span>
       ${b.notes ? `<br><span style="font-size:11px;color:var(--ink-3)">${b.notes}</span>` : ''}
     </td>
-    <td class="amount editable" onclick="startEdit(${b.id},'amount',${b.amount},this,event)">${fmt(b.amount)}</td>
-    <td class="editable" onclick="startEdit(${b.id},'due',${JSON.stringify(b.due)},this,event)"><span class="due-date ${dueDateClass(b)}">${formatDate(b.due)}</span></td>
-    <td class="editable" onclick="startEdit(${b.id},'paidDate',${JSON.stringify(b.paidDate)},this,event)"><span style="font-size:13px;color:${b.paid ? 'var(--green)' : 'var(--ink-3)'}">${b.paid ? formatDate(b.paidDate) : '—'}</span></td>
-    <td class="editable" onclick="startEdit(${b.id},'source',${JSON.stringify(b.source)},this,event)" style="font-size:12px;color:var(--ink-3)">${b.source}</td>
+    <td class="amount">${fmt(b.amount)}</td>
+    <td><span class="due-date ${dueDateClass(b)}">${formatDate(b.due)}</span></td>
+    <td><span style="font-size:13px;color:${b.paid ? 'var(--green)' : 'var(--ink-3)'}">${b.paid ? formatDate(b.paidDate) : '—'}</span></td>
+    <td style="font-size:12px;color:var(--ink-3)">${b.source}</td>
     <td>${statusChip(b)}</td>
-    <td><button class="delete-btn" onclick="deleteBill(${b.id})" title="Delete">✕</button></td>
+    <td><button class="edit-btn" onclick="openEditModal(${b.id})">✎ Edit</button></td>
   </tr>`).join('');
+}
+
+// ─── BUDGET MODAL ────────────────────────────────────────────────────────────
+
+let nextBudgetId = 400;
+
+function openBudgetModal() {
+  document.getElementById('budget-modal-title').textContent = 'Add Budget Category';
+  document.getElementById('budget-modal-save-btn').textContent = 'Add Category';
+  document.getElementById('budget-modal-delete-btn').style.display = 'none';
+  document.getElementById('bg-id').value = '';
+  ['bg-name','bg-spent','bg-target'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('budget-modal').classList.add('open');
+}
+
+function openEditBudgetModal(id) {
+  const c = budgetCategories.find(c => c.id === id);
+  if (!c) return;
+  document.getElementById('budget-modal-title').textContent = 'Edit Category';
+  document.getElementById('budget-modal-save-btn').textContent = 'Save Changes';
+  document.getElementById('budget-modal-delete-btn').style.display = 'inline-flex';
+  document.getElementById('bg-id').value = id;
+  document.getElementById('bg-name').value = c.name;
+  document.getElementById('bg-spent').value = c.spent;
+  document.getElementById('bg-target').value = c.target;
+  document.getElementById('budget-modal').classList.add('open');
+}
+
+function closeBudgetModal() { document.getElementById('budget-modal').classList.remove('open'); }
+
+function saveBudgetModal() {
+  const id = document.getElementById('bg-id').value;
+  const name = document.getElementById('bg-name').value.trim();
+  const spent = parseFloat(document.getElementById('bg-spent').value) || 0;
+  const target = parseFloat(document.getElementById('bg-target').value) || 0;
+  if (!name) return;
+  if (id) {
+    const c = budgetCategories.find(c => c.id === parseInt(id));
+    if (c) { c.name = name; c.spent = spent; c.target = target; }
+  } else {
+    budgetCategories.push({ id: nextBudgetId++, name, spent, target });
+  }
+  closeBudgetModal();
+  saveState(); render();
+}
+
+function deleteBudgetFromModal() {
+  const id = parseInt(document.getElementById('bg-id').value);
+  if (!id || !confirm('Remove this category?')) return;
+  const idx = budgetCategories.findIndex(c => c.id === id);
+  if (idx > -1) budgetCategories.splice(idx, 1);
+  closeBudgetModal();
+  saveState(); render();
 }
 
 function renderBudget() {
   document.getElementById('budget-grid').innerHTML = budgetCategories.map(c => {
-    const pct = Math.min(100, Math.round(c.spent / c.target * 100));
+    const pct = c.target > 0 ? Math.min(100, Math.round(c.spent / c.target * 100)) : 0;
     const cls = pct >= 100 ? 'fill-red' : pct >= 80 ? 'fill-gold' : 'fill-green';
-    return `<div class="budget-item">
+    return `<div class="budget-item" style="border-bottom:1px solid var(--border);padding:16px 20px">
       <div class="budget-row">
         <span class="budget-name">${c.name}</span>
-        <span class="budget-amounts"><strong>${fmt(c.spent)}</strong> / ${fmt(c.target)}</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="budget-amounts"><strong>${fmt(c.spent)}</strong> / ${fmt(c.target)}</span>
+          <button class="edit-btn" onclick="openEditBudgetModal(${c.id})">✎ Edit</button>
+        </div>
       </div>
       <div class="progress-track"><div class="progress-fill ${cls}" style="width:${pct}%"></div></div>
     </div>`;
   }).join('');
 }
 
+// ─── SAVINGS MODAL ───────────────────────────────────────────────────────────
+
+let nextSavingsId = 500;
+
+function openSavingsModal() {
+  document.getElementById('savings-modal-title').textContent = 'Add Savings Account';
+  document.getElementById('savings-modal-save-btn').textContent = 'Add Account';
+  document.getElementById('savings-modal-delete-btn').style.display = 'none';
+  document.getElementById('sv-id').value = '';
+  ['sv-name','sv-icon','sv-monthly','sv-annual','sv-ytd'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('sv-color').value = '#3a6ea8';
+  document.getElementById('savings-modal').classList.add('open');
+}
+
+function openEditSavingsModal(id) {
+  const s = savings.find(s => s.id === id);
+  if (!s) return;
+  document.getElementById('savings-modal-title').textContent = 'Edit Savings Account';
+  document.getElementById('savings-modal-save-btn').textContent = 'Save Changes';
+  document.getElementById('savings-modal-delete-btn').style.display = 'inline-flex';
+  document.getElementById('sv-id').value = id;
+  document.getElementById('sv-name').value = s.name;
+  document.getElementById('sv-icon').value = s.icon || '';
+  document.getElementById('sv-monthly').value = s.monthly;
+  document.getElementById('sv-annual').value = s.annual;
+  document.getElementById('sv-ytd').value = s.ytd;
+  document.getElementById('sv-color').value = s.color || '#3a6ea8';
+  document.getElementById('savings-modal').classList.add('open');
+}
+
+function closeSavingsModal() { document.getElementById('savings-modal').classList.remove('open'); }
+
+function saveSavingsModal() {
+  const id = document.getElementById('sv-id').value;
+  const name = document.getElementById('sv-name').value.trim();
+  const icon = document.getElementById('sv-icon').value.trim() || '💰';
+  const monthly = parseFloat(document.getElementById('sv-monthly').value) || 0;
+  const annual = parseFloat(document.getElementById('sv-annual').value) || 0;
+  const ytd = parseFloat(document.getElementById('sv-ytd').value) || 0;
+  const color = document.getElementById('sv-color').value;
+  if (!name) return;
+  if (id) {
+    const s = savings.find(s => s.id === parseInt(id));
+    if (s) { s.name = name; s.icon = icon; s.monthly = monthly; s.annual = annual; s.ytd = ytd; s.color = color; }
+  } else {
+    savings.push({ id: nextSavingsId++, name, icon, monthly, annual, ytd, color });
+  }
+  closeSavingsModal();
+  saveState(); render();
+}
+
+function deleteSavingsFromModal() {
+  const id = parseInt(document.getElementById('sv-id').value);
+  if (!id || !confirm('Remove this savings account?')) return;
+  const idx = savings.findIndex(s => s.id === id);
+  if (idx > -1) savings.splice(idx, 1);
+  closeSavingsModal();
+  saveState(); render();
+}
+
 function renderSavings() {
   const r = 24; const circ = 2 * Math.PI * r;
   document.getElementById('savings-grid').innerHTML = savings.map(s => {
-    const pct = Math.min(1, s.ytd / s.annual);
+    const pct = Math.min(1, s.annual > 0 ? s.ytd / s.annual : 0);
     const dash = circ * pct;
     return `<div class="card savings-card">
       <div class="savings-ring">
@@ -1357,38 +1671,192 @@ function renderSavings() {
       <div class="savings-name">${s.name}</div>
       <div class="savings-amount">${fmt(s.ytd)}</div>
       <div class="savings-target">of ${fmt(s.annual)} annual</div>
+      <button class="edit-btn" style="margin-top:10px" onclick="openEditSavingsModal(${s.id})">✎ Edit</button>
     </div>`;
   }).join('');
 
   document.getElementById('savings-table').innerHTML = savings.map(s => `<tr>
-    <td><strong>${s.name}</strong></td>
+    <td><strong>${s.icon || ''} ${s.name}</strong></td>
     <td class="amount">${fmt(s.monthly)}</td>
     <td><div style="display:flex;align-items:center;gap:10px">
-      <div class="progress-track" style="flex:1"><div class="progress-fill fill-green" style="width:${Math.min(100,s.ytd/s.annual*100)}%"></div></div>
-      <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-3)">${Math.round(s.ytd/s.annual*100)}%</span>
+      <div class="progress-track" style="flex:1"><div class="progress-fill fill-green" style="width:${Math.min(100, s.annual>0 ? s.ytd/s.annual*100 : 0)}%"></div></div>
+      <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-3)">${s.annual>0 ? Math.round(s.ytd/s.annual*100) : 0}%</span>
     </div></td>
     <td class="amount">${fmt(s.annual)}</td>
+    <td><button class="edit-btn" onclick="openEditSavingsModal(${s.id})">✎ Edit</button></td>
   </tr>`).join('');
 }
 
+// ─── CREDIT CARD MODAL ───────────────────────────────────────────────────────
+
+let nextCardId = 300;
+
+function openCardModal() {
+  document.getElementById('card-modal-title').textContent = 'Add Credit Card';
+  document.getElementById('card-modal-save-btn').textContent = 'Add Card';
+  document.getElementById('card-modal-delete-btn').style.display = 'none';
+  document.getElementById('cf-id').value = '';
+  ['cf-name','cf-last4','cf-balance','cf-target','cf-perks'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('cf-color').value = '#1a1a18';
+  document.getElementById('card-modal').classList.add('open');
+}
+
+function openEditCardModal(id) {
+  // Support both id-based lookup and index-based (for cards saved before ids were added)
+  let c = creditCards.find(c => c.id === id);
+  if (!c && typeof id === 'number') c = creditCards[id]; // fallback: treat as index
+  if (!c) return;
+  // Ensure card has an id going forward
+  if (!c.id) c.id = nextCardId++;
+  document.getElementById('card-modal-title').textContent = 'Edit Credit Card';
+  document.getElementById('card-modal-save-btn').textContent = 'Save Changes';
+  document.getElementById('card-modal-delete-btn').style.display = 'inline-flex';
+  document.getElementById('cf-id').value = c.id;
+  document.getElementById('cf-name').value = c.name;
+  document.getElementById('cf-last4').value = c.last4 || '';
+  document.getElementById('cf-balance').value = c.balance;
+  document.getElementById('cf-target').value = c.target;
+  document.getElementById('cf-perks').value = c.perks || '';
+  document.getElementById('cf-color').value = c.color || '#1a1a18';
+  document.getElementById('card-modal').classList.add('open');
+}
+
+function closeCardModal() { document.getElementById('card-modal').classList.remove('open'); }
+
+function saveCardModal() {
+  const id = document.getElementById('cf-id').value;
+  const name = document.getElementById('cf-name').value.trim();
+  const last4 = document.getElementById('cf-last4').value.trim();
+  const balance = parseFloat(document.getElementById('cf-balance').value) || 0;
+  const target = parseFloat(document.getElementById('cf-target').value) || 0;
+  const perks = document.getElementById('cf-perks').value.trim();
+  const color = document.getElementById('cf-color').value;
+  if (!name) return;
+
+  if (id) {
+    const c = creditCards.find(c => c.id === parseInt(id));
+    if (c) { c.name = name; c.last4 = last4; c.balance = balance; c.target = target; c.perks = perks; c.color = color; }
+  } else {
+    creditCards.push({ id: nextCardId++, name, last4, balance, target, perks, color });
+  }
+  closeCardModal();
+  saveState(); render();
+}
+
+function deleteCardFromModal() {
+  const id = parseInt(document.getElementById('cf-id').value);
+  if (!id || !confirm('Remove this card?')) return;
+  const idx = creditCards.findIndex(c => c.id === id);
+  if (idx > -1) creditCards.splice(idx, 1);
+  closeCardModal();
+  saveState(); render();
+}
+
 function renderCards() {
-  document.getElementById('cc-grid').innerHTML = creditCards.map(c => {
-    const pct = c.target > 0 ? Math.min(100, c.balance / c.target * 100) : 100;
+  const totalBalance = creditCards.reduce((s, c) => s + c.balance, 0);
+  const totalTarget = creditCards.reduce((s, c) => s + c.target, 0);
+  const diff = totalTarget - totalBalance;
+
+  document.getElementById('cc-stat-balance').textContent = fmt(totalBalance);
+  document.getElementById('cc-stat-target').textContent = fmt(totalTarget);
+  document.getElementById('cc-stat-diff').textContent = fmt(Math.abs(diff));
+  document.getElementById('cc-stat-diff').style.color = diff >= 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('cc-stat-diff-label').textContent = diff >= 0 ? '▲ under budget' : '▼ over budget';
+  document.getElementById('cc-grid').innerHTML = creditCards.map((c, i) => {
+    const cardId = c.id !== undefined ? c.id : i;
+    const pct = c.target > 0 ? Math.min(100, c.balance / c.target * 100) : 0;
     const col = pct > 100 ? 'var(--red)' : pct > 80 ? 'var(--gold)' : 'var(--green)';
     return `<div class="cc-card">
-      <div class="cc-name">${c.name}</div>
-      <div class="cc-desc">${c.perks}</div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+        <div>
+          <div class="cc-name">${c.name}${c.last4 ? ` <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-3)">···${c.last4}</span>` : ''}</div>
+          <div class="cc-desc">${c.perks || '—'}</div>
+        </div>
+        <button class="edit-btn" onclick="openEditCardModal(${cardId})">✎ Edit</button>
+      </div>
       <div class="cc-row">
         <span class="cc-balance">${fmt(c.balance)}</span>
         <span class="cc-target">target ${c.target > 0 ? fmt(c.target) : '—'}</span>
       </div>
-      <div class="cc-bar"><div class="cc-fill" style="width:${c.target>0?pct:100}%;background:${col}"></div></div>
-      ${c.target > 0 ? `<div class="cc-perks">${pct > 100 ? '⚠ ' + fmt(c.balance - c.target) + ' over target' : fmt(c.target - c.balance) + ' remaining in budget'}</div>` : ''}
+      <div class="cc-bar"><div class="cc-fill" style="width:${c.target>0?pct:0}%;background:${col}"></div></div>
+      ${c.target > 0 ? `<div class="cc-perks">${pct > 100 ? '⚠ ' + fmt(c.balance - c.target) + ' over target' : fmt(c.target - c.balance) + ' remaining in budget'}</div>` : '<div class="cc-perks">No budget target set</div>'}
     </div>`;
   }).join('');
 }
 
+// ─── SUBSCRIPTION MODAL ──────────────────────────────────────────────────────
+
+let nextSubId = 200;
+
+function openSubModal() {
+  document.getElementById('sub-modal-title').textContent = 'Add Subscription';
+  document.getElementById('sub-modal-save-btn').textContent = 'Add Subscription';
+  document.getElementById('sub-modal-delete-btn').style.display = 'none';
+  document.getElementById('sf-id').value = '';
+  document.getElementById('sf-name').value = '';
+  document.getElementById('sf-amount').value = '';
+  document.getElementById('sf-biz').value = 'false';
+  document.getElementById('sf-color').value = '#555555';
+  document.getElementById('sub-modal').classList.add('open');
+}
+
+function openEditSubModal(id) {
+  const s = subscriptions.find(s => s.id === id);
+  if (!s) return;
+  document.getElementById('sub-modal-title').textContent = 'Edit Subscription';
+  document.getElementById('sub-modal-save-btn').textContent = 'Save Changes';
+  document.getElementById('sub-modal-delete-btn').style.display = 'inline-flex';
+  document.getElementById('sf-id').value = id;
+  document.getElementById('sf-name').value = s.name;
+  document.getElementById('sf-amount').value = s.amount;
+  document.getElementById('sf-biz').value = s.biz ? 'true' : 'false';
+  document.getElementById('sf-color').value = s.color || '#555555';
+  document.getElementById('sub-modal').classList.add('open');
+}
+
+function closeSubModal() { document.getElementById('sub-modal').classList.remove('open'); }
+
+function saveSubModal() {
+  const id = document.getElementById('sf-id').value;
+  const name = document.getElementById('sf-name').value.trim();
+  const amount = parseFloat(document.getElementById('sf-amount').value);
+  const biz = document.getElementById('sf-biz').value === 'true';
+  const color = document.getElementById('sf-color').value;
+  if (!name || isNaN(amount)) return;
+
+  if (id) {
+    const s = subscriptions.find(s => s.id === parseInt(id));
+    if (s) { s.name = name; s.amount = amount; s.biz = biz; s.color = color; }
+  } else {
+    subscriptions.push({ id: nextSubId++, name, amount, biz, color });
+  }
+  closeSubModal();
+  saveState(); render();
+}
+
+function deleteSubFromModal() {
+  const id = parseInt(document.getElementById('sf-id').value);
+  if (!id || !confirm('Remove this subscription?')) return;
+  const idx = subscriptions.findIndex(s => s.id === id);
+  if (idx > -1) subscriptions.splice(idx, 1);
+  closeSubModal();
+  saveState(); render();
+}
+
 function renderSubs() {
+  const total = subscriptions.reduce((s, x) => s + x.amount, 0);
+  const biz = subscriptions.filter(x => x.biz);
+  const personal = subscriptions.filter(x => !x.biz);
+  const bizTotal = biz.reduce((s, x) => s + x.amount, 0);
+  const personalTotal = personal.reduce((s, x) => s + x.amount, 0);
+
+  document.getElementById('sub-stat-total').textContent = fmt(total);
+  document.getElementById('sub-stat-count').textContent = `${subscriptions.length} subscriptions`;
+  document.getElementById('sub-stat-biz').textContent = fmt(bizTotal);
+  document.getElementById('sub-stat-biz-count').textContent = `${biz.length} items`;
+  document.getElementById('sub-stat-personal').textContent = fmt(personalTotal);
+  document.getElementById('sub-stat-personal-count').textContent = `${personal.length} items`;
+
   document.getElementById('sub-list').innerHTML = subscriptions.map(s => `
     <div class="sub-item">
       <div class="sub-left">
@@ -1398,7 +1866,10 @@ function renderSubs() {
           <div class="sub-tag">${s.biz ? '🧾 Business deduction' : '👤 Personal'}</div>
         </div>
       </div>
-      <div class="sub-amount">${fmt(s.amount)}/mo</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="sub-amount">${fmt(s.amount)}/mo</div>
+        <button class="edit-btn" onclick="openEditSubModal(${s.id})">✎ Edit</button>
+      </div>
     </div>`).join('');
 }
 
@@ -1456,6 +1927,10 @@ function init() {
 
 // Close modal on overlay click
 document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+document.getElementById('sub-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSubModal(); });
+document.getElementById('card-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeCardModal(); });
+document.getElementById('savings-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSavingsModal(); });
+document.getElementById('budget-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeBudgetModal(); });
 
 init();
 </script>
