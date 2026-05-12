@@ -745,12 +745,14 @@
             <div class="section-title">All Bills & Payments</div>
             <div style="display:flex;gap:8px;align-items:center">
               <span class="section-count" id="bills-count">0 bills</span>
+              <button class="btn btn-ghost" id="bills-delete-selected-btn" onclick="deleteSelectedBills()" style="display:none;color:var(--red);border-color:var(--red)">✕ Delete Selected (<span id="bills-selected-count">0</span>)</button>
               <button class="btn btn-ghost" onclick="carryOverBills()" title="Copy all bills from previous month into this month">↩ Carry Over from Previous Month</button>
             </div>
           </div>
           <div class="card">
             <table>
               <thead><tr>
+                <th style="width:36px"><input type="checkbox" id="bills-select-all" onchange="toggleAllBills(this.checked)" style="cursor:pointer"></th>
                 <th>Bill / Payee</th><th>Amount</th><th>Due Date</th><th>Date Paid</th><th>Source</th><th>Status</th><th></th>
               </tr></thead>
               <tbody id="bills-table"></tbody>
@@ -2344,10 +2346,44 @@ function carryOverBills() {
   alert(`✓ ${prevBills.length} bill${prevBills.length !== 1 ? 's' : ''} carried over from ${MONTHS[prevMonth]}. Review and update amounts and due dates as needed.`);
 }
 
+function updateBillsSelectionUI() {
+  const checked = document.querySelectorAll('.bill-checkbox:checked');
+  const total = document.querySelectorAll('.bill-checkbox');
+  const btn = document.getElementById('bills-delete-selected-btn');
+  const countEl = document.getElementById('bills-selected-count');
+  const selectAll = document.getElementById('bills-select-all');
+  if (btn) btn.style.display = checked.length > 0 ? 'inline-flex' : 'none';
+  if (countEl) countEl.textContent = checked.length;
+  if (selectAll) {
+    selectAll.indeterminate = checked.length > 0 && checked.length < total.length;
+    selectAll.checked = total.length > 0 && checked.length === total.length;
+  }
+}
+
+function toggleAllBills(checked) {
+  document.querySelectorAll('.bill-checkbox').forEach(cb => cb.checked = checked);
+  updateBillsSelectionUI();
+}
+
+function deleteSelectedBills() {
+  const selected = [...document.querySelectorAll('.bill-checkbox:checked')].map(cb => parseInt(cb.dataset.id));
+  if (selected.length === 0) return;
+  if (!confirm(`Delete ${selected.length} selected bill${selected.length !== 1 ? 's' : ''}? This cannot be undone.`)) return;
+  billsStore[currentMonth] = billsStore[currentMonth].filter(b => !selected.includes(b.id));
+  saveState(); render();
+}
+
 function renderBills() {
   const bs = bills();
   document.getElementById('bills-count').textContent = bs.length + ' bills';
+  // Reset delete button on re-render
+  const btn = document.getElementById('bills-delete-selected-btn');
+  if (btn) btn.style.display = 'none';
+  const selectAll = document.getElementById('bills-select-all');
+  if (selectAll) selectAll.checked = false;
+
   document.getElementById('bills-table').innerHTML = bs.map(b => `<tr>
+    <td><input type="checkbox" class="bill-checkbox" data-id="${b.id}" onchange="updateBillsSelectionUI()" style="cursor:pointer"></td>
     <td>
       <strong>${b.name}</strong>
       <span style="margin-left:6px;font-size:11px;background:var(--paper-2);color:var(--ink-3);padding:2px 7px;border-radius:10px">${b.category}</span>
