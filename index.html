@@ -2475,7 +2475,7 @@ async function handlePdfUpload(event) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5-20251001',
+        model: 'claude-sonnet-4-6',
         max_tokens: 4000,
         messages: [{
           role: 'user',
@@ -2515,7 +2515,9 @@ Include ALL transactions found in the statement regardless of date.`
     });
 
     const data = await response.json();
-    if (data.error) throw new Error(data.error.message);
+    console.log('API response:', JSON.stringify(data).substring(0, 500));
+    if (data.error) throw new Error(JSON.stringify(data.error));
+    if (!data.content) throw new Error('No content in response: ' + JSON.stringify(data).substring(0, 200));
 
     const text = data.content.find(b => b.type === 'text')?.text || '';
     const clean = text.replace(/```json|```/g, '').trim();
@@ -3186,7 +3188,7 @@ async function handleLocPdfUpload(event) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5-20251001',
+        model: 'claude-sonnet-4-6',
         max_tokens: 1000,
         messages: [{
           role: 'user',
