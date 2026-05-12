@@ -709,8 +709,6 @@
         </div>
 
         <!-- Debt warning banner -->
-        <div id="debt-warning-banner" style="display:none;background:var(--red-light);border:1px solid rgba(200,73,26,0.2);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--red);margin-bottom:20px;display:flex;gap:8px;align-items:center"></div>
-
         <!-- Paycheck allocation -->
         <div class="section">
           <div class="section-header">
@@ -805,13 +803,15 @@
         <div class="section">
           <div class="section-header">
             <div class="section-title">All Transactions</div>
-            <div style="display:flex;gap:8px;align-items:center">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <input class="form-input" id="txn-search" type="text" placeholder="Search merchant…" style="padding:7px 12px;font-size:13px;width:160px" oninput="renderTransactions()">
               <select class="form-input" id="txn-filter-cat" style="padding:7px 12px;font-size:13px" onchange="renderTransactions()">
                 <option value="">All categories</option>
               </select>
               <select class="form-input" id="txn-filter-card" style="padding:7px 12px;font-size:13px" onchange="renderTransactions()">
                 <option value="">All cards</option>
               </select>
+              <button class="btn btn-ghost" id="txn-group-btn" onclick="toggleMerchantGroup()" title="Group by merchant">⊞ By Merchant</button>
               <button class="btn btn-ghost" onclick="openManualTxnModal()">+ Add Manual</button>
             </div>
           </div>
@@ -2194,19 +2194,6 @@ function renderDashboard() {
   document.getElementById('stat-debt-trend').textContent = totalDebt > 0 ? `CC + LOC combined` : 'Debt free! 🎉';
   document.getElementById('stat-debt-freedom').textContent = totalDebt > 0 && avalancheMonths < 999 ? `Debt freedom: ${projectedDate(avalancheMonths)}` : totalDebt === 0 ? '🎉 Debt free' : 'Increase payments';
 
-  // Debt warning banner
-  const warningBanner = document.getElementById('debt-warning-banner');
-  const carryingCards = creditCards.filter(c => (c.carrying||0) > 0);
-  const overdueDebts = allDebts.filter(d => d.status === 'unpaid' || d.status === 'partial');
-  if (carryingCards.length > 0 || overdueDebts.length > 0) {
-    const msgs = [];
-    if (carryingCards.length > 0) msgs.push(`⚠ Carrying ${fmt(carryingCards.reduce((s,c)=>s+(c.carrying||0),0))} across ${carryingCards.length} card${carryingCards.length>1?'s':''}`);
-    if (overdueDebts.length > 0) msgs.push(`${overdueDebts.length} debt${overdueDebts.length>1?'s':''} unpaid or partial this month`);
-    warningBanner.textContent = msgs.join(' · ');
-    warningBanner.style.display = 'flex';
-  } else {
-    warningBanner.style.display = 'none';
-  }
 
   // Projects strip
   const strip = document.getElementById('dashboard-projects-strip');
@@ -2411,7 +2398,16 @@ function saveBudgetModal() {
   if (!name) return;
   if (id) {
     const c = budgetCategories.find(c => c.id === parseInt(id));
-    if (c) { c.name = name; c.spent = spent; c.target = target; }
+    if (c) {
+      const oldName = c.name;
+      c.name = name; c.spent = spent; c.target = target;
+      // Rename all transactions that used the old category name
+      if (oldName !== name) {
+        Object.values(transactionStore).forEach(monthTxns => {
+          monthTxns.forEach(t => { if (t.category === oldName) t.category = name; });
+        });
+      }
+    }
   } else {
     budgetCategories.push({ id: nextBudgetId++, name, spent, target });
   }
@@ -2690,14 +2686,31 @@ function deleteTxnFromModal() {
 
 // ── Render ──
 
+let txnGroupByMerchant = false;
+let merchantExpanded = null; // which merchant is expanded
+
+function toggleMerchantGroup() {
+  txnGroupByMerchant = !txnGroupByMerchant;
+  merchantExpanded = null;
+  const btn = document.getElementById('txn-group-btn');
+  if (btn) {
+    btn.style.background = txnGroupByMerchant ? 'var(--accent)' : '';
+    btn.style.color = txnGroupByMerchant ? '#fff' : '';
+    btn.style.borderColor = txnGroupByMerchant ? 'var(--accent)' : '';
+  }
+  renderTransactions();
+}
+
 function renderTransactions() {
   const all = txns();
   const catFilter = document.getElementById('txn-filter-cat')?.value || '';
   const cardFilter = document.getElementById('txn-filter-card')?.value || '';
+  const search = (document.getElementById('txn-search')?.value || '').toLowerCase().trim();
 
   const filtered = all.filter(t =>
     (!catFilter || t.category === catFilter) &&
-    (!cardFilter || t.card === cardFilter)
+    (!cardFilter || t.card === cardFilter) &&
+    (!search || t.description.toLowerCase().includes(search))
   );
 
   const total = all.reduce((s,t) => s+t.amount, 0);
@@ -2748,8 +2761,61 @@ function renderTransactions() {
   populateCardSelects();
 
   const tb = document.getElementById('txn-table');
+
+  // ── Merchant grouping view ──
+  if (txnGroupByMerchant) {
+    const byMerchant = {};
+    filtered.forEach(t => {
+      const key = t.description;
+      if (!byMerchant[key]) byMerchant[key] = { total: 0, count: 0, txns: [], category: t.category, card: t.card };
+      byMerchant[key].total += t.amount;
+      byMerchant[key].count++;
+      byMerchant[key].txns.push(t);
+    });
+    const sorted = Object.entries(byMerchant).sort((a,b) => b[1].total - a[1].total);
+
+    // Update header
+    document.querySelector('#txn-table').closest('table').querySelector('thead tr').innerHTML =
+      '<th>Merchant</th><th>Total Spent</th><th>Transactions</th><th>Category</th><th>Card</th><th></th>';
+
+    if (sorted.length === 0) {
+      tb.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">No transactions match.</div></div></td></tr>`;
+      return;
+    }
+
+    tb.innerHTML = sorted.map(([merchant, data]) => {
+      const isExpanded = merchantExpanded === merchant;
+      const rows = [`<tr style="cursor:pointer" onclick="merchantExpanded=merchantExpanded==='${merchant.replace(/'/g,"\\'")}' ? null : '${merchant.replace(/'/g,"\\'")}';renderTransactions()">
+        <td><strong>${merchant}</strong> <span style="font-size:11px;color:var(--ink-3)">${isExpanded ? '▲' : '▼'}</span></td>
+        <td class="amount" style="color:var(--ink);font-weight:600">${fmt(data.total)}</td>
+        <td style="font-size:13px;color:var(--ink-3)">${data.count} transaction${data.count!==1?'s':''}</td>
+        <td><span style="font-size:12px;background:var(--paper-2);color:var(--ink-3);padding:2px 8px;border-radius:10px">${data.category||'—'}</span></td>
+        <td style="font-size:12px;color:var(--ink-3)">${data.card||'—'}</td>
+        <td></td>
+      </tr>`];
+      if (isExpanded) {
+        data.txns.sort((a,b) => new Date(b.date)-new Date(a.date)).forEach(t => {
+          rows.push(`<tr style="background:var(--paper)">
+            <td style="padding-left:32px;font-size:12px;color:var(--ink-3)">↳ ${formatDate(t.date)}</td>
+            <td class="amount" style="font-size:13px">${fmt(t.amount)}</td>
+            <td></td>
+            <td><span style="font-size:11px;background:var(--paper-2);color:var(--ink-3);padding:2px 8px;border-radius:10px">${t.category||'—'}</span></td>
+            <td style="font-size:12px;color:var(--ink-3)">${t.card||'—'}</td>
+            <td><button class="edit-btn" onclick="event.stopPropagation();openEditTxnModal(${t.id})">✎</button></td>
+          </tr>`);
+        });
+      }
+      return rows.join('');
+    }).join('');
+    return;
+  }
+
+  // ── Normal transaction list view ──
+  document.querySelector('#txn-table').closest('table').querySelector('thead tr').innerHTML =
+    '<th>Description</th><th>Amount</th><th>Date</th><th>Category</th><th>Card</th><th></th>';
+
   if (filtered.length === 0) {
-    tb.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">📄</div><div class="empty-text">${all.length === 0 ? 'No transactions yet — upload a statement on the Budget tab.' : 'No transactions match your filters.'}</div></div></td></tr>`;
+    tb.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">📄</div><div class="empty-text">${all.length === 0 ? 'No transactions yet — upload a statement on the Credit Cards tab.' : 'No transactions match your filters.'}</div></div></td></tr>`;
     return;
   }
 
@@ -2769,6 +2835,7 @@ function renderTransactions() {
     </tr>`;
   }).join('');
 }
+
 
 function renderBudget() {
   populateCardSelects();
