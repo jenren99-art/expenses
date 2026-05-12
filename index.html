@@ -1175,7 +1175,13 @@
         <div class="card" style="padding:0;overflow:hidden">
           <!-- Day headers -->
           <div style="display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--border)">
-            ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => `<div style="padding:10px 0;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">${d}</div>`).join('')}
+            <div style="padding:10px 0;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Sun</div>
+            <div style="padding:10px 0;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Mon</div>
+            <div style="padding:10px 0;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Tue</div>
+            <div style="padding:10px 0;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Wed</div>
+            <div style="padding:10px 0;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Thu</div>
+            <div style="padding:10px 0;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Fri</div>
+            <div style="padding:10px 0;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Sat</div>
           </div>
           <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr)"></div>
         </div>
@@ -2648,22 +2654,32 @@ async function handlePdfUpload(event) {
               type: 'text',
               text: `This is a credit card statement for the card: "${cardName}".
 
-Extract every transaction (purchases/debits only, not payments or credits) and categorize each one.
+First, find the TOTAL AMOUNT DUE or CLOSING BALANCE or NEW BALANCE on the statement — this is what the cardholder owes. Also find the MINIMUM PAYMENT if shown.
+
+Then extract every transaction (purchases/debits only, not payments or credits) and categorize each one.
 
 Available categories: ${categoryList}
 
 If a transaction doesn't fit any category, suggest the best new category name for it.
 
-Return ONLY a JSON array, no other text, no markdown. Each item:
+Return ONLY a JSON object with this exact structure, no other text, no markdown:
 {
-  "description": "merchant name, cleaned up",
-  "amount": 12.34,
-  "date": "2026-05-15",
-  "category": "Groceries",
-  "isNewCategory": false,
-  "confidence": "high"
+  "statementBalance": 1234.56,
+  "minimumPayment": 25.00,
+  "transactions": [
+    {
+      "description": "merchant name, cleaned up",
+      "amount": 12.34,
+      "date": "2026-05-15",
+      "category": "Groceries",
+      "isNewCategory": false,
+      "confidence": "high"
+    }
+  ]
 }
 
+statementBalance: the total new balance / amount due on the statement (positive number).
+minimumPayment: minimum payment required (positive number, or null if not found).
 confidence: "high" if obvious, "medium" if reasonable guess, "low" if uncertain.
 isNewCategory: true if you're suggesting a new category not in the list.
 Dates must be YYYY-MM-DD. Amounts must be positive numbers.
@@ -2681,7 +2697,12 @@ Include ALL transactions found in the statement regardless of date.`
 
     const text = data.content.find(b => b.type === 'text')?.text || '';
     const clean = text.replace(/```json|```/g, '').trim();
-    const transactions = JSON.parse(clean);
+    const parsed = JSON.parse(clean);
+
+    // Handle both old array format and new object format
+    const transactions = Array.isArray(parsed) ? parsed : (parsed.transactions || []);
+    const statementBalance = !Array.isArray(parsed) ? parsed.statementBalance : null;
+    const minimumPayment = !Array.isArray(parsed) ? parsed.minimumPayment : null;
 
     // Find any new categories Claude suggested
     const newCats = [...new Set(
@@ -2716,11 +2737,18 @@ Include ALL transactions found in the statement regardless of date.`
     // Recalculate budget category spending from transactions
     recalcBudgetSpending();
 
-    // Update the matching credit card balance with the imported statement total
-    const stmtTotal = transactions.reduce((s, t) => s + (parseFloat(t.amount) || 0), 0);
-    const matchCard = creditCards.find(c => c.name === cardName);
+    // Update matching credit card — fuzzy name match to handle minor differences
+    const matchCard = creditCards.find(c =>
+      c.name === cardName ||
+      c.name.toLowerCase().includes(cardName.toLowerCase()) ||
+      cardName.toLowerCase().includes(c.name.toLowerCase())
+    );
     if (matchCard) {
-      matchCard.balance = stmtTotal;
+      // Use the actual statement balance if extracted, otherwise fall back to transaction sum
+      if (statementBalance) {
+        matchCard.balance = statementBalance;
+      }
+      if (minimumPayment) matchCard.minPay = minimumPayment;
       matchCard.statementImported = true;
       matchCard.statementDate = new Date().toISOString().split('T')[0];
     }
@@ -2728,7 +2756,8 @@ Include ALL transactions found in the statement regardless of date.`
     saveState(); render();
 
     const newCatMsg = newCats.length > 0 ? ` Added ${newCats.length} new categor${newCats.length > 1 ? 'ies' : 'y'}: ${newCats.join(', ')}.` : '';
-    setImportStatus('success', `✓ Imported ${added} transactions from ${file.name} into ${importMonthName} 2026.${newCatMsg} Review them in the Transactions tab.`);
+    const balMsg = statementBalance ? ` Statement balance: ${fmt(statementBalance)}.` : '';
+    setImportStatus('success', `✓ Imported ${added} transactions from ${file.name} into ${importMonthName} 2026.${balMsg}${newCatMsg} Review them in the Transactions tab.`);
 
     // Reset file input
     event.target.value = '';
