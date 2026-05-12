@@ -2015,6 +2015,10 @@ function importData(event) {
 const billsStore = {};
 for (let i=0; i<12; i++) billsStore[i] = [];
 let nextId = 100;
+let nextBudgetId = 400;
+let nextSubId = 200;
+let nextCardId = 300;
+let nextSavingsId = 500;
 
 // Income store per month
 const incomeStore = {};
@@ -2507,7 +2511,6 @@ function renderBills() {
 
 // ─── BUDGET MODAL ────────────────────────────────────────────────────────────
 
-let nextBudgetId = 400;
 
 function openBudgetModal() {
   document.getElementById('budget-modal-title').textContent = 'Add Budget Category';
@@ -3033,7 +3036,6 @@ function renderBudget() {
 
 // ─── SAVINGS MODAL ───────────────────────────────────────────────────────────
 
-let nextSavingsId = 500;
 
 function openSavingsModal() {
   document.getElementById('savings-modal-title').textContent = 'Add Savings Account';
@@ -3125,7 +3127,6 @@ function renderSavings() {
 
 // ─── CREDIT CARD MODAL ───────────────────────────────────────────────────────
 
-let nextCardId = 300;
 
 function openCardModal() {
   document.getElementById('card-modal-title').textContent = 'Add Credit Card';
@@ -3247,7 +3248,6 @@ function renderCards() {
 
 // ─── SUBSCRIPTION MODAL ──────────────────────────────────────────────────────
 
-let nextSubId = 200;
 
 function openSubModal() {
   document.getElementById('sub-modal-title').textContent = 'Add Subscription';
