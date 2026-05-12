@@ -745,7 +745,10 @@
         <div class="section">
           <div class="section-header">
             <div class="section-title">All Bills & Payments</div>
-            <span class="section-count" id="bills-count">0 bills</span>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="section-count" id="bills-count">0 bills</span>
+              <button class="btn btn-ghost" onclick="carryOverBills()" title="Copy all bills from previous month into this month">↩ Carry Over from Previous Month</button>
+            </div>
           </div>
           <div class="card">
             <table>
@@ -760,27 +763,6 @@
 
       <!-- BUDGET VIEW -->
       <div class="view" id="view-budget">
-        <!-- Import banner -->
-        <div class="card" style="margin-bottom:20px;padding:20px 24px">
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-            <div>
-              <div style="font-weight:600;font-size:14px;margin-bottom:3px">Import Credit Card Statement</div>
-              <div style="font-size:12px;color:var(--ink-3)">Upload a PDF — Claude will read every transaction and categorize it automatically</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px">
-              <select class="form-input" id="import-card-select" style="width:160px;padding:8px 12px">
-                <option value="">Select card…</option>
-              </select>
-              <select class="form-input" id="import-month-select" style="width:140px;padding:8px 12px"><option value="">Statement monthâ¦</option></select>
-              <label class="btn btn-primary" style="cursor:pointer;margin:0">
-                📄 Upload PDF
-                <input type="file" id="pdf-upload" accept=".pdf" style="display:none" onchange="handlePdfUpload(event)">
-              </label>
-            </div>
-          </div>
-          <div id="import-status" style="display:none;margin-top:14px;padding:12px 16px;border-radius:8px;font-size:13px"></div>
-        </div>
-
         <div class="section">
           <div class="section-header">
             <div class="section-title">Spending vs. Budget</div>
@@ -810,6 +792,14 @@
             <div class="stat-value" id="txn-stat-uncat">0</div>
             <div class="stat-sub">Need attention</div>
           </div>
+        </div>
+
+        <!-- Category breakdown -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">Spending by Category</div>
+          </div>
+          <div class="card" id="txn-category-breakdown" style="padding:0"></div>
         </div>
 
         <div class="section">
@@ -849,7 +839,7 @@
           <div class="section-title" style="margin-bottom:14px">Monthly Savings Breakdown</div>
           <div class="card">
             <table>
-              <thead><tr><th>Account</th><th>Monthly Target</th><th>YTD Progress</th><th>Annual Goal</th><th></th></tr></thead>
+              <thead><tr><th>Account</th><th>Monthly Target</th><th>YTD Contributions</th><th>Annual Goal</th><th></th></tr></thead>
               <tbody id="savings-table"></tbody>
             </table>
           </div>
@@ -886,10 +876,31 @@
             </div>
           </div>
           <div class="cc-grid" id="cc-grid"></div>
+
+          <!-- Import CC Statement -->
+          <div class="card" style="margin-top:20px;padding:20px 24px">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+              <div>
+                <div style="font-weight:600;font-size:14px;margin-bottom:3px">Import Credit Card Statement</div>
+                <div style="font-size:12px;color:var(--ink-3)">Upload a PDF — Claude will read every transaction and categorize it automatically</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <select class="form-input" id="import-card-select" style="width:160px;padding:8px 12px">
+                  <option value="">Select card…</option>
+                </select>
+                <select class="form-input" id="import-month-select" style="width:140px;padding:8px 12px">
+                  <option value="">Statement month…</option>
+                </select>
+                <label class="btn btn-primary" style="cursor:pointer;margin:0">
+                  📄 Upload PDF
+                  <input type="file" id="pdf-upload" accept=".pdf" style="display:none" onchange="handlePdfUpload(event)">
+                </label>
+              </div>
+            </div>
+            <div id="import-status" style="display:none;margin-top:14px;padding:12px 16px;border-radius:8px;font-size:13px"></div>
+          </div>
         </div>
       </div>
-
-      <!-- DEBT VIEW -->
       <div class="view" id="view-debt">
         <!-- Summary cards -->
         <div class="stat-grid" style="grid-template-columns:repeat(4,1fr)">
@@ -1369,7 +1380,7 @@
       </div>
     </div>
     <div class="form-row">
-      <label class="form-label">YTD Balance</label>
+      <label class="form-label">YTD Contributions</label>
       <input class="form-input" id="sv-ytd" type="number" placeholder="0.00" step="0.01">
     </div>
     <div class="form-row">
@@ -1590,17 +1601,9 @@
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 let currentMonth = 4; // May = index 4
 
-const initialBills = [
-  { id:1, name:'CIBC', amount:66.36, due:'2026-05-15', paid:true, paidDate:'2026-04-14', source:'Auto', category:'Credit Card', notes:'COSTCO ONLY', ideal:500 },
-  { id:2, name:'Property Tax', amount:1402.50, due:'2026-05-06', paid:false, paidDate:'', source:'Pay 1', category:'Fixed', notes:'', ideal:0 },
-  { id:3, name:'Line of Credit', amount:267.00, due:'2026-05-12', paid:false, paidDate:'', source:'Pay 2', category:'Fixed', notes:'', ideal:250 },
-  { id:4, name:'NEO Elite — 9862', amount:1750.00, due:'2026-05-19', paid:false, paidDate:'', source:'Pay 2', category:'Credit Card', notes:'Gas 3%, Groceries 5%, Recurring 4%', ideal:1600 },
-  { id:5, name:'Wealthsimple Visa', amount:3938.61, due:'2026-05-20', paid:false, paidDate:'', source:'Pay 1', category:'Credit Card', notes:'Everything else 2%, Amazon shopping', ideal:1500 },
-  { id:6, name:'Canadian Tire', amount:65.00, due:'2026-06-03', paid:false, paidDate:'', source:'Pay 2', category:'Credit Card', notes:'', ideal:0 },
-  { id:7, name:'Taxes QC', amount:1101.93, due:'2026-04-30', paid:false, paidDate:'', source:'N/A', category:'Tax', notes:'', ideal:622.14 },
-  { id:8, name:'Taxes GST', amount:194.54, due:'2026-04-30', paid:false, paidDate:'', source:'N/A', category:'Tax', notes:'', ideal:0 },
-  { id:9, name:'Orthodontist', amount:275.00, due:'2026-06-03', paid:false, paidDate:'2026-05-11', source:'Pay 2', category:'Fixed', notes:'Monthly — insurance claim. Ends July?', ideal:275 },
-];
+const initialBills = [];
+
+
 
 // ─── GOOGLE DRIVE STORAGE ────────────────────────────────────────────────────
 
@@ -1917,9 +1920,7 @@ for (let i=0; i<12; i++) transactionStore[i] = [];
 let nextTxnId = 700;
 
 // Debt store — persists across months, history tracked per month
-const initialDebts = [
-  { id:1, name:'Line of Credit', type:'loc', balance:267*12, rate:7.5, minPay:267, actualPay:267, due:'', status:'unpaid', notes:'Variable monthly payment', history:{} },
-];
+const initialDebts = [];
 let debts = [];
 let nextDebtId = 800;
 
@@ -1929,41 +1930,23 @@ let projects = [];
 let nextProjectId = 900;
 let nextLineItemId = 950;
 
-const initialSavings = [
-  { id:1, name:'RRSP', icon:'🏦', monthly:300, ytd:1500, annual:3600, color:'#3a6ea8' },
-  { id:2, name:'TFSA', icon:'🌿', monthly:285, ytd:1425, annual:3420, color:'#2a7a4f' },
-  { id:3, name:'HISA', icon:'💧', monthly:285, ytd:1425, annual:3420, color:'#c8491a' },
-];
+const initialSavings = [];
 let savings = [];
 
 const initialBudgetCategories = [
-  { id:1, name:'Groceries', spent:820, target:1500 },
-  { id:2, name:'Restaurants', spent:145, target:200 },
-  { id:3, name:'Gas', spent:78, target:100 },
-  { id:4, name:'Amazon / Shopping', spent:210, target:100 },
+  { id:1, name:'Groceries', spent:0, target:1500 },
+  { id:2, name:'Restaurants', spent:0, target:200 },
+  { id:3, name:'Gas', spent:0, target:100 },
+  { id:4, name:'Amazon / Shopping', spent:0, target:100 },
   { id:5, name:'Clothing', spent:0, target:200 },
-  { id:6, name:'Subscriptions', spent:400.80, target:400 },
+  { id:6, name:'Subscriptions', spent:0, target:400 },
 ];
 let budgetCategories = [];
 
-const initialCreditCards = [
-  { id:1, name:'NEO Elite', last4:'9862', balance:1750, target:1600, color:'#1a1a18', perks:'Gas 3% · Groceries 5% · Recurring 4%' },
-  { id:2, name:'Wealthsimple Visa', last4:'', balance:3938.61, target:1500, color:'#2a5a3a', perks:'Everything else 2% · Amazon shopping' },
-  { id:3, name:'CIBC Visa', last4:'', balance:66.36, target:500, color:'#8b1a1a', perks:'Costco only' },
-  { id:4, name:'Canadian Tire', last4:'', balance:65, target:0, color:'#5a3a1a', perks:'CT purchases' },
-];
+const initialCreditCards = [];
 let creditCards = [];
 
-const initialSubscriptions = [
-  { id:1, name:'Prime', amount:8.25, biz:false, color:'#232f3e' },
-  { id:2, name:'Apple', amount:25.35, biz:true, color:'#555' },
-  { id:3, name:'Spotify', amount:24.13, biz:true, color:'#1db954' },
-  { id:4, name:'Google 100GB', amount:2.68, biz:true, color:'#4285f4' },
-  { id:5, name:'OpenAI', amount:33.39, biz:true, color:'#10a37f' },
-  { id:6, name:'Nautilus', amount:160.00, biz:false, color:'#0066cc' },
-  { id:7, name:'Alcami', amount:47.00, biz:true, color:'#8b5cf6' },
-  { id:8, name:'Opus', amount:100.00, biz:true, color:'#e11d48' },
-];
+const initialSubscriptions = [];
 let subscriptions = [];
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -2340,6 +2323,40 @@ function renderIncome() {
   }).join('');
 }
 
+function carryOverBills() {
+  const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+  const prevBills = billsStore[prevMonth] || [];
+  if (prevBills.length === 0) {
+    alert(`No bills found in ${MONTHS[prevMonth]} to carry over.`);
+    return;
+  }
+  if (bills().length > 0) {
+    if (!confirm(`This month already has ${bills().length} bill${bills().length !== 1 ? 's' : ''}. Add the ${prevBills.length} bills from ${MONTHS[prevMonth]} on top?`)) return;
+  } else {
+    if (!confirm(`Carry over ${prevBills.length} bill${prevBills.length !== 1 ? 's' : ''} from ${MONTHS[prevMonth]}? They will be copied with paid status reset and dates advanced by one month.`)) return;
+  }
+
+  prevBills.forEach(b => {
+    // Advance due date by one month if present
+    let newDue = '';
+    if (b.due) {
+      const [y, m, d] = b.due.substring(0,10).split('-').map(Number);
+      const next = new Date(y, m - 1 + 1, d); // advance 1 month
+      newDue = next.toISOString().split('T')[0];
+    }
+    billsStore[currentMonth].push({
+      ...JSON.parse(JSON.stringify(b)),
+      id: nextId++,
+      paid: false,
+      paidDate: '',
+      due: newDue,
+    });
+  });
+
+  saveState(); render();
+  alert(`✓ ${prevBills.length} bill${prevBills.length !== 1 ? 's' : ''} carried over from ${MONTHS[prevMonth]}. Review and update amounts and due dates as needed.`);
+}
+
 function renderBills() {
   const bs = bills();
   document.getElementById('bills-count').textContent = bs.length + ' bills';
@@ -2421,10 +2438,14 @@ function populateCardSelects() {
   const sel = document.getElementById('import-card-select');
   const filterSel = document.getElementById('txn-filter-card');
   if (sel) {
+    const cur = sel.value;
     sel.innerHTML = '<option value="">Select card…</option>' + cardNames.map(n => `<option>${n}</option>`).join('');
+    if (cur) sel.value = cur;
   }
   if (filterSel) {
-    filterSel.innerHTML = '<option value="">All cards</option>' + cardNames.map(n => `<option>${n}</option>`).join('');
+    const cur = filterSel.value;
+    filterSel.innerHTML = '<option value="">All cards</option>' + cardNames.map(n => `<option value="${n}">${n}</option>`).join('');
+    if (cur) filterSel.value = cur;
   }
   const monthSel = document.getElementById('import-month-select');
   if (monthSel && monthSel.options.length <= 1) {
@@ -2438,11 +2459,17 @@ function populateCatSelects() {
   const cats = budgetCategories.map(c => c.name);
   const sel = document.getElementById('txn-cat');
   if (sel) {
+    const cur = sel.value;
     sel.innerHTML = cats.map(n => `<option>${n}</option>`).join('') + '<option value="Uncategorized">Uncategorized</option>';
+    if (cur) sel.value = cur;
   }
   const filterSel = document.getElementById('txn-filter-cat');
   if (filterSel) {
-    filterSel.innerHTML = '<option value="">All categories</option>' + cats.map(n => `<option>${n}</option>`).join('') + '<option value="Uncategorized">Uncategorized</option>';
+    const cur = filterSel.value; // preserve current selection
+    filterSel.innerHTML = '<option value="">All categories</option>' +
+      cats.map(n => `<option value="${n}">${n}</option>`).join('') +
+      '<option value="Uncategorized">Uncategorized</option>';
+    if (cur) filterSel.value = cur; // restore after repopulate
   }
 }
 
@@ -2555,6 +2582,16 @@ Include ALL transactions found in the statement regardless of date.`
 
     // Recalculate budget category spending from transactions
     recalcBudgetSpending();
+
+    // Update the matching credit card balance with the imported statement total
+    const stmtTotal = transactions.reduce((s, t) => s + (parseFloat(t.amount) || 0), 0);
+    const matchCard = creditCards.find(c => c.name === cardName);
+    if (matchCard) {
+      matchCard.balance = stmtTotal;
+      matchCard.statementImported = true;
+      matchCard.statementDate = new Date().toISOString().split('T')[0];
+    }
+
     saveState(); render();
 
     const newCatMsg = newCats.length > 0 ? ` Added ${newCats.length} new categor${newCats.length > 1 ? 'ies' : 'y'}: ${newCats.join(', ')}.` : '';
@@ -2579,17 +2616,17 @@ function setImportStatus(type, msg) {
 // Recalculate spending totals for each budget category from transactions
 function recalcBudgetSpending() {
   const monthTxns = transactionStore[currentMonth] || [];
-  // Reset transaction-sourced spending
+  // Reset all transaction-sourced spending to zero first
   budgetCategories.forEach(c => {
-    const catTotal = monthTxns.filter(t => t.category === c.name).reduce((s,t) => s+t.amount, 0);
-    // Add to any manually-set spending (keep manual entries separate by not overwriting if no transactions)
-    c.txnSpent = catTotal;
+    c.txnSpent = monthTxns
+      .filter(t => t.category === c.name)
+      .reduce((s, t) => s + t.amount, 0);
   });
 }
 
 function getEffectiveSpent(cat) {
-  // txnSpent from transactions + manual spent
-  return (cat.txnSpent || 0) + (cat.manualSpent || cat.spent || 0);
+  // txnSpent from imported/manual transactions + manualSpent if explicitly set
+  return (cat.txnSpent || 0) + (cat.manualSpent || 0);
 }
 
 // ── Transaction Modal ──
@@ -2676,6 +2713,36 @@ function renderTransactions() {
   document.getElementById('txn-stat-top-amt').textContent = topCat ? fmt(topCat[1]) : '$0';
   document.getElementById('txn-stat-top-cat').textContent = topCat ? topCat[0] : '—';
   document.getElementById('txn-stat-uncat').textContent = uncat;
+
+  // Category breakdown mini dashboard
+  const breakdown = document.getElementById('txn-category-breakdown');
+  if (breakdown) {
+    const sorted = Object.entries(byCat).sort((a,b) => b[1]-a[1]);
+    const grandTotal = total || 1;
+    if (sorted.length === 0) {
+      breakdown.innerHTML = '<div style="padding:24px;text-align:center;color:var(--ink-3);font-size:13px">No transactions this month yet.</div>';
+    } else {
+      breakdown.innerHTML = sorted.map(([cat, amt], i) => {
+        const pct = Math.round(amt / grandTotal * 100);
+        const colors = ['#c8491a','#2a7a4f','#b8860b','#3a6ea8','#8b5cf6','#e11d48','#0066cc','#10a37f','#232f3e','#555'];
+        const color = colors[i % colors.length];
+        const count = all.filter(t => t.category === cat).length;
+        return `<div style="display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--border);cursor:pointer" onclick="document.getElementById('txn-filter-cat').value='${cat}';renderTransactions()">
+          <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></div>
+          <div style="flex:1;font-size:13.5px;font-weight:500;color:var(--ink)">${cat}</div>
+          <div style="font-size:12px;color:var(--ink-3)">${count} txn${count!==1?'s':''}</div>
+          <div style="width:120px;background:var(--paper-2);border-radius:3px;height:5px;overflow:hidden">
+            <div style="width:${pct}%;height:100%;background:${color};border-radius:3px"></div>
+          </div>
+          <div style="font-family:'DM Mono',monospace;font-size:13px;color:var(--ink);min-width:70px;text-align:right">${fmt(amt)}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-3);min-width:32px;text-align:right">${pct}%</div>
+        </div>`;
+      }).join('') + `<div style="display:flex;justify-content:space-between;padding:12px 20px;font-size:13px;font-weight:600;color:var(--ink)">
+        <span>Total</span>
+        <span style="font-family:'DM Mono',monospace">${fmt(total)}</span>
+      </div>`;
+    }
+  }
 
   populateCatSelects();
   populateCardSelects();
@@ -2806,7 +2873,7 @@ function renderSavings() {
       </div>
       <div class="savings-name">${s.name}</div>
       <div class="savings-amount">${fmt(s.ytd)}</div>
-      <div class="savings-target">of ${fmt(s.annual)} annual</div>
+      <div class="savings-target">${fmt(s.ytd)} contributed · ${fmt(s.annual)} goal</div>
       <button class="edit-btn" style="margin-top:10px" onclick="openEditSavingsModal(${s.id})">✎ Edit</button>
     </div>`;
   }).join('');
@@ -2933,6 +3000,7 @@ function renderCards() {
         <span class="cc-balance">${fmt(c.balance)}</span>
         <span class="cc-target">target ${c.target > 0 ? fmt(c.target) : '—'}</span>
       </div>
+      ${c.statementImported ? `<div style="font-size:11px;color:var(--green);margin-bottom:6px">✓ Balance from statement${c.statementDate ? ' · ' + formatDate(c.statementDate) : ''}</div>` : `<div style="font-size:11px;color:var(--ink-3);margin-bottom:6px">Manual balance — upload statement to auto-update</div>`}
       <div class="cc-bar"><div class="cc-fill" style="width:${c.target>0?pct:0}%;background:${col}"></div></div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap;gap:6px">
         <span style="font-size:12px;color:${statusColors[c.status||'unpaid']};font-weight:500">${statusLabels[c.status||'unpaid']}</span>
