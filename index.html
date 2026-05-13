@@ -973,7 +973,10 @@
         <div class="section">
           <div class="section-header">
             <div class="section-title">Spending vs. Budget</div>
-            <button class="btn btn-ghost" onclick="openBudgetModal()">+ Add Category</button>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-ghost" onclick="repairCategoryData()" style="color:var(--gold);border-color:var(--gold);font-size:12px">🔧 Repair Categories</button>
+              <button class="btn btn-ghost" onclick="openBudgetModal()">+ Add Category</button>
+            </div>
           </div>
           <div class="card">
             <div class="budget-grid" id="budget-grid"></div>
@@ -2186,6 +2189,55 @@ function showAuthBanner(type) {
     `;
     banner.style.display = 'flex';
   }
+}
+
+function repairCategoryData() {
+  if (!confirm('This will:\n\n1. Merge duplicate "Alcohol & LCBO" categories into one\n2. Restore "Health & Wellness" as a separate category\n3. Reassign transactions: SAQ → Alcohol & LCBO, everything else → Health & Wellness\n\nMake sure you have an Export backup before proceeding. Continue?')) return;
+
+  // Step 1: Remove all duplicate "Alcohol & LCBO" entries, keep only one
+  const alcoholEntries = budgetCategories.filter(c => c.name === 'Alcohol & LCBO');
+  if (alcoholEntries.length > 1) {
+    // Keep the first, remove rest
+    const keepId = alcoholEntries[0].id;
+    budgetCategories = budgetCategories.filter(c => c.name !== 'Alcohol & LCBO' || c.id === keepId);
+  }
+
+  // Step 2: Ensure Health & Wellness exists
+  let hw = budgetCategories.find(c => c.name === 'Health & Wellness');
+  if (!hw) {
+    hw = { id: nextBudgetId++, name: 'Health & Wellness', spent: 0, target: 200 };
+    budgetCategories.push(hw);
+  }
+
+  // Step 3: Reassign all transactions across all months
+  const SAQ_KEYWORDS = ['saq', 'société des alcools', 'alcool quebec', 'lcbo'];
+  const HEALTH_KEYWORDS = ['pharmacy', 'pharma', 'shoppers', 'jean coutu', 'uniprix', 'rexall',
+    'familiprix', 'clinic', 'clinique', 'doctor', 'médecin', 'dentist', 'dentiste',
+    'optom', 'physio', 'massage', 'gym', 'fitness', 'sport', 'yoga', 'medical', 'health',
+    'wellne', 'nutriti', 'vitamin', 'supplement'];
+
+  let alcoholFixed = 0, hwFixed = 0;
+
+  Object.values(transactionStore).forEach(monthTxns => {
+    monthTxns.forEach(t => {
+      if (t.category === 'Alcohol & LCBO' || t.category === 'Health & Wellness') {
+        const desc = t.description.toLowerCase();
+        const isSAQ = SAQ_KEYWORDS.some(kw => desc.includes(kw));
+        if (isSAQ) {
+          t.category = 'Alcohol & LCBO';
+          alcoholFixed++;
+        } else {
+          t.category = 'Health & Wellness';
+          hwFixed++;
+        }
+      }
+    });
+  });
+
+  recalcBudgetSpending();
+  saveState();
+  render();
+  alert(`✓ Repair complete!\n\nAlcohol & LCBO: ${alcoholFixed} transactions (SAQ purchases)\nHealth & Wellness: ${hwFixed} transactions (everything else)\n\nPlease review the Budget and Transactions tabs to confirm everything looks correct. You can still manually re-categorize any transactions that were sorted incorrectly.`);
 }
 
 function resetState() {
