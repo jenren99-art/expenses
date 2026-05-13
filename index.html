@@ -2791,11 +2791,20 @@ function openBudgetModal() {
   document.getElementById('budget-modal').classList.add('open');
 }
 
-function openEditBudgetByEl(btn) {
-  // Read id and name from data attributes — avoids any encoding issues with special chars
-  const id = parseInt(btn.dataset.catid);
-  const name = btn.dataset.catname;
-  openEditBudgetModal(id, name);
+function openEditBudgetByIdx(btn) {
+  const idx = parseInt(btn.dataset.realidx);
+  const c = budgetCategories[idx];
+  if (!c) return;
+  // Ensure ID exists
+  if (!c.id) c.id = nextBudgetId++;
+  document.getElementById('budget-modal-title').textContent = 'Edit Category';
+  document.getElementById('budget-modal-save-btn').textContent = 'Save Changes';
+  document.getElementById('budget-modal-delete-btn').style.display = 'inline-flex';
+  document.getElementById('bg-id').value = c.id;
+  document.getElementById('bg-name').value = c.name;
+  document.getElementById('bg-spent').value = c.spent || 0;
+  document.getElementById('bg-target').value = c.target || 0;
+  document.getElementById('budget-modal').classList.add('open');
 }
 
 function openEditBudgetModal(id, name) {
@@ -3351,7 +3360,8 @@ function renderBudget() {
     const pct = Math.min(100, Math.round(rawPct));
     const cls = rawPct >= 100 ? 'fill-red' : rawPct >= 80 ? 'fill-gold' : 'fill-green';
     const catTxns = txns().filter(t => t.category === c.name);
-    // Use data-catindex to avoid any name encoding issues in onclick
+    // Find the real index in budgetCategories for reliable lookup
+    const realIdx = budgetCategories.indexOf(c);
     return `<div class="budget-item" style="border-bottom:1px solid var(--border);padding:16px 20px">
       <div class="budget-row">
         <span class="budget-name">${c.name}</span>
@@ -3359,7 +3369,7 @@ function renderBudget() {
           <span class="budget-amounts"><strong>${fmt(spent)}</strong>${c.target > 0 ? ` / ${fmt(c.target)}` : ''}</span>
           ${rawPct > 100 ? `<span style="font-size:11px;font-weight:600;color:var(--red)">▲ ${Math.round(rawPct - 100)}% over</span>` : ''}
           ${catTxns.length > 0 ? `<span style="font-size:11px;color:var(--ink-3)">${catTxns.length} txn${catTxns.length!==1?'s':''}</span>` : ''}
-          <button class="edit-btn" data-catid="${c.id}" data-catname="${c.name.replace(/"/g,'&quot;')}" onclick="openEditBudgetByEl(this)">✎ Edit</button>
+          <button class="edit-btn" data-realidx="${realIdx}" onclick="openEditBudgetByIdx(this)">✎ Edit</button>
         </div>
       </div>
       ${c.target > 0 ? `<div class="progress-track"><div class="progress-fill ${cls}" style="width:${pct}%"></div></div>` : '<div style="height:6px"></div>'}
