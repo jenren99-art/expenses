@@ -400,6 +400,7 @@
     border-radius: 50%;
     opacity: 0.05;
     background: var(--ink);
+    pointer-events: none;
   }
   .cc-name { font-weight: 600; font-size: 14px; color: var(--ink); margin-bottom: 4px; }
   .cc-desc { font-size: 12px; color: var(--ink-3); margin-bottom: 14px; }
@@ -2693,7 +2694,10 @@ async function handlePdfUpload(event) {
               type: 'text',
               text: `This is a credit card statement for the card: "${cardName}".
 
-First, find the TOTAL AMOUNT DUE or CLOSING BALANCE or NEW BALANCE on the statement — this is what the cardholder owes. Also find the MINIMUM PAYMENT if shown.
+${cardName.toLowerCase().includes('canadian tire') || cardName.toLowerCase().includes('ctfs')
+  ? `IMPORTANT: This is a Canadian Tire Mastercard with an equal payment plan. Do NOT use the "New Balance" or "Your New Balance" figure. Instead, find and use the "Balance Due" or "Amount Due This Month" figure as the statementBalance — this is the amount the cardholder actually needs to pay this month to avoid interest.`
+  : `First, find the TOTAL AMOUNT DUE or CLOSING BALANCE or NEW BALANCE on the statement — this is what the cardholder owes.`
+} Also find the MINIMUM PAYMENT if shown.
 
 Then extract every transaction (purchases/debits only, not payments or credits) and categorize each one.
 
@@ -2717,7 +2721,7 @@ Return ONLY a JSON object with this exact structure, no other text, no markdown:
   ]
 }
 
-statementBalance: the total new balance / amount due on the statement (positive number).
+statementBalance: the balance the cardholder needs to pay this month (positive number).
 minimumPayment: minimum payment required (positive number, or null if not found).
 confidence: "high" if obvious, "medium" if reasonable guess, "low" if uncertain.
 isNewCategory: true if you're suggesting a new category not in the list.
