@@ -2530,7 +2530,12 @@ function renderBills() {
   const selectAll = document.getElementById('bills-select-all');
   if (selectAll) selectAll.checked = false;
 
-  document.getElementById('bills-table').innerHTML = bs.map(b => `<tr>
+  document.getElementById('bills-table').innerHTML = [...bs].sort((a, b) => {
+    if (!a.due && !b.due) return 0;
+    if (!a.due) return 1;  // no date goes to bottom
+    if (!b.due) return -1;
+    return new Date(a.due) - new Date(b.due);
+  }).map(b => `<tr>
     <td><input type="checkbox" class="bill-checkbox" data-id="${b.id}" onchange="updateBillsSelectionUI()" style="cursor:pointer"></td>
     <td>
       <strong>${b.name}</strong>
@@ -2558,16 +2563,20 @@ function openBudgetModal() {
   document.getElementById('budget-modal').classList.add('open');
 }
 
-function openEditBudgetModal(id) {
-  const c = budgetCategories.find(c => c.id === id);
+function openEditBudgetModal(id, name) {
+  // Find by id first, fall back to name if id is missing/undefined
+  let c = budgetCategories.find(c => c.id !== undefined && c.id === id);
+  if (!c && name) c = budgetCategories.find(c => c.name === name);
   if (!c) return;
+  // Ensure it has an id going forward
+  if (!c.id) c.id = nextBudgetId++;
   document.getElementById('budget-modal-title').textContent = 'Edit Category';
   document.getElementById('budget-modal-save-btn').textContent = 'Save Changes';
   document.getElementById('budget-modal-delete-btn').style.display = 'inline-flex';
-  document.getElementById('bg-id').value = id;
+  document.getElementById('bg-id').value = c.id;
   document.getElementById('bg-name').value = c.name;
-  document.getElementById('bg-spent').value = c.spent;
-  document.getElementById('bg-target').value = c.target;
+  document.getElementById('bg-spent').value = c.spent || 0;
+  document.getElementById('bg-target').value = c.target || 0;
   document.getElementById('budget-modal').classList.add('open');
 }
 
@@ -3098,7 +3107,7 @@ function renderBudget() {
         <div style="display:flex;align-items:center;gap:10px">
           <span class="budget-amounts"><strong>${fmt(spent)}</strong>${c.target > 0 ? ` / ${fmt(c.target)}` : ''}</span>
           ${catTxns.length > 0 ? `<span style="font-size:11px;color:var(--ink-3)">${catTxns.length} txn${catTxns.length!==1?'s':''}</span>` : ''}
-          <button class="edit-btn" onclick="openEditBudgetModal(${c.id})">✎ Edit</button>
+          <button class="edit-btn" onclick="openEditBudgetModal(${c.id}, ${JSON.stringify(c.name)})">✎ Edit</button>
         </div>
       </div>
       ${c.target > 0 ? `<div class="progress-track"><div class="progress-fill ${cls}" style="width:${pct}%"></div></div>` : '<div style="height:6px"></div>'}
