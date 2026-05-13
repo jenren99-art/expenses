@@ -1308,6 +1308,19 @@
   </div>
 </div>
 
+<!-- LOCK SCREEN -->
+<div id="lock-screen" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(10,13,18,0.97);backdrop-filter:blur(12px);flex-direction:column;align-items:center;justify-content:center;gap:24px">
+  <div style="text-align:center">
+    <div style="font-size:48px;margin-bottom:16px">🔒</div>
+    <div style="font-family:'DM Serif Display',serif;font-size:28px;color:#fff;margin-bottom:8px">Session Locked</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.4);margin-bottom:32px">Sign in with Google to continue</div>
+    <button onclick="unlockWithGoogle()" style="background:#c8491a;color:#fff;border:none;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif">
+      Sign in with Google
+    </button>
+    <div style="margin-top:16px;font-size:12px;color:rgba(255,255,255,0.25)">Locked after 5 minutes of inactivity</div>
+  </div>
+</div>
+
 <!-- ADD / EDIT DEBT MODAL -->
 <div class="modal-overlay" id="debt-modal">
   <div class="modal">
@@ -1733,6 +1746,54 @@ let afterRefreshCallbacks = [];
 
 // ── Auth ──
 
+// ─── INACTIVITY LOCK ─────────────────────────────────────────────────────────
+
+const LOCK_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+let lockTimer = null;
+let isLocked = false;
+
+function resetLockTimer() {
+  if (isLocked) return;
+  clearTimeout(lockTimer);
+  lockTimer = setTimeout(lockScreen, LOCK_TIMEOUT);
+}
+
+function lockScreen() {
+  isLocked = true;
+  const el = document.getElementById('lock-screen');
+  if (el) el.style.display = 'flex';
+  // Blur any sensitive content
+  document.querySelector('.app').style.filter = 'blur(8px)';
+  document.querySelector('.app').style.pointerEvents = 'none';
+}
+
+function unlockWithGoogle() {
+  // Re-request Google token — prompts sign-in if session expired
+  if (typeof google !== 'undefined' && tokenClient) {
+    tokenClient.requestAccessToken({ prompt: 'select_account' });
+  } else {
+    // Auth not loaded — just reload the page
+    location.reload();
+  }
+}
+
+function unlockScreen() {
+  isLocked = false;
+  const el = document.getElementById('lock-screen');
+  if (el) el.style.display = 'none';
+  document.querySelector('.app').style.filter = '';
+  document.querySelector('.app').style.pointerEvents = '';
+  resetLockTimer();
+}
+
+function initLockScreen() {
+  // Start timer on any user activity
+  ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'click'].forEach(event => {
+    document.addEventListener(event, resetLockTimer, { passive: true });
+  });
+  resetLockTimer();
+}
+
 function initGoogleAuth() {
   if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID === 'YOUR_CLIENT_ID_HERE') {
     showAuthBanner('setup');
@@ -1754,6 +1815,8 @@ function initGoogleAuth() {
         // Schedule token refresh 5 min before expiry (tokens last ~1hr)
         setTimeout(() => { accessToken = null; }, (resp.expires_in - 300) * 1000);
         showSyncStatus('connected');
+        // Unlock screen if it was locked
+        if (isLocked) unlockScreen();
         // Flush any callbacks waiting on the fresh token
         const cbs = afterRefreshCallbacks.splice(0);
         cbs.forEach(fn => fn());
@@ -2563,6 +2626,13 @@ function openBudgetModal() {
   document.getElementById('budget-modal').classList.add('open');
 }
 
+function openEditBudgetByEl(btn) {
+  // Read id and name from data attributes — avoids any encoding issues with special chars
+  const id = parseInt(btn.dataset.catid);
+  const name = btn.dataset.catname;
+  openEditBudgetModal(id, name);
+}
+
 function openEditBudgetModal(id, name) {
   // Find by id first, fall back to name if id is missing/undefined
   let c = budgetCategories.find(c => c.id !== undefined && c.id === id);
@@ -3096,18 +3166,35 @@ function renderBudget() {
   const totalSpent = budgetCategories.reduce((s,c) => s+getEffectiveSpent(c), 0);
   const totalTarget = budgetCategories.reduce((s,c) => s+c.target, 0);
 
-  document.getElementById('budget-grid').innerHTML = budgetCategories.map(c => {
+  // Sort by most over budget first (highest % over), then by spend descending for no-target categories
+  const sorted = [...budgetCategories].sort((a, b) => {
+    const spentA = getEffectiveSpent(a);
+    const spentB = getEffectiveSpent(b);
+    const pctA = a.target > 0 ? spentA / a.target : 0;
+    const pctB = b.target > 0 ? spentB / b.target : 0;
+    // Categories over budget (>1.0) come first, sorted by how much over
+    if (pctA > 1 && pctB > 1) return pctB - pctA;
+    if (pctA > 1) return -1;
+    if (pctB > 1) return 1;
+    // Both under budget — sort by % used descending
+    return pctB - pctA;
+  });
+
+  document.getElementById('budget-grid').innerHTML = sorted.map((c, sortIdx) => {
     const spent = getEffectiveSpent(c);
-    const pct = c.target > 0 ? Math.min(100, Math.round(spent / c.target * 100)) : 0;
-    const cls = pct >= 100 ? 'fill-red' : pct >= 80 ? 'fill-gold' : 'fill-green';
+    const rawPct = c.target > 0 ? spent / c.target * 100 : 0;
+    const pct = Math.min(100, Math.round(rawPct));
+    const cls = rawPct >= 100 ? 'fill-red' : rawPct >= 80 ? 'fill-gold' : 'fill-green';
     const catTxns = txns().filter(t => t.category === c.name);
+    // Use data-catindex to avoid any name encoding issues in onclick
     return `<div class="budget-item" style="border-bottom:1px solid var(--border);padding:16px 20px">
       <div class="budget-row">
         <span class="budget-name">${c.name}</span>
         <div style="display:flex;align-items:center;gap:10px">
           <span class="budget-amounts"><strong>${fmt(spent)}</strong>${c.target > 0 ? ` / ${fmt(c.target)}` : ''}</span>
+          ${rawPct > 100 ? `<span style="font-size:11px;font-weight:600;color:var(--red)">▲ ${Math.round(rawPct - 100)}% over</span>` : ''}
           ${catTxns.length > 0 ? `<span style="font-size:11px;color:var(--ink-3)">${catTxns.length} txn${catTxns.length!==1?'s':''}</span>` : ''}
-          <button class="edit-btn" onclick="openEditBudgetModal(${c.id}, ${JSON.stringify(c.name)})">✎ Edit</button>
+          <button class="edit-btn" data-catid="${c.id}" data-catname="${c.name.replace(/"/g,'&quot;')}" onclick="openEditBudgetByEl(this)">✎ Edit</button>
         </div>
       </div>
       ${c.target > 0 ? `<div class="progress-track"><div class="progress-fill ${cls}" style="width:${pct}%"></div></div>` : '<div style="height:6px"></div>'}
@@ -4114,6 +4201,8 @@ function init() {
   });
   // Auth + load — renders after data is ready
   initGoogleAuth();
+  // Start inactivity lock timer
+  initLockScreen();
 }
 
 // Close modal on overlay click
