@@ -798,6 +798,7 @@
             <div class="section-title">All Bills & Payments</div>
             <div style="display:flex;gap:8px;align-items:center">
               <span class="section-count" id="bills-count">0 bills</span>
+              <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--ink-2);background:var(--paper-2);padding:3px 10px;border-radius:20px;border:1px solid var(--border)" id="bills-total">$0.00</span>
               <button class="btn btn-ghost" id="bills-delete-selected-btn" onclick="deleteSelectedBills()" style="display:none;color:var(--red);border-color:var(--red)">✕ Delete Selected (<span id="bills-selected-count">0</span>)</button>
               <button class="btn btn-ghost" onclick="carryOverBills()" title="Copy all bills from previous month into this month">↩ Carry Over from Previous Month</button>
             </div>
@@ -859,6 +860,7 @@
           <div class="section-header">
             <div class="section-title">All Transactions</div>
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <button class="btn btn-ghost" id="txn-delete-selected-btn" onclick="deleteSelectedTxns()" style="display:none;color:var(--red);border-color:var(--red)">✕ Delete Selected (<span id="txn-selected-count">0</span>)</button>
               <input class="form-input" id="txn-search" type="text" placeholder="Search merchant…" style="padding:7px 12px;font-size:13px;width:160px" oninput="renderTransactions()">
               <select class="form-input" id="txn-filter-cat" style="padding:7px 12px;font-size:13px" onchange="renderTransactions()">
                 <option value="">All categories</option>
@@ -873,6 +875,7 @@
           <div class="card">
             <table>
               <thead><tr>
+                <th style="width:36px"><input type="checkbox" id="txn-select-all" onchange="toggleAllTxns(this.checked)" style="cursor:pointer"></th>
                 <th>Description</th><th>Amount</th><th>Date</th><th>Category</th><th>Card</th><th></th>
               </tr></thead>
               <tbody id="txn-table"></tbody>
@@ -1095,7 +1098,10 @@
         <div class="section">
           <div class="section-header">
             <div class="section-title">Income This Month</div>
-            <button class="btn btn-ghost" onclick="openIncomeModal()">+ Add Income</button>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-ghost" onclick="carryOverIncome()" title="Copy income entries from previous month">↩ Carry Over from Previous Month</button>
+              <button class="btn btn-ghost" onclick="openIncomeModal()">+ Add Income</button>
+            </div>
           </div>
           <div class="card">
             <table>
@@ -1694,7 +1700,8 @@
 <script>
 // ─── DATA ───────────────────────────────────────────────────────────────────
 
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 let currentMonth = 4; // May = index 4
 
 const initialBills = [];
@@ -2409,13 +2416,13 @@ function renderIncome() {
   }
 
   // Annual table
-  document.getElementById('income-annual-table').innerHTML = MONTHS.map((m, i) => {
+  document.getElementById('income-annual-table').innerHTML = MONTHS.map((_, i) => { const m = MONTHS_SHORT[i];
     const monthInc = incomeStore[i] || [];
     const pays = monthInc.filter(e => e.type === 'Paycheque').reduce((s,e) => s+e.amount, 0);
     const oth = monthInc.filter(e => e.type !== 'Paycheque').reduce((s,e) => s+e.amount, 0);
     const tot = pays + oth;
     return `<tr ${i === currentMonth ? 'style="background:var(--paper)"' : ''}>
-      <td><strong>${m}</strong>${i === currentMonth ? ' <span style="font-size:11px;color:var(--accent)">current</span>' : ''}</td>
+      <td><strong>${MONTHS_SHORT[i]}</strong>${i === currentMonth ? ' <span style="font-size:11px;color:var(--accent)">current</span>' : ''}</td>
       <td class="amount">${pays > 0 ? fmt(pays) : '—'}</td>
       <td class="amount">${oth > 0 ? fmt(oth) : '—'}</td>
       <td class="amount credit">${tot > 0 ? fmt(tot) : '—'}</td>
@@ -2427,13 +2434,13 @@ function carryOverBills() {
   const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
   const prevBills = billsStore[prevMonth] || [];
   if (prevBills.length === 0) {
-    alert(`No bills found in ${MONTHS[prevMonth]} to carry over.`);
+    alert(`No bills found in ${MONTHS_SHORT[prevMonth]} to carry over.`);
     return;
   }
   if (bills().length > 0) {
-    if (!confirm(`This month already has ${bills().length} bill${bills().length !== 1 ? 's' : ''}. Add the ${prevBills.length} bills from ${MONTHS[prevMonth]} on top?`)) return;
+    if (!confirm(`This month already has ${bills().length} bill${bills().length !== 1 ? 's' : ''}. Add the ${prevBills.length} bills from ${MONTHS_SHORT[prevMonth]} on top?`)) return;
   } else {
-    if (!confirm(`Carry over ${prevBills.length} bill${prevBills.length !== 1 ? 's' : ''} from ${MONTHS[prevMonth]}? They will be copied with paid status reset and dates advanced by one month.`)) return;
+    if (!confirm(`Carry over ${prevBills.length} bill${prevBills.length !== 1 ? 's' : ''} from ${MONTHS_SHORT[prevMonth]}? They will be copied with paid status reset and dates advanced by one month.`)) return;
   }
 
   prevBills.forEach(b => {
@@ -2454,7 +2461,7 @@ function carryOverBills() {
   });
 
   saveState(); render();
-  alert(`✓ ${prevBills.length} bill${prevBills.length !== 1 ? 's' : ''} carried over from ${MONTHS[prevMonth]}. Review and update amounts and due dates as needed.`);
+  alert(`✓ ${prevBills.length} bill${prevBills.length !== 1 ? 's' : ''} carried over from ${MONTHS_SHORT[prevMonth]}. Review and update amounts and due dates as needed.`);
 }
 
 function updateBillsSelectionUI() {
@@ -2484,9 +2491,38 @@ function deleteSelectedBills() {
   saveState(); render();
 }
 
+function carryOverIncome() {
+  const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+  const prevIncome = incomeStore[prevMonth] || [];
+  if (prevIncome.length === 0) {
+    alert(`No income entries found in ${MONTHS[prevMonth]} to carry over.`);
+    return;
+  }
+  const current = incomeStore[currentMonth] || [];
+  if (current.length > 0) {
+    if (!confirm(`This month already has ${current.length} income entr${current.length !== 1 ? 'ies' : 'y'}. Add the ${prevIncome.length} entries from ${MONTHS[prevMonth]} on top?`)) return;
+  } else {
+    if (!confirm(`Carry over ${prevIncome.length} income entr${prevIncome.length !== 1 ? 'ies' : 'y'} from ${MONTHS[prevMonth]}? Dates will be cleared — update them after.`)) return;
+  }
+
+  if (!incomeStore[currentMonth]) incomeStore[currentMonth] = [];
+  prevIncome.forEach(e => {
+    incomeStore[currentMonth].push({
+      ...JSON.parse(JSON.stringify(e)),
+      id: nextIncomeId++,
+      date: '', // clear date — user should set the new pay date
+    });
+  });
+
+  saveState(); render();
+  alert(`✓ ${prevIncome.length} income entr${prevIncome.length !== 1 ? 'ies' : 'y'} carried over from ${MONTHS_SHORT[prevMonth]}. Update the dates and amounts as needed.`);
+}
+
 function renderBills() {
   const bs = bills();
+  const billsTotal = bs.reduce((s,b) => s+b.amount, 0);
   document.getElementById('bills-count').textContent = bs.length + ' bills';
+  document.getElementById('bills-total').textContent = fmt(billsTotal);
   // Reset delete button on re-render
   const btn = document.getElementById('bills-delete-selected-btn');
   if (btn) btn.style.display = 'none';
@@ -2855,6 +2891,34 @@ function deleteTxnFromModal() {
 
 // ── Render ──
 
+function updateTxnSelectionUI() {
+  const checked = document.querySelectorAll('.txn-checkbox:checked');
+  const total = document.querySelectorAll('.txn-checkbox');
+  const btn = document.getElementById('txn-delete-selected-btn');
+  const countEl = document.getElementById('txn-selected-count');
+  const selectAll = document.getElementById('txn-select-all');
+  if (btn) btn.style.display = checked.length > 0 ? 'inline-flex' : 'none';
+  if (countEl) countEl.textContent = checked.length;
+  if (selectAll) {
+    selectAll.indeterminate = checked.length > 0 && checked.length < total.length;
+    selectAll.checked = total.length > 0 && checked.length === total.length;
+  }
+}
+
+function toggleAllTxns(checked) {
+  document.querySelectorAll('.txn-checkbox').forEach(cb => cb.checked = checked);
+  updateTxnSelectionUI();
+}
+
+function deleteSelectedTxns() {
+  const selected = [...document.querySelectorAll('.txn-checkbox:checked')].map(cb => parseInt(cb.dataset.id));
+  if (selected.length === 0) return;
+  if (!confirm(`Delete ${selected.length} selected transaction${selected.length !== 1 ? 's' : ''}? This cannot be undone.`)) return;
+  transactionStore[currentMonth] = transactionStore[currentMonth].filter(t => !selected.includes(t.id));
+  recalcBudgetSpending();
+  saveState(); render();
+}
+
 let txnGroupByMerchant = false;
 let merchantExpanded = null; // which merchant is expanded
 
@@ -2945,10 +3009,10 @@ function renderTransactions() {
 
     // Update header
     document.querySelector('#txn-table').closest('table').querySelector('thead tr').innerHTML =
-      '<th>Merchant</th><th>Total Spent</th><th>Transactions</th><th>Category</th><th>Card</th><th></th>';
+      '<th style="width:36px"></th><th>Merchant</th><th>Total Spent</th><th>Transactions</th><th>Category</th><th>Card</th><th></th>';
 
     if (sorted.length === 0) {
-      tb.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">No transactions match.</div></div></td></tr>`;
+      tb.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">No transactions match.</div></div></td></tr>`;
       return;
     }
 
@@ -2979,12 +3043,18 @@ function renderTransactions() {
     return;
   }
 
+  // Reset selection UI on each render
+  const txnDelBtn = document.getElementById('txn-delete-selected-btn');
+  if (txnDelBtn) txnDelBtn.style.display = 'none';
+  const txnSelAll = document.getElementById('txn-select-all');
+  if (txnSelAll) { txnSelAll.checked = false; txnSelAll.indeterminate = false; }
+
   // ── Normal transaction list view ──
   document.querySelector('#txn-table').closest('table').querySelector('thead tr').innerHTML =
-    '<th>Description</th><th>Amount</th><th>Date</th><th>Category</th><th>Card</th><th></th>';
+    '<th style="width:36px"><input type="checkbox" id="txn-select-all" onchange="toggleAllTxns(this.checked)" style="cursor:pointer"></th><th>Description</th><th>Amount</th><th>Date</th><th>Category</th><th>Card</th><th></th>';
 
   if (filtered.length === 0) {
-    tb.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">📄</div><div class="empty-text">${all.length === 0 ? 'No transactions yet — upload a statement on the Credit Cards tab.' : 'No transactions match your filters.'}</div></div></td></tr>`;
+    tb.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">📄</div><div class="empty-text">${all.length === 0 ? 'No transactions yet — upload a statement on the Credit Cards tab.' : 'No transactions match your filters.'}</div></div></td></tr>`;
     return;
   }
 
@@ -2992,6 +3062,7 @@ function renderTransactions() {
   tb.innerHTML = sorted.map(t => {
     const confColor = t.confidence === 'high' ? 'var(--green)' : t.confidence === 'medium' ? 'var(--gold)' : 'var(--red)';
     return `<tr>
+      <td><input type="checkbox" class="txn-checkbox" data-id="${t.id}" onchange="updateTxnSelectionUI()" style="cursor:pointer"></td>
       <td>
         <strong>${t.description}</strong>
         ${t.source === 'import' ? `<span style="font-size:10px;color:${confColor};margin-left:6px">● ${t.confidence}</span>` : '<span style="font-size:10px;color:var(--ink-4);margin-left:6px">manual</span>'}
@@ -3339,7 +3410,7 @@ function renderAnnual() {
     const bs = billsStore[i] || [];
     const total = bs.reduce((s,b) => s+b.amount, 0);
     const paid = bs.filter(b=>b.paid).length;
-    return { month:m, total, paid, count:bs.length, hasData: bs.length > 0 };
+    return { month: MONTHS_SHORT[i], total, paid, count:bs.length, hasData: bs.length > 0 };
   });
   const maxTotal = Math.max(...annualData.filter(d=>d.total>0).map(d=>d.total), 1);
 
@@ -3618,7 +3689,7 @@ function renderDebt() {
 
   const chartEl = document.getElementById('debt-trend-chart');
   const histData = MONTHS.map((m,i) => ({
-    month: m,
+    month: MONTHS_SHORT[i],
     total: allDebts.reduce((s,d) => s+(d.history&&d.history[i]!==undefined?d.history[i]:i===currentMonth?d.balance:0), 0)
   })).filter(d => d.total > 0);
 
