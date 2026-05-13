@@ -1671,6 +1671,7 @@
   <div class="modal">
     <div class="modal-title" id="budget-modal-title">Add Budget Category</div>
     <input type="hidden" id="bg-id" value="">
+    <input type="hidden" id="bg-realidx" value="">
     <div class="form-row">
       <label class="form-label">Category Name</label>
       <input class="form-input" id="bg-name" type="text" placeholder="e.g. Entertainment">
@@ -2839,7 +2840,7 @@ function openBudgetModal() {
   document.getElementById('budget-modal-save-btn').textContent = 'Add Category';
   document.getElementById('budget-modal-delete-btn').style.display = 'none';
   document.getElementById('bg-id').value = '';
-  ['bg-name','bg-spent','bg-target'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('bg-realidx').value = '';
   document.getElementById('budget-modal').classList.add('open');
 }
 
@@ -2847,12 +2848,12 @@ function openEditBudgetByIdx(btn) {
   const idx = parseInt(btn.dataset.realidx);
   const c = budgetCategories[idx];
   if (!c) return;
-  // Ensure ID exists
   if (!c.id) c.id = nextBudgetId++;
   document.getElementById('budget-modal-title').textContent = 'Edit Category';
   document.getElementById('budget-modal-save-btn').textContent = 'Save Changes';
   document.getElementById('budget-modal-delete-btn').style.display = 'inline-flex';
   document.getElementById('bg-id').value = c.id;
+  document.getElementById('bg-realidx').value = idx;
   document.getElementById('bg-name').value = c.name;
   document.getElementById('bg-spent').value = c.spent || 0;
   document.getElementById('bg-target').value = c.target || 0;
@@ -2880,16 +2881,18 @@ function closeBudgetModal() { document.getElementById('budget-modal').classList.
 
 function saveBudgetModal() {
   const id = document.getElementById('bg-id').value;
+  const realIdx = document.getElementById('bg-realidx').value;
   const name = document.getElementById('bg-name').value.trim();
   const spent = parseFloat(document.getElementById('bg-spent').value) || 0;
   const target = parseFloat(document.getElementById('bg-target').value) || 0;
   if (!name) return;
-  if (id) {
-    const c = budgetCategories.find(c => c.id === parseInt(id));
+  if (id || realIdx !== '') {
+    // Use direct index if available (most reliable), fall back to ID lookup
+    let c = realIdx !== '' ? budgetCategories[parseInt(realIdx)] : null;
+    if (!c) c = budgetCategories.find(c => c.id === parseInt(id));
     if (c) {
       const oldName = c.name;
       c.name = name; c.spent = spent; c.target = target;
-      // Rename all transactions that used the old category name
       if (oldName !== name) {
         Object.values(transactionStore).forEach(monthTxns => {
           monthTxns.forEach(t => { if (t.category === oldName) t.category = name; });
