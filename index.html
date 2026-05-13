@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Expenses — Personal Finance Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --ink: #111111;
@@ -378,6 +378,16 @@
   }
   td.amount.credit { color: var(--green); }
 
+  .stat-value {
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+    font-variant-numeric: tabular-nums;
+  }
+
   .paid-chip {
     display: inline-flex;
     align-items: center;
@@ -414,7 +424,7 @@
     margin-bottom: 8px;
   }
   .budget-name { font-size: 13.5px; font-weight: 500; color: var(--ink); }
-  .budget-amounts { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--ink-3); }
+  .budget-amounts { font-variant-numeric: tabular-nums; font-size: 12px; color: var(--ink-3); }
   .budget-amounts strong { color: var(--ink); }
   .progress-track {
     height: 6px;
@@ -443,8 +453,8 @@
     text-align: center;
   }
   .savings-icon { font-size: 24px; margin-bottom: 10px; }
-  .savings-name { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
-  .savings-amount { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--ink); margin-bottom: 4px; }
+  .savings-name { font-variant-numeric: tabular-nums; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
+  .savings-amount {  font-size: 22px; color: var(--ink); margin-bottom: 4px; }
   .savings-target { font-size: 12px; color: var(--ink-3); }
   .savings-ring {
     width: 60px;
@@ -484,8 +494,8 @@
   .cc-name { font-weight: 600; font-size: 14px; color: var(--ink); margin-bottom: 4px; }
   .cc-desc { font-size: 12px; color: var(--ink-3); margin-bottom: 14px; }
   .cc-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-  .cc-balance { font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--ink); }
-  .cc-target { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-3); }
+  .cc-balance {  font-size: 24px; color: var(--ink); }
+  .cc-target { font-variant-numeric: tabular-nums; font-size: 11px; color: var(--ink-3); }
   .cc-bar { height: 4px; background: var(--paper-2); border-radius: 2px; overflow: hidden; margin-bottom: 8px; }
   .cc-fill { height: 100%; border-radius: 2px; }
   .cc-perks { font-size: 11px; color: var(--ink-3); font-style: italic; }
@@ -507,7 +517,7 @@
   .cal-day.today { background: #fff9f6; }
   .cal-day.selected { background: var(--paper-2); }
   .cal-day-num {
-    font-family: 'DM Mono', monospace;
+    font-variant-numeric: tabular-nums;
     font-size: 12px;
     color: var(--ink-3);
     margin-bottom: 4px;
@@ -560,8 +570,8 @@
   }
   .annual-month:hover { border-color: var(--accent); transform: translateY(-1px); }
   .annual-month.current { border-color: var(--accent); background: #fff9f6; }
-  .am-name { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
-  .am-total { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--ink); margin-bottom: 4px; }
+  .am-name { font-variant-numeric: tabular-nums; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
+  .am-total {  font-size: 20px; color: var(--ink); margin-bottom: 4px; }
   .am-meta { font-size: 11px; color: var(--ink-3); }
   .am-bar { height: 3px; background: var(--paper-2); border-radius: 2px; margin-top: 10px; overflow: hidden; }
   .am-fill { height: 100%; background: var(--accent); border-radius: 2px; opacity: 0.6; }
@@ -580,7 +590,7 @@
   .sub-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .sub-name { font-size: 13.5px; font-weight: 500; color: var(--ink); }
   .sub-tag { font-size: 11px; color: var(--ink-3); margin-top: 1px; }
-  .sub-amount { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--ink); font-weight: 500; }
+  .sub-amount { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--ink); font-weight: 500; }
 
   /* ── MODAL ── */
   .modal-overlay {
@@ -642,7 +652,7 @@
   }
   .project-header:hover { background: var(--paper); }
   .project-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  .project-name { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--ink); }
+  .project-name {  font-size: 18px; color: var(--ink); }
   .project-status-chip {
     font-size: 11px;
     padding: 3px 9px;
@@ -661,8 +671,8 @@
     margin-bottom: 14px;
   }
   .project-total-item { text-align: center; }
-  .project-total-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-3); margin-bottom: 4px; }
-  .project-total-value { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--ink); }
+  .project-total-label { font-variant-numeric: tabular-nums; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-3); margin-bottom: 4px; }
+  .project-total-value {  font-size: 18px; color: var(--ink); }
   .project-line-items { border-top: 1px solid var(--border); }
   .line-item-row {
     display: grid;
@@ -674,7 +684,7 @@
     font-size: 13px;
   }
   .line-item-row:last-child { border-bottom: none; }
-  .line-item-row.header { background: var(--paper-2); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-3); }
+  .line-item-row.header { background: var(--paper-2); font-variant-numeric: tabular-nums; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-3); }
   .line-item-name { font-weight: 500; color: var(--ink); }
   .line-item-notes { font-size: 11px; color: var(--ink-3); }
   .li-status-chip { font-size: 11px; padding: 2px 8px; border-radius: 10px; }
@@ -702,7 +712,7 @@
     border-radius: 6px;
     transition: all 0.15s;
     white-space: nowrap;
-    font-family: 'DM Sans', sans-serif;
+    
   }
   .edit-btn:hover { color: var(--ink); background: var(--paper-3); border-color: var(--ink-4); }
 
@@ -726,7 +736,7 @@
     background: rgba(184,134,11,0.15);
     padding: 1px 5px;
     border-radius: 3px;
-    font-family: 'DM Mono', monospace;
+    font-variant-numeric: tabular-nums;
     font-size: 12px;
   }
 
@@ -742,16 +752,16 @@
   /* ── PAYCHECK TRACKER ── */
   .paycheck-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
   .paycheck-card { padding: 16px 18px; }
-  .pc-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
-  .pc-amount { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--ink); margin-bottom: 2px; }
+  .pc-label { font-variant-numeric: tabular-nums; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
+  .pc-amount {  font-size: 22px; color: var(--ink); margin-bottom: 2px; }
   .pc-allocated { font-size: 12px; color: var(--ink-3); }
   .pc-items { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
   .pc-item { display: flex; justify-content: space-between; font-size: 12.5px; }
   .pc-item-name { color: var(--ink-2); }
-  .pc-item-amt { font-family: 'DM Mono', monospace; color: var(--ink); font-size: 12px; }
+  .pc-item-amt { font-variant-numeric: tabular-nums; color: var(--ink); font-size: 12px; }
   .pc-divider { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
   .pc-remaining { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; }
-  .pc-remaining span:last-child { font-family: 'DM Mono', monospace; color: var(--green); }
+  .pc-remaining span:last-child { font-variant-numeric: tabular-nums; color: var(--green); }
 
   .notice {
     background: var(--gold-light);
@@ -872,7 +882,7 @@
         <h1 class="page-title" id="pageTitle">Dashboard <span id="monthDisplay">— May 2026</span></h1>
       </div>
       <div class="topbar-actions">
-        <span id="sync-status" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-3);padding:6px 12px;background:var(--paper-2);border-radius:20px;border:1px solid var(--border)">◌ Connecting…</span>
+        <span id="sync-status" style="font-variant-numeric: tabular-nums;font-size:11px;color:var(--ink-3);padding:6px 12px;background:var(--paper-2);border-radius:20px;border:1px solid var(--border)">◌ Connecting…</span>
         <button class="btn btn-ghost" onclick="openModal()">+ Add Bill</button>
         <button class="btn btn-primary" onclick="markAllPaid()">✓ Mark All Paid</button>
         <button class="btn btn-ghost" onclick="exportData()" title="Export data backup">⬇ Export</button>
@@ -951,7 +961,7 @@
             <div class="section-title">All Bills & Payments</div>
             <div style="display:flex;gap:8px;align-items:center">
               <span class="section-count" id="bills-count">0 bills</span>
-              <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--ink-2);background:var(--paper-2);padding:3px 10px;border-radius:20px;border:1px solid var(--border)" id="bills-total">$0.00</span>
+              <span style="font-variant-numeric: tabular-nums;font-size:12px;color:var(--ink-2);background:var(--paper-2);padding:3px 10px;border-radius:20px;border:1px solid var(--border)" id="bills-total">$0.00</span>
               <button class="btn btn-ghost" id="bills-delete-selected-btn" onclick="deleteSelectedBills()" style="display:none;color:var(--red);border-color:var(--red)">✕ Delete Selected (<span id="bills-selected-count">0</span>)</button>
               <button class="btn btn-ghost" onclick="carryOverBills()" title="Copy all bills from previous month into this month">↩ Carry Over from Previous Month</button>
             </div>
@@ -973,10 +983,7 @@
         <div class="section">
           <div class="section-header">
             <div class="section-title">Spending vs. Budget</div>
-            <div style="display:flex;gap:8px">
-              <button class="btn btn-ghost" onclick="repairCategoryData()" style="color:var(--gold);border-color:var(--gold);font-size:12px">🔧 Repair Categories</button>
-              <button class="btn btn-ghost" onclick="openBudgetModal()">+ Add Category</button>
-            </div>
+            <button class="btn btn-ghost" onclick="openBudgetModal()">+ Add Category</button>
           </div>
           <div class="card">
             <div class="budget-grid" id="budget-grid"></div>
@@ -1321,7 +1328,7 @@
         <!-- Month nav -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
           <button class="btn btn-ghost" onclick="calPrevMonth()" style="font-size:18px;padding:6px 14px">‹</button>
-          <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink)" id="cal-title">May 2026</div>
+          <div style="font-size:22px;color:var(--ink)" id="cal-title">May 2026</div>
           <button class="btn btn-ghost" onclick="calNextMonth()" style="font-size:18px;padding:6px 14px">›</button>
         </div>
 
@@ -1337,13 +1344,13 @@
         <div class="card" style="padding:0;overflow:hidden">
           <!-- Day headers -->
           <div style="display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--border)">
-            <div style="padding:10px 0;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Sun</div>
-            <div style="padding:10px 0;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Mon</div>
-            <div style="padding:10px 0;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Tue</div>
-            <div style="padding:10px 0;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Wed</div>
-            <div style="padding:10px 0;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Thu</div>
-            <div style="padding:10px 0;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Fri</div>
-            <div style="padding:10px 0;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Sat</div>
+            <div style="padding:10px 0;text-align:center;font-variant-numeric: tabular-nums;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Sun</div>
+            <div style="padding:10px 0;text-align:center;font-variant-numeric: tabular-nums;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Mon</div>
+            <div style="padding:10px 0;text-align:center;font-variant-numeric: tabular-nums;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Tue</div>
+            <div style="padding:10px 0;text-align:center;font-variant-numeric: tabular-nums;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Wed</div>
+            <div style="padding:10px 0;text-align:center;font-variant-numeric: tabular-nums;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Thu</div>
+            <div style="padding:10px 0;text-align:center;font-variant-numeric: tabular-nums;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Fri</div>
+            <div style="padding:10px 0;text-align:center;font-variant-numeric: tabular-nums;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Sat</div>
           </div>
           <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr)"></div>
         </div>
@@ -1351,7 +1358,7 @@
         <!-- Selected day detail -->
         <div id="cal-detail" style="display:none;margin-top:16px">
           <div class="card" style="padding:20px 24px">
-            <div style="font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:14px" id="cal-detail-title"></div>
+            <div style="font-size:18px;margin-bottom:14px" id="cal-detail-title"></div>
             <div id="cal-detail-items"></div>
           </div>
         </div>
@@ -2192,55 +2199,6 @@ function showAuthBanner(type) {
   }
 }
 
-function repairCategoryData() {
-  if (!confirm('This will:\n\n1. Merge duplicate "Alcohol & LCBO" categories into one\n2. Restore "Health & Wellness" as a separate category\n3. Reassign transactions: SAQ → Alcohol & LCBO, everything else → Health & Wellness\n\nMake sure you have an Export backup before proceeding. Continue?')) return;
-
-  // Step 1: Remove all duplicate "Alcohol & LCBO" entries, keep only one
-  const alcoholEntries = budgetCategories.filter(c => c.name === 'Alcohol & LCBO');
-  if (alcoholEntries.length > 1) {
-    // Keep the first, remove rest
-    const keepId = alcoholEntries[0].id;
-    budgetCategories = budgetCategories.filter(c => c.name !== 'Alcohol & LCBO' || c.id === keepId);
-  }
-
-  // Step 2: Ensure Health & Wellness exists
-  let hw = budgetCategories.find(c => c.name === 'Health & Wellness');
-  if (!hw) {
-    hw = { id: nextBudgetId++, name: 'Health & Wellness', spent: 0, target: 200 };
-    budgetCategories.push(hw);
-  }
-
-  // Step 3: Reassign all transactions across all months
-  const SAQ_KEYWORDS = ['saq', 'société des alcools', 'alcool quebec', 'lcbo'];
-  const HEALTH_KEYWORDS = ['pharmacy', 'pharma', 'shoppers', 'jean coutu', 'uniprix', 'rexall',
-    'familiprix', 'clinic', 'clinique', 'doctor', 'médecin', 'dentist', 'dentiste',
-    'optom', 'physio', 'massage', 'gym', 'fitness', 'sport', 'yoga', 'medical', 'health',
-    'wellne', 'nutriti', 'vitamin', 'supplement'];
-
-  let alcoholFixed = 0, hwFixed = 0;
-
-  Object.values(transactionStore).forEach(monthTxns => {
-    monthTxns.forEach(t => {
-      if (t.category === 'Alcohol & LCBO' || t.category === 'Health & Wellness') {
-        const desc = t.description.toLowerCase();
-        const isSAQ = SAQ_KEYWORDS.some(kw => desc.includes(kw));
-        if (isSAQ) {
-          t.category = 'Alcohol & LCBO';
-          alcoholFixed++;
-        } else {
-          t.category = 'Health & Wellness';
-          hwFixed++;
-        }
-      }
-    });
-  });
-
-  recalcBudgetSpending();
-  saveState();
-  render();
-  alert(`✓ Repair complete!\n\nAlcohol & LCBO: ${alcoholFixed} transactions (SAQ purchases)\nHealth & Wellness: ${hwFixed} transactions (everything else)\n\nPlease review the Budget and Transactions tabs to confirm everything looks correct. You can still manually re-categorize any transactions that were sorted incorrectly.`);
-}
-
 function resetState() {
   if (!confirm('Reset all data to defaults? This cannot be undone.')) return;
   localStorage.removeItem('expenses2026_backup');
@@ -2644,7 +2602,7 @@ function renderDashboard() {
         <hr class="pc-divider">
         <div class="pc-remaining">
           <span>Remaining</span>
-          <span style="color:${remaining < 0 ? 'var(--red)' : 'var(--green)'};font-family:'DM Mono',monospace">${fmt(Math.abs(remaining))}${remaining < 0 ? ' over' : ''}</span>
+          <span style="color:${remaining < 0 ? 'var(--red)' : 'var(--green)'};font-variant-numeric: tabular-nums">${fmt(Math.abs(remaining))}${remaining < 0 ? ' over' : ''}</span>
         </div>
         <button class="edit-btn" style="margin-top:10px;width:100%;justify-content:center" onclick="openEditIncomeModal(${e.id})">✎ Edit</button>
       </div>`;
@@ -3292,12 +3250,12 @@ function renderTransactions() {
           <div style="width:120px;background:var(--paper-2);border-radius:3px;height:5px;overflow:hidden">
             <div style="width:${pct}%;height:100%;background:${color};border-radius:3px"></div>
           </div>
-          <div style="font-family:'DM Mono',monospace;font-size:13px;color:var(--ink);min-width:70px;text-align:right">${fmt(amt)}</div>
-          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-3);min-width:32px;text-align:right">${pct}%</div>
+          <div style="font-variant-numeric: tabular-nums;font-size:13px;color:var(--ink);min-width:70px;text-align:right">${fmt(amt)}</div>
+          <div style="font-variant-numeric: tabular-nums;font-size:11px;color:var(--ink-3);min-width:32px;text-align:right">${pct}%</div>
         </div>`;
       }).join('') + `<div style="display:flex;justify-content:space-between;padding:12px 20px;font-size:13px;font-weight:600;color:var(--ink)">
         <span>Total</span>
-        <span style="font-family:'DM Mono',monospace">${fmt(total)}</span>
+        <span style="font-variant-numeric: tabular-nums">${fmt(total)}</span>
       </div>`;
     }
   }
@@ -3431,7 +3389,7 @@ function renderBudget() {
     </div>`;
   }).join('') + `<div style="padding:14px 20px;display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:var(--ink)">
     <span>Total</span>
-    <span style="font-family:'DM Mono',monospace">${fmt(totalSpent)}${totalTarget > 0 ? ` / ${fmt(totalTarget)}` : ''}</span>
+    <span style="font-variant-numeric: tabular-nums">${fmt(totalSpent)}${totalTarget > 0 ? ` / ${fmt(totalTarget)}` : ''}</span>
   </div>`;
 }
 
@@ -3519,7 +3477,7 @@ function renderSavings() {
     <td class="amount">${fmt(s.monthly)}</td>
     <td><div style="display:flex;align-items:center;gap:10px">
       <div class="progress-track" style="flex:1"><div class="progress-fill fill-green" style="width:${Math.min(100, s.annual>0 ? s.ytd/s.annual*100 : 0)}%"></div></div>
-      <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-3)">${s.annual>0 ? Math.round(s.ytd/s.annual*100) : 0}%</span>
+      <span style="font-variant-numeric: tabular-nums;font-size:11px;color:var(--ink-3)">${s.annual>0 ? Math.round(s.ytd/s.annual*100) : 0}%</span>
     </div></td>
     <td class="amount">${fmt(s.annual)}</td>
     <td><button class="edit-btn" onclick="openEditSavingsModal(${s.id})">✎ Edit</button></td>
@@ -3626,7 +3584,7 @@ function renderCards() {
     return `<div class="cc-card" style="${hasCarrying ? 'border-color:var(--red);border-width:2px' : ''}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
         <div>
-          <div class="cc-name">${c.name}${c.last4 ? ` <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-3)">···${c.last4}</span>` : ''}</div>
+          <div class="cc-name">${c.name}${c.last4 ? ` <span style="font-variant-numeric: tabular-nums;font-size:11px;color:var(--ink-3)">···${c.last4}</span>` : ''}</div>
           <div class="cc-desc">${c.perks || '—'}</div>
         </div>
         <button class="edit-btn" onclick="openEditCardModal(${cardId})">✎ Edit</button>
@@ -3987,7 +3945,7 @@ function renderDebt() {
             </div>
             ${!d.fromCard?`<button class="edit-btn" onclick="openEditDebtModal(${d.id})">✎ Edit</button>`:`<span style="font-size:11px;color:var(--ink-3)">via Cards</span>`}
           </div>
-          <div style="font-family:'DM Serif Display',serif;font-size:26px;color:var(--red);margin-bottom:10px">${fmt(d.balance)}</div>
+          <div style="font-size:26px;color:var(--red);margin-bottom:10px">${fmt(d.balance)}</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
             <div><span style="color:var(--ink-3)">APR</span><br><strong>${d.rate||'—'}%</strong></div>
             <div><span style="color:var(--ink-3)">Monthly interest</span><br><strong style="color:var(--red)">${fmt(mi)}</strong></div>
@@ -4258,18 +4216,18 @@ function renderProjects() {
                 <div class="line-item-name">${item.name}</div>
                 ${item.notes ? `<div class="line-item-notes">${item.notes}</div>` : ''}
               </div>
-              <div style="font-family:'DM Mono',monospace;font-size:13px">${item.budgeted ? fmt(item.budgeted) : '—'}</div>
-              <div style="font-family:'DM Mono',monospace;font-size:13px">${item.spent ? fmt(item.spent) : '—'}</div>
-              <div style="font-family:'DM Mono',monospace;font-size:13px;${diff < 0 ? 'color:var(--red);font-weight:600' : diff > 0 ? 'color:var(--green)' : ''}">${item.budgeted||item.spent ? (diff >= 0 ? '+' : '') + fmt(diff) : '—'}</div>
+              <div style="font-variant-numeric: tabular-nums;font-size:13px">${item.budgeted ? fmt(item.budgeted) : '—'}</div>
+              <div style="font-variant-numeric: tabular-nums;font-size:13px">${item.spent ? fmt(item.spent) : '—'}</div>
+              <div style="font-variant-numeric: tabular-nums;font-size:13px;${diff < 0 ? 'color:var(--red);font-weight:600' : diff > 0 ? 'color:var(--green)' : ''}">${item.budgeted||item.spent ? (diff >= 0 ? '+' : '') + fmt(diff) : '—'}</div>
               <div><span class="li-status-chip ${liStatusClass[item.status||'planned']}">${liStatusLabel[item.status||'planned']}</span></div>
               <div><button class="edit-btn" onclick="openEditLineItemModal(${p.id},${item.id})">✎</button></div>
             </div>`;
           }).join('')}
           <div class="line-item-row" style="background:var(--paper-2);font-weight:600">
             <span>Total</span>
-            <span style="font-family:'DM Mono',monospace;font-size:13px">${fmt(itemsBudgeted)}</span>
-            <span style="font-family:'DM Mono',monospace;font-size:13px">${fmt(itemsSpent)}</span>
-            <span style="font-family:'DM Mono',monospace;font-size:13px;${itemsSpent>itemsBudgeted?'color:var(--red);font-weight:600':'color:var(--green)'}">${itemsBudgeted||itemsSpent?(itemsSpent<=itemsBudgeted?'+':'')+fmt(itemsBudgeted-itemsSpent):'—'}</span>
+            <span style="font-variant-numeric: tabular-nums;font-size:13px">${fmt(itemsBudgeted)}</span>
+            <span style="font-variant-numeric: tabular-nums;font-size:13px">${fmt(itemsSpent)}</span>
+            <span style="font-variant-numeric: tabular-nums;font-size:13px;${itemsSpent>itemsBudgeted?'color:var(--red);font-weight:600':'color:var(--green)'}">${itemsBudgeted||itemsSpent?(itemsSpent<=itemsBudgeted?'+':'')+fmt(itemsBudgeted-itemsSpent):'—'}</span>
             <span></span><span></span>
           </div>`}
         </div>
@@ -4396,7 +4354,7 @@ function renderCalendar() {
             <div style="font-size:11px;color:var(--ink-3)">${e.kind === 'bill' ? (e.paid ? '✓ Paid' : 'Unpaid') : 'Debt payment'}</div>
           </div>
         </div>
-        <div style="font-family:'DM Mono',monospace;font-size:14px;font-weight:500">${fmt(e.amount)}</div>
+        <div style="font-variant-numeric: tabular-nums;font-size:14px;font-weight:500">${fmt(e.amount)}</div>
       </div>`).join('');
   } else {
     detail.style.display = 'none';
