@@ -259,7 +259,7 @@
     .content { padding: 16px; }
     .stat-grid { grid-template-columns: repeat(2, 1fr) !important; }
     .cc-grid { grid-template-columns: 1fr !important; }
-    .paycheck-grid { grid-template-columns: 1fr !important; }
+    .paycheque-grid { grid-template-columns: 1fr !important; }
     .tab-grid { grid-template-columns: 1fr !important; }
     .annual-grid { grid-template-columns: repeat(2, 1fr) !important; }
     .line-item-row { grid-template-columns: 1fr 90px 70px !important; }
@@ -761,9 +761,9 @@
   @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   .view.active { animation: fadeIn 0.2s ease; }
 
-  /* ── PAYCHECK TRACKER ── */
-  .paycheck-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
-  .paycheck-card { padding: 16px 18px; }
+  /* ── PAYCHEQUE TRACKER ── */
+  .paycheque-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+  .paycheque-card { padding: 16px 18px; }
   .pc-label { font-variant-numeric: tabular-nums; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
   .pc-amount {  font-size: 22px; color: var(--ink); margin-bottom: 2px; }
   .pc-allocated { font-size: 12px; color: var(--ink-3); }
@@ -937,13 +937,13 @@
         </div>
 
         <!-- Debt warning banner -->
-        <!-- Paycheck allocation -->
+        <!-- Paycheque allocation -->
         <div class="section">
           <div class="section-header">
             <div class="section-title">Income Allocation</div>
             <button class="btn btn-ghost" style="font-size:12px" onclick="showView('income');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'))">Manage Income →</button>
           </div>
-          <div class="paycheck-grid" id="paycheck-grid"></div>
+          <div class="paycheque-grid" id="paycheque-grid"></div>
         </div>
 
         <!-- Projects strip -->
@@ -969,16 +969,16 @@
       <!-- BILLS VIEW -->
       <div class="view" id="view-bills">
 
-        <!-- Paycheck Planner -->
+        <!-- Paycheque Planner -->
         <div class="card" style="margin-bottom:20px;padding:0;overflow:visible">
           <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
             <div>
-              <div style="font-weight:600;font-size:14px;margin-bottom:2px">💰 Paycheck Planner</div>
-              <div style="font-size:12px;color:var(--ink-3)">Enter an expected paycheck and assign bills to it</div>
+              <div style="font-weight:600;font-size:14px;margin-bottom:2px">💰 Paycheque Planner</div>
+              <div style="font-size:12px;color:var(--ink-3)">Enter an expected paycheque and assign bills to it</div>
             </div>
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
               <select class="form-input" id="planner-income-select" style="padding:7px 12px;font-size:13px;width:180px" onchange="updatePlanner()">
-                <option value="">Select a paycheck…</option>
+                <option value="">Select a paycheque…</option>
               </select>
               <div style="display:flex;align-items:center;gap:6px">
                 <span style="font-size:12px;color:var(--ink-3)">or enter amount:</span>
@@ -990,7 +990,7 @@
           <!-- Planner summary bar -->
           <div id="planner-summary" style="display:none;padding:12px 20px;background:var(--paper-2);border-bottom:1px solid var(--border)">
             <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">
-              <div><span style="font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.06em">Paycheck</span><br><span style="font-size:18px;font-weight:600;font-variant-numeric:tabular-nums" id="planner-total">$0</span></div>
+              <div><span style="font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.06em">Paycheque</span><br><span style="font-size:18px;font-weight:600;font-variant-numeric:tabular-nums" id="planner-total">$0</span></div>
               <div><span style="font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.06em">Assigned</span><br><span style="font-size:18px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums" id="planner-assigned">$0</span></div>
               <div><span style="font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.06em">Remaining</span><br><span style="font-size:18px;font-weight:600;font-variant-numeric:tabular-nums" id="planner-remaining" style="color:var(--green)">$0</span></div>
               <div style="flex:1;min-width:120px">
@@ -1008,7 +1008,7 @@
               <div id="planner-unassigned-list"></div>
             </div>
             <div id="planner-assigned-section" style="display:none">
-              <div style="padding:8px 20px;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">Already Assigned to This Paycheck</div>
+              <div style="padding:8px 20px;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">Already Assigned to This Paycheque</div>
               <div id="planner-assigned-list"></div>
             </div>
           </div>
@@ -2673,10 +2673,10 @@ function renderDashboard() {
     strip.style.display = 'none';
   }
 
-  // Dynamic paycheck allocation cards
-  const pg = document.getElementById('paycheck-grid');
+  // Dynamic paycheque allocation cards
+  const pg = document.getElementById('paycheque-grid');
   if (inc.length === 0) {
-    pg.innerHTML = `<div class="card paycheck-card" style="grid-column:1/-1;text-align:center;padding:32px;color:var(--ink-3)">
+    pg.innerHTML = `<div class="card paycheque-card" style="grid-column:1/-1;text-align:center;padding:32px;color:var(--ink-3)">
       <div style="font-size:24px;margin-bottom:8px">💸</div>
       <div>No income recorded this month yet.</div>
       <button class="btn btn-ghost" style="margin-top:12px" onclick="openIncomeModal()">+ Add Income</button>
@@ -2686,7 +2686,7 @@ function renderDashboard() {
       const coveredBills = e.bills ? bs.filter(b => e.bills.toLowerCase().includes(b.name.toLowerCase())) : [];
       const allocated = coveredBills.reduce((s,b) => s+b.amount, 0);
       const remaining = e.amount - allocated;
-      return `<div class="card paycheck-card">
+      return `<div class="card paycheque-card">
         <div class="pc-label">${e.type} — ${formatDate(e.date) || 'No date'}</div>
         <div class="pc-amount">${fmt(e.amount)}</div>
         <div class="pc-allocated">${e.source}</div>
@@ -2940,14 +2940,14 @@ function getBillStatusChip(b) {
   return `<span class="paid-chip unpaid" onclick="togglePaid(${b.id})">○ Unpaid</span>`;
 }
 
-// ─── PAYCHECK PLANNER ────────────────────────────────────────────────────────
+// ─── PAYCHEQUE PLANNER ────────────────────────────────────────────────────────
 
 function populatePlannerIncomeSelect() {
   const sel = document.getElementById('planner-income-select');
   if (!sel) return;
   const cur = sel.value;
   const inc = income();
-  sel.innerHTML = '<option value="">Select a paycheck…</option>' +
+  sel.innerHTML = '<option value="">Select a paycheque…</option>' +
     inc.map(e => `<option value="${e.id}">${e.source} — ${fmt(e.amount)}${e.date ? ' · ' + formatDate(e.date) : ''}</option>`).join('');
   if (cur) sel.value = cur;
 }
@@ -2993,7 +2993,7 @@ function updatePlanner() {
     return new Date(a.due) - new Date(b.due);
   });
 
-  // Bills assigned to this specific paycheck source
+  // Bills assigned to this specific paycheque source
   const assignedToThis = sourceId
     ? unpaidBills.filter(b => b.plannerSourceId === sourceId)
     : unpaidBills.filter(b => b.plannerAssigned);
