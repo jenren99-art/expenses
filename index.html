@@ -968,6 +968,52 @@
 
       <!-- BILLS VIEW -->
       <div class="view" id="view-bills">
+
+        <!-- Paycheck Planner -->
+        <div class="card" style="margin-bottom:20px;padding:0;overflow:visible">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+            <div>
+              <div style="font-weight:600;font-size:14px;margin-bottom:2px">💰 Paycheck Planner</div>
+              <div style="font-size:12px;color:var(--ink-3)">Enter an expected paycheck and assign bills to it</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <select class="form-input" id="planner-income-select" style="padding:7px 12px;font-size:13px;width:180px" onchange="updatePlanner()">
+                <option value="">Select a paycheck…</option>
+              </select>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span style="font-size:12px;color:var(--ink-3)">or enter amount:</span>
+                <input class="form-input" id="planner-amount" type="number" step="0.01" placeholder="$0.00" style="width:120px;padding:7px 12px;font-size:13px" oninput="updatePlanner()">
+              </div>
+            </div>
+          </div>
+
+          <!-- Planner summary bar -->
+          <div id="planner-summary" style="display:none;padding:12px 20px;background:var(--paper-2);border-bottom:1px solid var(--border)">
+            <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+              <div><span style="font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.06em">Paycheck</span><br><span style="font-size:18px;font-weight:600;font-variant-numeric:tabular-nums" id="planner-total">$0</span></div>
+              <div><span style="font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.06em">Assigned</span><br><span style="font-size:18px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums" id="planner-assigned">$0</span></div>
+              <div><span style="font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.06em">Remaining</span><br><span style="font-size:18px;font-weight:600;font-variant-numeric:tabular-nums" id="planner-remaining" style="color:var(--green)">$0</span></div>
+              <div style="flex:1;min-width:120px">
+                <div style="height:6px;background:var(--paper-3);border-radius:3px;overflow:hidden">
+                  <div id="planner-bar" style="height:100%;border-radius:3px;transition:width 0.3s;background:var(--accent)"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Planner bill list -->
+          <div id="planner-bills" style="display:none">
+            <div id="planner-unassigned-section">
+              <div style="padding:8px 20px;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2);border-bottom:1px solid var(--border)">Unassigned Bills</div>
+              <div id="planner-unassigned-list"></div>
+            </div>
+            <div id="planner-assigned-section" style="display:none">
+              <div style="padding:8px 20px;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">Already Assigned to This Paycheck</div>
+              <div id="planner-assigned-list"></div>
+            </div>
+          </div>
+        </div>
+
         <div class="section">
           <div class="section-header">
             <div class="section-title">All Bills & Payments</div>
@@ -1348,7 +1394,7 @@
         <div style="display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap">
           <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3)"><div style="width:10px;height:10px;border-radius:50%;background:var(--accent)"></div>Bill due</div>
           <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3)"><div style="width:10px;height:10px;border-radius:50%;background:var(--green)"></div>Paid</div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3)"><div style="width:10px;height:10px;border-radius:50%;background:#1a7a4a"></div>Income</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3)"><div style="width:10px;height:10px;border-radius:50%;background:#3a6ea8"></div>Income</div>
           <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3)"><div style="width:10px;height:10px;border-radius:2px;background:var(--paper-2);border:1px solid var(--border)"></div>Today</div>
         </div>
 
@@ -2894,7 +2940,137 @@ function getBillStatusChip(b) {
   return `<span class="paid-chip unpaid" onclick="togglePaid(${b.id})">○ Unpaid</span>`;
 }
 
+// ─── PAYCHECK PLANNER ────────────────────────────────────────────────────────
+
+function populatePlannerIncomeSelect() {
+  const sel = document.getElementById('planner-income-select');
+  if (!sel) return;
+  const cur = sel.value;
+  const inc = income();
+  sel.innerHTML = '<option value="">Select a paycheck…</option>' +
+    inc.map(e => `<option value="${e.id}">${e.source} — ${fmt(e.amount)}${e.date ? ' · ' + formatDate(e.date) : ''}</option>`).join('');
+  if (cur) sel.value = cur;
+}
+
+function getPlannerAmount() {
+  const sel = document.getElementById('planner-income-select');
+  const manual = parseFloat(document.getElementById('planner-amount').value) || 0;
+  if (sel && sel.value) {
+    const e = income().find(e => e.id === parseInt(sel.value));
+    return e ? e.amount : manual;
+  }
+  return manual;
+}
+
+function getPlannerSourceId() {
+  const sel = document.getElementById('planner-income-select');
+  return sel && sel.value ? parseInt(sel.value) : null;
+}
+
+function updatePlanner() {
+  const amount = getPlannerAmount();
+  const sourceId = getPlannerSourceId();
+  const summary = document.getElementById('planner-summary');
+  const billsDiv = document.getElementById('planner-bills');
+
+  if (!amount) {
+    summary.style.display = 'none';
+    billsDiv.style.display = 'none';
+    return;
+  }
+
+  summary.style.display = 'block';
+  billsDiv.style.display = 'block';
+
+  const bs = bills();
+  const unpaidBills = bs.filter(b => {
+    const s = getBillStatus(b);
+    return s === 'unpaid' || s === 'partial';
+  }).sort((a, b) => {
+    if (!a.due && !b.due) return 0;
+    if (!a.due) return 1;
+    if (!b.due) return -1;
+    return new Date(a.due) - new Date(b.due);
+  });
+
+  // Bills assigned to this specific paycheck source
+  const assignedToThis = sourceId
+    ? unpaidBills.filter(b => b.plannerSourceId === sourceId)
+    : unpaidBills.filter(b => b.plannerAssigned);
+
+  const unassigned = unpaidBills.filter(b =>
+    sourceId ? b.plannerSourceId !== sourceId && !b.plannerAssigned :
+    !b.plannerAssigned
+  );
+
+  // Calculate totals
+  const assignedTotal = assignedToThis.reduce((s, b) => {
+    const paid = (b.payments||[]).reduce((ps,p) => ps+p.amount, 0);
+    return s + Math.max(0, b.amount - paid);
+  }, 0);
+
+  const remaining = amount - assignedTotal;
+  const pct = Math.min(100, amount > 0 ? assignedTotal / amount * 100 : 0);
+
+  document.getElementById('planner-total').textContent = fmt(amount);
+  document.getElementById('planner-assigned').textContent = fmt(assignedTotal);
+  const remEl = document.getElementById('planner-remaining');
+  remEl.textContent = fmt(Math.abs(remaining));
+  remEl.style.color = remaining < 0 ? 'var(--red)' : 'var(--green)';
+  remEl.textContent = (remaining < 0 ? '−' : '') + fmt(Math.abs(remaining));
+  document.getElementById('planner-bar').style.width = pct + '%';
+  document.getElementById('planner-bar').style.background = pct > 100 ? 'var(--red)' : pct > 80 ? 'var(--gold)' : 'var(--accent)';
+
+  function billRow(b, isAssigned) {
+    const paid = (b.payments||[]).reduce((ps,p) => ps+p.amount, 0);
+    const owed = Math.max(0, b.amount - paid);
+    const wouldExceed = !isAssigned && remaining - owed < 0;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid var(--border);${wouldExceed?'opacity:0.5':''}">
+      <input type="checkbox" ${isAssigned ? 'checked' : ''} onchange="togglePlannerBill(${b.id}, this.checked, ${sourceId||'null'})" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent)">
+      <div style="flex:1">
+        <div style="font-size:13.5px;font-weight:500">${b.name}</div>
+        <div style="font-size:11px;color:var(--ink-3)">${b.due ? 'Due ' + formatDate(b.due) : 'No due date'}${paid > 0 ? ' · ' + fmt(paid) + ' already paid' : ''}</div>
+      </div>
+      <div style="font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;color:${wouldExceed?'var(--red)':'var(--ink)'}">${fmt(owed)}</div>
+    </div>`;
+  }
+
+  // Unassigned section
+  const unassignedList = document.getElementById('planner-unassigned-list');
+  if (unassigned.length === 0) {
+    unassignedList.innerHTML = '<div style="padding:14px 20px;font-size:13px;color:var(--ink-3)">All unpaid bills have been assigned.</div>';
+  } else {
+    unassignedList.innerHTML = unassigned.map(b => billRow(b, false)).join('');
+  }
+
+  // Assigned section
+  const assignedSection = document.getElementById('planner-assigned-section');
+  const assignedList = document.getElementById('planner-assigned-list');
+  if (assignedToThis.length > 0) {
+    assignedSection.style.display = 'block';
+    assignedList.innerHTML = assignedToThis.map(b => billRow(b, true)).join('');
+  } else {
+    assignedSection.style.display = 'none';
+  }
+}
+
+function togglePlannerBill(billId, checked, sourceId) {
+  const b = bills().find(b => b.id === billId);
+  if (!b) return;
+  if (checked) {
+    b.plannerAssigned = true;
+    b.plannerSourceId = sourceId;
+  } else {
+    b.plannerAssigned = false;
+    b.plannerSourceId = null;
+  }
+  saveState();
+  updatePlanner();
+}
+
 function renderBills() {
+  populatePlannerIncomeSelect();
+  updatePlanner();
   const bs = bills();
   const billsTotal = bs.reduce((s,b) => s+b.amount, 0);
   document.getElementById('bills-count').textContent = bs.length + ' bills';
@@ -2923,6 +3099,7 @@ function renderBills() {
       <td>
         <strong>${b.name}</strong>
         <span style="margin-left:6px;font-size:11px;background:var(--paper-2);color:var(--ink-3);padding:2px 7px;border-radius:10px">${b.category}</span>
+        ${b.plannerAssigned ? `<span style="margin-left:4px;font-size:11px;background:#fff0eb;color:var(--accent);padding:2px 7px;border-radius:10px">💰 Assigned</span>` : ''}
         ${b.notes ? `<br><span style="font-size:11px;color:var(--ink-3)">${b.notes}</span>` : ''}
         ${payments.length > 0 ? `<div style="margin-top:5px;display:flex;flex-direction:column;gap:2px">
           ${payments.map(p => `<span style="font-size:11px;color:var(--green)">✓ ${fmt(p.amount)} paid ${formatDate(p.date)}${p.note?' · '+p.note:''} <span style="cursor:pointer;color:var(--ink-4)" onclick="deletePayment(${b.id},${p.id})">✕</span></span>`).join('')}
