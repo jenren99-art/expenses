@@ -929,9 +929,9 @@
             <span class="stat-badge badge-green" id="stat-net-badge">$0 remaining</span>
           </div>
           <div class="stat-card blue">
-            <div class="stat-label">Total Debt</div>
+            <div class="stat-label">Line of Credit</div>
             <div class="stat-value" id="stat-debt">$0</div>
-            <div class="stat-sub" id="stat-debt-trend">All sources</div>
+            <div class="stat-sub" id="stat-debt-trend"></div>
             <span class="stat-badge badge-gold" id="stat-debt-freedom">Debt freedom: —</span>
           </div>
         </div>
@@ -2557,10 +2557,18 @@ function deleteIncomeFromModal() {
 
 function renderDashboard() {
   const bs = bills();
-  const paid = bs.filter(b => b.paid);
-  const unpaid = bs.filter(b => !b.paid);
+  const paid = bs.filter(b => getBillStatus(b) === 'paid');
+  const partial = bs.filter(b => getBillStatus(b) === 'partial');
+  const unpaid = bs.filter(b => {
+    const status = getBillStatus(b);
+    return status === 'unpaid' || status === 'partial';
+  });
   const total = bs.reduce((s,b) => s+b.amount, 0);
-  const unpaidAmt = unpaid.reduce((s,b) => s+b.amount, 0);
+  // For cash flow, use remaining amounts (full amount minus any payments already made)
+  const unpaidAmt = unpaid.reduce((s,b) => {
+    const paid = (b.payments||[]).reduce((ps,p) => ps+p.amount, 0);
+    return s + (b.amount - paid);
+  }, 0);
 
   // Income data
   const inc = income();
@@ -2577,8 +2585,8 @@ function renderDashboard() {
   document.getElementById('stat-total').textContent = fmt(total);
   document.getElementById('stat-paid-count').textContent = paid.length;
   document.getElementById('stat-total-count').textContent = bs.length;
-  document.getElementById('stat-unpaid-badge').textContent = `● ${unpaid.length} unpaid`;
-  document.getElementById('stat-unpaid-badge').className = 'stat-badge ' + (unpaid.length > 0 ? 'badge-red' : 'badge-green');
+  document.getElementById('stat-unpaid-badge').textContent = `● ${unpaid.length} unpaid${partial.length > 0 ? ` · ${partial.length} partial` : ''}`;
+  document.getElementById('stat-unpaid-badge').className = 'stat-badge ' + (unpaid.length > 0 ? 'badge-red' : partial.length > 0 ? 'badge-gold' : 'badge-green');
   const net = totalIncome - total;
   document.getElementById('stat-remaining').textContent = fmt(Math.abs(net));
   document.getElementById('stat-remaining').style.color = net >= 0 ? 'var(--green)' : 'var(--red)';
@@ -2592,7 +2600,7 @@ function renderDashboard() {
   const avalancheMonths = allDebts.length > 0 ? Math.max(...allDebts.map(d => monthsToPayoff(d.balance,d.rate||0,d.actualPay||d.minPay||1)||999)) : 0;
   document.getElementById('stat-debt').textContent = fmt(totalDebt);
   document.getElementById('stat-debt').style.color = totalDebt > 0 ? 'var(--red)' : 'var(--green)';
-  document.getElementById('stat-debt-trend').textContent = totalDebt > 0 ? `CC + LOC combined` : 'Debt free! 🎉';
+  document.getElementById('stat-debt-trend').textContent = totalDebt === 0 ? '🎉 Debt free' : '';
   document.getElementById('stat-debt-freedom').textContent = totalDebt > 0 && avalancheMonths < 999 ? `Debt freedom: ${projectedDate(avalancheMonths)}` : totalDebt === 0 ? '🎉 Debt free' : 'Increase payments';
 
 
@@ -2650,20 +2658,34 @@ function renderDashboard() {
     }).join('');
   }
 
-  // Upcoming table
-  const upcoming = [...unpaid].sort((a,b) => new Date(a.due)-new Date(b.due));
+  // Upcoming table — include unpaid AND partial bills
+  const upcoming = [...bs.filter(b => {
+    const status = getBillStatus(b);
+    return status === 'unpaid' || status === 'partial';
+  })].sort((a,b) => new Date(a.due)-new Date(b.due));
   document.getElementById('upcoming-count').textContent = upcoming.length + ' items';
   const tb = document.getElementById('upcoming-table');
   if (upcoming.length === 0) {
     tb.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">✓</div><div class="empty-text">All bills paid this month!</div></div></td></tr>`;
   } else {
-    tb.innerHTML = upcoming.map(b => `<tr>
-      <td><strong>${b.name}</strong>${b.notes ? `<br><span style="font-size:11px;color:var(--ink-3)">${b.notes}</span>` : ''}</td>
-      <td class="amount">${fmt(b.amount)}</td>
-      <td><span class="due-date ${dueDateClass(b)}">${formatDate(b.due)}</span></td>
-      <td>${statusChip(b)}</td>
-      <td><button class="edit-btn" onclick="openEditModal(${b.id})">✎ Edit</button></td>
-    </tr>`).join('');
+    tb.innerHTML = upcoming.map(b => {
+      const payments = b.payments || [];
+      const totalPaid = payments.reduce((s,p) => s+p.amount, 0);
+      const remaining = b.amount - totalPaid;
+      const status = getBillStatus(b);
+      const isPartial = status === 'partial';
+      return `<tr${isPartial ? ' style="background:#fffbf0"' : ''}>
+        <td>
+          <strong>${b.name}</strong>
+          ${b.notes ? `<br><span style="font-size:11px;color:var(--ink-3)">${b.notes}</span>` : ''}
+          ${isPartial ? `<br><span style="font-size:11px;color:var(--gold)">${fmt(totalPaid)} paid · ${fmt(remaining)} remaining</span>` : ''}
+        </td>
+        <td class="amount" style="${isPartial ? 'color:var(--gold)' : ''}">${isPartial ? fmt(remaining) : fmt(b.amount)}</td>
+        <td><span class="due-date ${dueDateClass(b)}">${formatDate(b.due)}</span></td>
+        <td>${getBillStatusChip(b)}</td>
+        <td><button class="edit-btn" onclick="openEditModal(${b.id})">✎ Edit</button></td>
+      </tr>`;
+    }).join('');
   }
 }
 
