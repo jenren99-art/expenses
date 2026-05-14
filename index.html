@@ -561,7 +561,7 @@
   .cal-event.bill-paid { background: var(--green-light); color: var(--green); }
   .cal-event.bill-soon { background: var(--gold-light); color: var(--gold); }
   .cal-event.debt-due { background: #e8f0fe; color: #3a6ea8; }
-  .cal-event.income-received { background: #e8f5e8; color: #1a7a4a; font-weight: 600; }
+  .cal-event.income-received { background: #e8f0fe; color: #3a6ea8; font-weight: 600; }
   .cal-more { font-size: 10px; color: var(--ink-3); padding: 1px 4px; }
 
   /* ── ANNUAL VIEW ── */
@@ -1349,7 +1349,6 @@
           <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3)"><div style="width:10px;height:10px;border-radius:50%;background:var(--accent)"></div>Bill due</div>
           <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3)"><div style="width:10px;height:10px;border-radius:50%;background:var(--green)"></div>Paid</div>
           <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3)"><div style="width:10px;height:10px;border-radius:50%;background:#1a7a4a"></div>Income</div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3)"><div style="width:10px;height:10px;border-radius:50%;background:#3a6ea8"></div>Debt payment</div>
           <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3)"><div style="width:10px;height:10px;border-radius:2px;background:var(--paper-2);border:1px solid var(--border)"></div>Today</div>
         </div>
 
@@ -4405,12 +4404,7 @@ function renderCalendar() {
     }));
   }, []);
 
-  // Debt due dates
-  const debtEvents = debts.filter(d => {
-    if (!d.due) return false;
-    const [y, m] = d.due.substring(0,10).split('-').map(Number);
-    return y === calYear && m - 1 === calMonth;
-  });
+  // Debt events removed — tracked under Bills & Payments
 
   // Build events map by day
   const eventsByDay = {};
@@ -4423,12 +4417,6 @@ function renderCalendar() {
     const type = b.paid ? 'bill-paid' : diff < 0 ? 'bill-unpaid' : diff <= 5 ? 'bill-soon' : 'bill-unpaid';
     eventsByDay[day].push({ label: b.name, amount: b.amount, type, paid: b.paid, obj: b, kind: 'bill' });
   });
-  debtEvents.forEach(d => {
-    const day = parseInt(d.due.split('-')[2]);
-    if (!eventsByDay[day]) eventsByDay[day] = [];
-    eventsByDay[day].push({ label: d.name, amount: d.minPay || 0, type: 'debt-due', obj: d, kind: 'debt' });
-  });
-
   // Income events for this calendar month
   const monthIncome = (incomeStore[MONTHS.indexOf(MONTHS[calMonth])] || []).filter(e => {
     if (!e.date) return false;
@@ -4487,13 +4475,13 @@ function renderCalendar() {
     document.getElementById('cal-detail-items').innerHTML = evts.map(e => `
       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
         <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:8px;height:8px;border-radius:50%;background:${e.type==='bill-paid'?'var(--green)':e.type==='income-received'?'#1a7a4a':e.type==='debt-due'?'#3a6ea8':e.type==='bill-soon'?'var(--gold)':'var(--red)'}"></div>
+          <div style="width:8px;height:8px;border-radius:50%;background:${e.type==='bill-paid'?'var(--green)':e.type==='income-received'?'#3a6ea8':e.type==='debt-due'?'#3a6ea8':e.type==='bill-soon'?'var(--gold)':'var(--red)'}"></div>
           <div>
             <div style="font-weight:500;font-size:13.5px">${e.label}</div>
             <div style="font-size:11px;color:var(--ink-3)">${e.kind==='income'?'💰 Income received':e.kind==='bill'?(e.paid?'✓ Paid':'Unpaid'):'Debt payment'}</div>
           </div>
         </div>
-        <div style="font-variant-numeric:tabular-nums;font-size:14px;font-weight:600;color:${e.kind==='income'?'var(--green)':'var(--ink)'}">${e.kind==='income'?'+':''}${fmt(e.amount)}</div>
+        <div style="font-variant-numeric:tabular-nums;font-size:14px;font-weight:600;color:${e.kind==='income'?'#3a6ea8':'var(--ink)'}">${e.kind==='income'?'+':''}${fmt(e.amount)}</div>
       </div>`).join('');
   } else {
     detail.style.display = 'none';
