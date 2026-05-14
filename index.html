@@ -2914,7 +2914,11 @@ function renderBills() {
     const totalPaid = payments.reduce((s,p) => s+p.amount, 0);
     const remaining = b.amount - totalPaid;
     const status = getBillStatus(b);
-    return `<tr>
+    const isOverdue = status === 'unpaid' && daysBetween(b.due) !== null && daysBetween(b.due) < 0;
+    const rowBg = status === 'paid' ? 'background:#f0faf4' :
+                  status === 'partial' ? 'background:#fffbf0' :
+                  isOverdue ? 'background:#fff4f0' : '';
+    return `<tr style="${rowBg}">
       <td><input type="checkbox" class="bill-checkbox" data-id="${b.id}" onchange="updateBillsSelectionUI()" style="cursor:pointer"></td>
       <td>
         <strong>${b.name}</strong>
