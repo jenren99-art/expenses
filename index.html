@@ -255,22 +255,89 @@
     }
     .main { margin-left: 0; }
     .menu-btn { display: flex; }
-    .topbar { padding: 0 16px; }
-    .content { padding: 16px; }
-    .stat-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .topbar { padding: 0 12px; height: 56px; }
+    .page-title { font-size: 15px; }
+    .content { padding: 12px; }
+
+    /* Stat grids */
+    .stat-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; margin-bottom: 16px; }
+    .stat-value { font-size: 20px !important; }
+
+    /* Cards and sections */
+    .card { border-radius: 10px; }
+    .section { margin-bottom: 16px; }
+    .section-header { flex-wrap: wrap; gap: 8px; }
+
+    /* Tables — horizontal scroll */
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { min-width: 560px; }
+
+    /* Topbar actions — hide less important buttons */
+    .topbar-actions { gap: 6px; }
+    .topbar-actions .btn-ghost.hide-mobile { display: none; }
+
+    /* CC grid */
     .cc-grid { grid-template-columns: 1fr !important; }
     .paycheque-grid { grid-template-columns: 1fr !important; }
     .tab-grid { grid-template-columns: 1fr !important; }
     .annual-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+    /* Line items */
     .line-item-row { grid-template-columns: 1fr 90px 70px !important; }
     .line-item-row > *:nth-child(n+4) { display: none; }
-  }
-  @media (max-width: 480px) {
-    .stat-grid { grid-template-columns: 1fr !important; }
-    .topbar-actions .btn:not(.btn-primary) { display: none; }
+
+    /* Project totals */
+    .project-totals { grid-template-columns: repeat(2,1fr) !important; }
+
+    /* Paycheck planner */
+    .planner-header-row { flex-direction: column !important; align-items: flex-start !important; }
+
+    /* Calendar */
+    .cal-day { min-height: 60px; padding: 4px; }
+    .cal-event { font-size: 9px; padding: 1px 4px; }
+    .cal-day-num { font-size: 11px; }
+
+    /* Bills mobile cards */
+    .bills-table-wrap { display: none; }
+    .bills-mobile-list { display: block; }
+
+    /* Modal */
+    .modal { padding: 20px 16px; }
+    .form-row-2 { grid-template-columns: 1fr !important; }
+
+    /* Spending filters */
+    .txn-filters { flex-wrap: wrap; gap: 6px; }
+    .txn-filters .form-input { width: 100% !important; }
+    .txn-filters .btn { flex: 1; }
   }
 
-  /* ── VIEWS ── */
+  @media (max-width: 480px) {
+    .stat-grid { grid-template-columns: 1fr !important; }
+    .annual-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .topbar-actions .btn:not(.btn-primary) { display: none; }
+    .page-title { font-size: 14px; }
+  }
+
+  /* ── MOBILE BILL CARDS ── */
+  .bills-mobile-list { display: none; }
+  .bill-mobile-card {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .bill-mobile-card.paid { border-left: 3px solid var(--green); background: #f0faf4; }
+  .bill-mobile-card.partial { border-left: 3px solid var(--gold); background: #fffbf0; }
+  .bill-mobile-card.overdue { border-left: 3px solid var(--red); background: #fff4f0; }
+  .bill-mobile-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .bill-mobile-name { font-weight: 600; font-size: 14px; color: var(--ink); }
+  .bill-mobile-amount { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .bill-mobile-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+  .bill-mobile-actions { display: flex; gap: 8px; }
+  .bill-mobile-actions .btn { flex: 1; font-size: 13px; padding: 8px 12px; text-align: center; }
+
+  /* ── VIEWPORT META ── */
   .view { display: none; }
   .view.active { display: block; }
 
@@ -891,8 +958,8 @@
         <span id="sync-status" style="font-variant-numeric: tabular-nums;font-size:11px;color:var(--ink-3);padding:6px 12px;background:var(--paper-2);border-radius:20px;border:1px solid var(--border)">◌ Connecting…</span>
         <button class="btn btn-ghost" onclick="openModal()">+ Add Bill</button>
         <button class="btn btn-primary" onclick="markAllPaid()">✓ Mark All Paid</button>
-        <button class="btn btn-ghost" onclick="exportData()" title="Export data backup">⬇ Export</button>
-        <label class="btn btn-ghost" style="cursor:pointer" title="Import data backup">⬆ Import<input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)"></label>
+        <button class="btn btn-ghost hide-mobile" onclick="exportData()" title="Export data backup">⬇ Export</button>
+        <label class="btn btn-ghost hide-mobile" style="cursor:pointer" title="Import data backup">⬆ Import<input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)"></label>
         <button class="btn btn-ghost" onclick="resetState()" title="Reset all data" style="color:var(--ink-3);padding:8px 10px">↺</button>
       </div>
     </div>
@@ -950,12 +1017,14 @@
             <span class="section-count" id="upcoming-count">0 items</span>
           </div>
           <div class="card">
+            <div class="table-scroll">
             <table>
               <thead><tr>
                 <th>Bill</th><th>Amount</th><th>Due</th><th>Status</th><th></th>
               </tr></thead>
               <tbody id="upcoming-table"></tbody>
             </table>
+            </div>
           </div>
         </div>
       </div>
@@ -965,7 +1034,7 @@
 
         <!-- Paycheque Planner -->
         <div class="card" style="margin-bottom:20px;padding:0;overflow:visible">
-          <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap" class="planner-header-row">
             <div>
               <div style="font-weight:600;font-size:14px;margin-bottom:2px">💰 Paycheque Planner</div>
               <div style="font-size:12px;color:var(--ink-3)">Enter an expected paycheque and assign bills to it</div>
@@ -1018,7 +1087,9 @@
               <button class="btn btn-ghost" onclick="carryOverBills()" title="Copy all bills from previous month into this month">↩ Carry Over from Previous Month</button>
             </div>
           </div>
-          <div class="card">
+          <!-- Desktop table -->
+          <div class="card bills-table-wrap">
+            <div class="table-scroll">
             <table>
               <thead><tr>
                 <th style="width:36px"><input type="checkbox" id="bills-select-all" onchange="toggleAllBills(this.checked)" style="cursor:pointer"></th>
@@ -1026,7 +1097,10 @@
               </tr></thead>
               <tbody id="bills-table"></tbody>
             </table>
+            </div>
           </div>
+          <!-- Mobile cards -->
+          <div id="bills-mobile-list" class="bills-mobile-list"></div>
         </div>
       </div>
 
@@ -1066,7 +1140,7 @@
         <div class="section">
           <div class="section-header">
             <div class="section-title">All Transactions</div>
-            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap" class="txn-filters">
               <button class="btn btn-ghost" id="txn-delete-selected-btn" onclick="deleteSelectedTxns()" style="display:none;color:var(--red);border-color:var(--red)">✕ Delete Selected (<span id="txn-selected-count">0</span>)</button>
               <input class="form-input" id="txn-search" type="text" placeholder="Search merchant…" style="padding:7px 12px;font-size:13px;width:160px" oninput="renderTransactions()">
               <select class="form-input" id="txn-filter-cat" style="padding:7px 12px;font-size:13px" onchange="renderTransactions()">
@@ -1080,6 +1154,7 @@
             </div>
           </div>
           <div class="card">
+            <div class="table-scroll">
             <table>
               <thead><tr>
                 <th style="width:36px"><input type="checkbox" id="txn-select-all" onchange="toggleAllTxns(this.checked)" style="cursor:pointer"></th>
@@ -1087,6 +1162,7 @@
               </tr></thead>
               <tbody id="txn-table"></tbody>
             </table>
+            </div>
           </div>
         </div>
       </div>
@@ -1311,22 +1387,26 @@
             </div>
           </div>
           <div class="card">
+            <div class="table-scroll">
             <table>
               <thead><tr>
                 <th>Source</th><th>Amount</th><th>Date</th><th>Type</th><th>Bills Covered</th><th></th>
               </tr></thead>
               <tbody id="income-table"></tbody>
             </table>
+            </div>
           </div>
         </div>
 
         <div class="section">
           <div class="section-title" style="margin-bottom:14px">Annual Income Overview</div>
           <div class="card">
+            <div class="table-scroll">
             <table>
               <thead><tr><th>Month</th><th>Paycheques</th><th>Other Income</th><th>Total</th></tr></thead>
               <tbody id="income-annual-table"></tbody>
             </table>
+            </div>
           </div>
         </div>
       </div>
@@ -3103,6 +3183,44 @@ function renderBills() {
       </td>
     </tr>`;
   }).join('');
+
+  // Mobile card list
+  const mobileList = document.getElementById('bills-mobile-list');
+  if (mobileList) {
+    const sorted = [...bs].sort((a, b) => {
+      if (!a.due && !b.due) return 0;
+      if (!a.due) return 1;
+      if (!b.due) return -1;
+      return new Date(a.due) - new Date(b.due);
+    });
+    mobileList.innerHTML = sorted.map(b => {
+      const payments = b.payments || [];
+      const totalPaid = payments.reduce((s,p) => s+p.amount, 0);
+      const remaining = b.amount - totalPaid;
+      const status = getBillStatus(b);
+      const isOverdue = status === 'unpaid' && daysBetween(b.due) !== null && daysBetween(b.due) < 0;
+      const cardClass = status === 'paid' ? 'paid' : status === 'partial' ? 'partial' : isOverdue ? 'overdue' : '';
+      return `<div class="bill-mobile-card ${cardClass}">
+        <div class="bill-mobile-header">
+          <div>
+            <div class="bill-mobile-name">${b.name}</div>
+            <div style="font-size:11px;color:var(--ink-3);margin-top:2px">${b.category}${b.due ? ' · Due ' + formatDate(b.due) : ''}</div>
+          </div>
+          <div class="bill-mobile-amount">${fmt(status === 'partial' ? remaining : b.amount)}</div>
+        </div>
+        <div class="bill-mobile-meta">
+          ${getBillStatusChip(b)}
+          ${b.source ? `<span style="font-size:11px;color:var(--ink-3)">${b.source}</span>` : ''}
+          ${status === 'partial' ? `<span style="font-size:11px;color:var(--gold)">${fmt(totalPaid)} paid</span>` : ''}
+        </div>
+        ${payments.length > 0 ? `<div style="margin-bottom:8px">${payments.map(p => `<div style="font-size:11px;color:var(--green)">✓ ${fmt(p.amount)} on ${formatDate(p.date)}${p.note?' · '+p.note:''}</div>`).join('')}</div>` : ''}
+        <div class="bill-mobile-actions">
+          <button class="btn btn-ghost" onclick="openPaymentModal(${b.id})">+ Pay</button>
+          <button class="btn btn-ghost" onclick="openEditModal(${b.id})">✎ Edit</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
 }
 
 // ─── BUDGET MODAL ────────────────────────────────────────────────────────────
