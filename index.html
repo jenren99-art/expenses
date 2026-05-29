@@ -1545,7 +1545,7 @@
           <div class="annual-chart-label" style="margin-bottom:10px">Month-by-month breakdown</div>
           <div class="card" style="padding:0;overflow:hidden">
             <table>
-              <thead><tr><th>Month</th><th class="amount">Income</th><th class="amount">Bills</th><th class="amount">Net</th><th class="amount">Savings</th><th>Status</th></tr></thead>
+              <thead><tr><th>Month</th><th class="amount">Income</th><th class="amount">Bills</th><th class="amount">Net</th><th>Status</th></tr></thead>
               <tbody id="annual-table"></tbody>
             </table>
           </div>
@@ -4248,11 +4248,10 @@ function renderAnnual() {
     const isCurr = i === currentMonth;
     const netPos = d.net >= 0;
     return `<tr ${isCurr ? 'style="background:var(--paper-2)"' : ''}>
-      <td><strong>${d.month}</strong>${isCurr ? ' <span style="font-size:11px;color:var(--accent)">current</span>' : ''}</td>
+      <td><strong>${d.month}</strong>${isCurr ? ' <span style="font-size:11px;color:var(--accent)">current</span>' : ''}<br><span style="font-size:11px;color:var(--ink-3);font-weight:400">${MONTHS[i]}</span></td>
       <td class="amount">${d.hasData && d.income ? fmt(d.income) : '—'}</td>
       <td class="amount">${d.hasData && d.bills  ? fmt(d.bills)  : '—'}</td>
       <td class="amount" style="${d.hasData ? (netPos ? 'color:var(--green)' : 'color:var(--red)') : ''}">${d.hasData ? (d.net>=0?'+':'')+fmt(d.net) : '—'}</td>
-      <td class="amount" style="color:var(--green)">${d.hasData && d.savings ? fmt(d.savings) : '—'}</td>
       <td>${!d.hasData
         ? '<span style="color:var(--ink-4);font-size:12px">—</span>'
         : netPos
