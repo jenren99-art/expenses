@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Expenses — Personal Finance Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   :root {
     --ink: #111111;
@@ -281,6 +282,7 @@
     .paycheque-grid { grid-template-columns: 1fr !important; }
     .tab-grid { grid-template-columns: 1fr !important; }
     .annual-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .annual-stats { grid-template-columns: repeat(2, 1fr) !important; }
 
     /* Line items */
     .line-item-row { grid-template-columns: 1fr 90px 70px !important; }
@@ -314,6 +316,7 @@
   @media (max-width: 480px) {
     .stat-grid { grid-template-columns: 1fr !important; }
     .annual-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .annual-stats { grid-template-columns: repeat(2, 1fr) !important; }
     .topbar-actions .btn:not(.btn-primary) { display: none; }
     .page-title { font-size: 14px; }
   }
@@ -632,28 +635,33 @@
   .cal-more { font-size: 10px; color: var(--ink-3); padding: 1px 4px; }
 
   /* ── ANNUAL VIEW ── */
-  .annual-grid {
+  .annual-stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 12px;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
   }
-  .annual-month {
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    cursor: pointer;
-    transition: all 0.15s;
-    box-shadow: var(--shadow);
+  .annual-stat {
+    background: var(--paper-2);
+    border-radius: 10px;
+    padding: 14px 16px;
   }
-  .annual-month:hover { border-color: var(--accent); transform: translateY(-1px); }
-  .annual-month.current { border-color: var(--accent); background: #fff9f6; }
-  .am-name { font-variant-numeric: tabular-nums; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
-  .am-total {  font-size: 20px; color: var(--ink); margin-bottom: 4px; }
-  .am-meta { font-size: 11px; color: var(--ink-3); }
-  .am-bar { height: 3px; background: var(--paper-2); border-radius: 2px; margin-top: 10px; overflow: hidden; }
-  .am-fill { height: 100%; background: var(--accent); border-radius: 2px; opacity: 0.6; }
+  .annual-stat-label { font-size: 11px; color: var(--ink-3); margin-bottom: 4px; }
+  .annual-stat-value { font-size: 20px; font-weight: 600; color: var(--ink); }
+  .annual-stat-sub { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+  .annual-stat-value.pos { color: var(--green); }
+  .annual-stat-value.neg { color: var(--red); }
+  .annual-chart-section { margin-bottom: 24px; }
+  .annual-chart-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--ink-4);
+    margin-bottom: 8px;
+  }
+  .annual-legend { display: flex; gap: 18px; margin-bottom: 10px; font-size: 12px; color: var(--ink-3); }
+  .annual-legend span { display: flex; align-items: center; gap: 6px; }
+  .annual-legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .annual-chart-wrap { position: relative; width: 100%; }
+  .annual-net-wrap { position: relative; width: 100%; }
 
   /* ── SUBSCRIPTIONS ── */
   .sub-list { }
@@ -1491,14 +1499,53 @@
       <!-- ANNUAL VIEW -->
       <div class="view" id="view-annual">
         <div class="section">
-          <div class="section-title" style="margin-bottom:14px">2026 Overview</div>
-          <div class="annual-grid" id="annual-grid"></div>
-        </div>
-        <div class="section">
-          <div class="section-title" style="margin-bottom:14px">Year-to-Date Summary</div>
-          <div class="card">
+          <div class="section-title" style="margin-bottom:16px">2026 Overview</div>
+
+          <div class="annual-stats">
+            <div class="annual-stat">
+              <div class="annual-stat-label">YTD income</div>
+              <div class="annual-stat-value" id="ann-ytd-income">—</div>
+              <div class="annual-stat-sub" id="ann-ytd-income-sub"></div>
+            </div>
+            <div class="annual-stat">
+              <div class="annual-stat-label">YTD bills</div>
+              <div class="annual-stat-value" id="ann-ytd-bills">—</div>
+              <div class="annual-stat-sub" id="ann-ytd-bills-sub"></div>
+            </div>
+            <div class="annual-stat">
+              <div class="annual-stat-label">YTD net</div>
+              <div class="annual-stat-value" id="ann-ytd-net">—</div>
+              <div class="annual-stat-sub" id="ann-ytd-net-sub"></div>
+            </div>
+            <div class="annual-stat">
+              <div class="annual-stat-label">Avg monthly net</div>
+              <div class="annual-stat-value" id="ann-avg-net">—</div>
+              <div class="annual-stat-sub" id="ann-avg-net-sub"></div>
+            </div>
+          </div>
+
+          <div class="annual-chart-section">
+            <div class="annual-chart-label">Income vs bills — monthly</div>
+            <div class="annual-legend">
+              <span><span class="annual-legend-dot" style="background:#3a6ea8"></span>Income</span>
+              <span><span class="annual-legend-dot" style="background:#e8470a"></span>Bills</span>
+            </div>
+            <div class="annual-chart-wrap" style="height:240px">
+              <canvas id="ann-bar-chart" role="img" aria-label="Grouped bar chart showing monthly income and bills for 2026.">Monthly income vs bills for 2026.</canvas>
+            </div>
+          </div>
+
+          <div class="annual-chart-section">
+            <div class="annual-chart-label">Monthly net balance</div>
+            <div class="annual-net-wrap" style="height:130px">
+              <canvas id="ann-net-chart" role="img" aria-label="Line chart showing net balance per month for 2026.">Monthly net balance for 2026.</canvas>
+            </div>
+          </div>
+
+          <div class="annual-chart-label" style="margin-bottom:10px">Month-by-month breakdown</div>
+          <div class="card" style="padding:0;overflow:hidden">
             <table>
-              <thead><tr><th>Month</th><th>Total Bills</th><th>Paid</th><th>Savings</th><th>CC Spend</th><th>Status</th></tr></thead>
+              <thead><tr><th>Month</th><th class="amount">Income</th><th class="amount">Bills</th><th class="amount">Net</th><th class="amount">Savings</th><th>Status</th></tr></thead>
               <tbody id="annual-table"></tbody>
             </table>
           </div>
@@ -2288,6 +2335,7 @@ function initData(saved) {
     creditCards = saved.creditCards || JSON.parse(JSON.stringify(initialCreditCards));
     savings = saved.savings || JSON.parse(JSON.stringify(initialSavings));
     budgetCategories = saved.budgetCategories || JSON.parse(JSON.stringify(initialBudgetCategories));
+    budgetCategories = budgetCategories.filter(c => !/tobacco|cigar/i.test(c.name));
     if (saved.incomeStore) Object.entries(saved.incomeStore).forEach(([k, v]) => { incomeStore[parseInt(k)] = v; });
     nextIncomeId = saved.nextIncomeId || 600;
     if (saved.transactionStore) Object.entries(saved.transactionStore).forEach(([k, v]) => { transactionStore[parseInt(k)] = v; });
@@ -4099,31 +4147,120 @@ function renderSubs() {
     </div>`).join('');
 }
 
+let annBarChart = null;
+let annNetChart = null;
+
 function renderAnnual() {
   const annualData = MONTHS.map((m, i) => {
     const bs = billsStore[i] || [];
-    const total = bs.reduce((s,b) => s+b.amount, 0);
-    const paid = bs.filter(b=>b.paid).length;
-    return { month: MONTHS_SHORT[i], total, paid, count:bs.length, hasData: bs.length > 0 };
+    const bills = bs.reduce((s,b) => s+b.amount, 0);
+    const inc = (incomeStore[i] || []).reduce((s,e) => s+e.amount, 0);
+    const sav = savings.reduce((s,sv) => s+(sv.monthly||0), 0);
+    const hasData = bs.length > 0 || inc > 0;
+    return { month: MONTHS_SHORT[i], bills, income: inc, savings: sav, net: inc - bills, hasData };
   });
-  const maxTotal = Math.max(...annualData.filter(d=>d.total>0).map(d=>d.total), 1);
 
-  document.getElementById('annual-grid').innerHTML = annualData.map((d,i) => `
-    <div class="annual-month ${i===currentMonth?'current':''}" onclick="setMonth(${i})">
-      <div class="am-name">${d.month} 2026</div>
-      <div class="am-total">${d.hasData ? fmt(d.total) : '—'}</div>
-      <div class="am-meta">${d.hasData ? `${d.paid}/${d.count} paid` : 'No data yet'}</div>
-      <div class="am-bar"><div class="am-fill" style="width:${d.total/maxTotal*100}%"></div></div>
-    </div>`).join('');
+  // Only count months that have data for YTD stats
+  const datMonths = annualData.filter(d => d.hasData);
+  const ytdIncome = datMonths.reduce((s,d) => s+d.income, 0);
+  const ytdBills  = datMonths.reduce((s,d) => s+d.bills, 0);
+  const ytdNet    = ytdIncome - ytdBills;
+  const avgNet    = datMonths.length > 0 ? ytdNet / datMonths.length : 0;
 
-  document.getElementById('annual-table').innerHTML = annualData.map((d,i) => `<tr ${i===currentMonth?'style="background:var(--paper)"':''}>
-    <td><strong>${d.month}</strong>${i===currentMonth?' <span style="font-size:11px;color:var(--accent)">current</span>':''}</td>
-    <td class="amount">${d.hasData ? fmt(d.total) : '—'}</td>
-    <td style="font-size:12px;color:var(--ink-3)">${d.hasData ? `${d.paid}/${d.count}` : '—'}</td>
-    <td class="amount" style="color:var(--green)">$1,455</td>
-    <td style="font-size:12px;color:var(--ink-3)">${d.hasData ? fmt(creditCards.reduce((s,c)=>s+c.balance,0)) : '—'}</td>
-    <td>${d.hasData ? `<span class="paid-chip ${d.paid===d.count?'paid':'upcoming'}">${d.paid===d.count?'✓ Done':'In progress'}</span>` : '<span style="color:var(--ink-4);font-size:12px">—</span>'}</td>
-  </tr>`).join('');
+  // Stat cards
+  const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  const setClass = (id, cls) => { const el = document.getElementById(id); if (el) { el.classList.remove('pos','neg'); if (cls) el.classList.add(cls); } };
+
+  setEl('ann-ytd-income', ytdIncome ? fmt(ytdIncome) : '—');
+  setEl('ann-ytd-income-sub', datMonths.length ? `${MONTHS_SHORT[0]} – ${datMonths[datMonths.length-1].month} 2026` : '');
+  setEl('ann-ytd-bills', ytdBills ? fmt(ytdBills) : '—');
+  setEl('ann-ytd-bills-sub', datMonths.length ? `Across ${datMonths.length} month${datMonths.length!==1?'s':''}` : '');
+  setEl('ann-ytd-net', ytdIncome||ytdBills ? (ytdNet>=0?'+':'')+fmt(ytdNet) : '—');
+  setClass('ann-ytd-net', ytdNet>0?'pos':ytdNet<0?'neg':'');
+  setEl('ann-ytd-net-sub', ytdNet >= 0 ? 'Surplus so far' : 'Deficit so far');
+  setEl('ann-avg-net', datMonths.length ? (avgNet>=0?'+':'')+fmt(Math.round(avgNet)) : '—');
+  setClass('ann-avg-net', avgNet>0?'pos':avgNet<0?'neg':'');
+  setEl('ann-avg-net-sub', 'Per month with data');
+
+  // Chart data — null for months with no data so Chart.js skips them
+  const incData  = annualData.map(d => d.hasData ? d.income  : null);
+  const billData = annualData.map(d => d.hasData ? d.bills   : null);
+  const netData  = annualData.map(d => d.hasData ? d.net     : null);
+  const labels   = MONTHS_SHORT;
+
+  // Bar chart
+  const barCanvas = document.getElementById('ann-bar-chart');
+  if (barCanvas) {
+    if (annBarChart) { annBarChart.destroy(); annBarChart = null; }
+    annBarChart = new Chart(barCanvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Income',  data: incData,  backgroundColor: '#3a6ea8', borderRadius: 3, barPercentage: 0.7 },
+          { label: 'Bills',   data: billData, backgroundColor: '#e8470a', borderRadius: 3, barPercentage: 0.7 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y) } } },
+        scales: {
+          x: { ticks: { autoSkip: false, maxRotation: 0, font: { size: 11 }, color: '#888' }, grid: { display: false } },
+          y: { ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k', font: { size: 11 }, color: '#888' }, grid: { color: 'rgba(0,0,0,0.05)' } }
+        }
+      }
+    });
+  }
+
+  // Net line chart
+  const netCanvas = document.getElementById('ann-net-chart');
+  if (netCanvas) {
+    if (annNetChart) { annNetChart.destroy(); annNetChart = null; }
+    annNetChart = new Chart(netCanvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Net',
+          data: netData,
+          borderColor: '#1a7a4a',
+          backgroundColor: 'rgba(26,122,74,0.07)',
+          pointBackgroundColor: (netData).map(v => v === null ? 'transparent' : v >= 0 ? '#1a7a4a' : '#e8470a'),
+          pointRadius: 4,
+          tension: 0.35,
+          fill: true,
+          spanGaps: false
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' Net: ' + (ctx.parsed.y>=0?'+':'') + fmt(ctx.parsed.y) } } },
+        scales: {
+          x: { ticks: { autoSkip: false, maxRotation: 0, font: { size: 11 }, color: '#888' }, grid: { display: false } },
+          y: { ticks: { callback: v => (v>=0?'+':'') + '$' + Math.abs(v/1000).toFixed(0) + 'k', font: { size: 11 }, color: '#888' }, grid: { color: 'rgba(0,0,0,0.05)' } }
+        }
+      }
+    });
+  }
+
+  // Table
+  document.getElementById('annual-table').innerHTML = annualData.map((d,i) => {
+    const isCurr = i === currentMonth;
+    const netPos = d.net >= 0;
+    return `<tr ${isCurr ? 'style="background:var(--paper-2)"' : ''}>
+      <td><strong>${d.month}</strong>${isCurr ? ' <span style="font-size:11px;color:var(--accent)">current</span>' : ''}</td>
+      <td class="amount">${d.hasData && d.income ? fmt(d.income) : '—'}</td>
+      <td class="amount">${d.hasData && d.bills  ? fmt(d.bills)  : '—'}</td>
+      <td class="amount" style="${d.hasData ? (netPos ? 'color:var(--green)' : 'color:var(--red)') : ''}">${d.hasData ? (d.net>=0?'+':'')+fmt(d.net) : '—'}</td>
+      <td class="amount" style="color:var(--green)">${d.hasData && d.savings ? fmt(d.savings) : '—'}</td>
+      <td>${!d.hasData
+        ? '<span style="color:var(--ink-4);font-size:12px">—</span>'
+        : netPos
+          ? '<span class="paid-chip paid">Surplus</span>'
+          : '<span class="paid-chip" style="background:var(--red-light);color:var(--red)">Deficit</span>'
+      }</td>
+    </tr>`;
+  }).join('');
 }
 
 // ─── DEBT MODAL & RENDER ─────────────────────────────────────────────────────
