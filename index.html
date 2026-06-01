@@ -305,7 +305,21 @@
   .mob-more-item.active { background: #fff0eb; color: var(--accent); }
   .mob-more-item svg { width: 20px; height: 20px; }
 
+  /* Bills mobile list: hidden by default, shown on mobile via media query */
+  .bills-mobile-list { display: none; }
+
+  /* Mobile month nav arrows — hidden on desktop */
+  .mob-month-nav { display: none; gap: 2px; align-items: center; margin-left: 4px; }
+  .mob-month-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 22px; line-height: 1; color: var(--ink-3);
+    padding: 4px 6px; border-radius: 6px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mob-month-btn:active { background: var(--paper-2); color: var(--ink); }
+
   @media (max-width: 768px) {
+    .mob-month-nav { display: flex; }
     .sidebar {
       position: fixed;
       width: 0 !important;
@@ -363,9 +377,12 @@
     .cal-event { font-size: 9px; padding: 1px 4px; }
     .cal-day-num { font-size: 11px; }
 
+    /* Budget grid — single column on mobile */
+    .budget-grid { grid-template-columns: 1fr !important; gap: 0 !important; margin-bottom: 0 !important; }
+
     /* Bills mobile cards */
     .bills-table-wrap { display: none; }
-    .bills-mobile-list { display: block; }
+    .bills-mobile-list { display: block !important; }
 
     /* Modal */
     .modal { padding: 20px 16px; }
@@ -385,8 +402,7 @@
     .page-title { font-size: 14px; }
   }
 
-  /* ── MOBILE BILL CARDS ── */
-  .bills-mobile-list { display: none; }
+  /* ── MOBILE BILL CARDS ── (default: hidden; revealed inside @media above) */
   .bill-mobile-card {
     background: var(--paper);
     border: 1px solid var(--border);
@@ -1088,6 +1104,10 @@
       <div class="topbar-left">
         <button class="menu-btn" id="menu-btn" onclick="toggleSidebar()">☰</button>
         <h1 class="page-title" id="pageTitle">Dashboard <span id="monthDisplay">— May 2026</span></h1>
+        <div class="mob-month-nav" id="mob-month-nav">
+          <button class="mob-month-btn" onclick="shiftMonth(-1)" title="Previous month">‹</button>
+          <button class="mob-month-btn" onclick="shiftMonth(1)" title="Next month">›</button>
+        </div>
       </div>
       <div class="topbar-actions">
         <span id="sync-status" style="font-variant-numeric: tabular-nums;font-size:11px;color:var(--ink-3);padding:6px 12px;background:var(--paper-2);border-radius:20px;border:1px solid var(--border)">◌ Connecting…</span>
@@ -2862,6 +2882,12 @@ function setMonth(idx) {
   const titleSpan = document.getElementById('monthDisplay');
   if (titleSpan) titleSpan.textContent = '— ' + MONTHS[idx] + ' 2026';
   render();
+}
+
+function shiftMonth(dir) {
+  const next = currentMonth + dir;
+  if (next < 0 || next > 11) return;
+  setMonth(next);
 }
 
 // ─── INCOME MODAL ────────────────────────────────────────────────────────────
