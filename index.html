@@ -2044,12 +2044,12 @@
     </div>
     <div class="form-row-2">
       <div>
-        <label class="form-label">Current Balance (CAD)</label>
-        <input class="form-input" id="cf-balance" type="number" placeholder="0.00" step="0.01">
+        <label class="form-label">Purchase Interest Rate (APR %)</label>
+        <input class="form-input" id="cf-purchase-rate" type="number" placeholder="e.g. 19.99" step="0.01">
       </div>
       <div>
-        <label class="form-label">Statement Balance (CAD)</label>
-        <input class="form-input" id="cf-statement" type="number" placeholder="0.00" step="0.01">
+        <label class="form-label">Cash Advance Rate (APR %)</label>
+        <input class="form-input" id="cf-cash-rate" type="number" placeholder="e.g. 22.99" step="0.01">
       </div>
     </div>
     <div class="form-row-2">
@@ -2058,31 +2058,7 @@
         <input class="form-input" id="cf-target" type="number" placeholder="0.00" step="0.01">
       </div>
       <div>
-        <label class="form-label">Interest Rate (APR %)</label>
-        <input class="form-input" id="cf-apr" type="number" placeholder="e.g. 19.99" step="0.01">
-      </div>
-    </div>
-    <div class="form-row-2">
-      <div>
-        <label class="form-label">Minimum Payment</label>
-        <input class="form-input" id="cf-minpay" type="number" placeholder="0.00" step="0.01">
-      </div>
-      <div>
-        <label class="form-label">Payment Status</label>
-        <select class="form-input" id="cf-status">
-          <option value="unpaid">Unpaid</option>
-          <option value="partial">Partial Payment</option>
-          <option value="paid">Paid in Full</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row-2">
-      <div>
-        <label class="form-label">Amount Paid This Month</label>
-        <input class="form-input" id="cf-paid-amount" type="number" placeholder="0.00" step="0.01">
-      </div>
-      <div>
-        <label class="form-label">Carrying Balance</label>
+        <label class="form-label">Carrying Balance (if any)</label>
         <input class="form-input" id="cf-carrying" type="number" placeholder="0.00" step="0.01">
       </div>
     </div>
@@ -2472,7 +2448,7 @@ async function loadFromDrive() {
             initData(localData);
             // Re-save the recovered data to Drive immediately
             showSyncStatus('saving');
-            const recoverPayload = JSON.stringify({ billsStore, nextId, subscriptions, creditCards, savings, budgetCategories, incomeStore, nextIncomeId, transactionStore, nextTxnId, debts, nextDebtId, projects, nextProjectId, nextLineItemId });
+            const recoverPayload = JSON.stringify({ billsStore, nextId, subscriptions, creditCards, cardStatements, savings, budgetCategories, incomeStore, nextIncomeId, transactionStore, nextTxnId, debts, nextDebtId, projects, nextProjectId, nextLineItemId });
             await driveRequest(
               `https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`,
               { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: recoverPayload }
@@ -2544,7 +2520,7 @@ async function writeToDrive() {
     return;
   }
   showSyncStatus('saving');
-  const payload = JSON.stringify({ billsStore, nextId, subscriptions, creditCards, savings, budgetCategories, incomeStore, nextIncomeId, transactionStore, nextTxnId, debts, nextDebtId, projects, nextProjectId, nextLineItemId });
+  const payload = JSON.stringify({ billsStore, nextId, subscriptions, creditCards, cardStatements, savings, budgetCategories, incomeStore, nextIncomeId, transactionStore, nextTxnId, debts, nextDebtId, projects, nextProjectId, nextLineItemId });
   console.log('Writing to Drive, fileId:', driveFileId, 'payload size:', payload.length);
   try {
     const resp = await driveRequest(
@@ -2577,7 +2553,7 @@ function saveState() {
 // ── Local fallback (backup + offline) ──
 
 function saveLocalFallback() {
-  try { localStorage.setItem('expenses2026_backup', JSON.stringify({ billsStore, nextId, subscriptions, creditCards, savings, budgetCategories, incomeStore, nextIncomeId, transactionStore, nextTxnId, debts, nextDebtId, projects, nextProjectId, nextLineItemId })); }
+  try { localStorage.setItem('expenses2026_backup', JSON.stringify({ billsStore, nextId, subscriptions, creditCards, cardStatements, savings, budgetCategories, incomeStore, nextIncomeId, transactionStore, nextTxnId, debts, nextDebtId, projects, nextProjectId, nextLineItemId })); }
   catch(e) {}
 }
 
@@ -2597,6 +2573,7 @@ function initData(saved) {
     nextId = saved.nextId || 100;
     subscriptions = saved.subscriptions || JSON.parse(JSON.stringify(initialSubscriptions));
     creditCards = saved.creditCards || JSON.parse(JSON.stringify(initialCreditCards));
+    cardStatements = saved.cardStatements || {};
     savings = saved.savings || JSON.parse(JSON.stringify(initialSavings));
     budgetCategories = saved.budgetCategories || JSON.parse(JSON.stringify(initialBudgetCategories));
     budgetCategories = budgetCategories.filter(c => !/tobacco|cigar/i.test(c.name));
@@ -2673,7 +2650,7 @@ function resetState() {
 }
 
 function exportData() {
-  const data = { billsStore, nextId, subscriptions, creditCards, savings, budgetCategories, incomeStore, nextIncomeId, transactionStore, nextTxnId, debts, nextDebtId, projects, nextProjectId, nextLineItemId };
+  const data = { billsStore, nextId, subscriptions, creditCards, cardStatements, savings, budgetCategories, incomeStore, nextIncomeId, transactionStore, nextTxnId, debts, nextDebtId, projects, nextProjectId, nextLineItemId };
   const json = JSON.stringify(data, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -2753,6 +2730,7 @@ let budgetCategories = [];
 
 const initialCreditCards = [];
 let creditCards = [];
+let cardStatements = {}; // cardStatements[monthIndex][cardId] = { balance, dueDate, statementDate, purchaseRate, cashAdvanceRate, minPayment }
 
 const initialSubscriptions = [];
 let subscriptions = [];
@@ -3757,6 +3735,10 @@ Return ONLY a JSON object with this exact structure, no other text, no markdown:
 {
   "statementBalance": 1234.56,
   "minimumPayment": 25.00,
+  "dueDate": "2026-06-21",
+  "statementDate": "2026-05-28",
+  "purchaseRate": 19.99,
+  "cashAdvanceRate": 22.99,
   "transactions": [
     {
       "description": "merchant name, cleaned up",
@@ -3771,6 +3753,10 @@ Return ONLY a JSON object with this exact structure, no other text, no markdown:
 
 statementBalance: the balance the cardholder needs to pay this month (positive number).
 minimumPayment: minimum payment required (positive number, or null if not found).
+dueDate: payment due date in YYYY-MM-DD format (or null if not found).
+statementDate: statement closing/cycle end date in YYYY-MM-DD format (or null if not found).
+purchaseRate: annual purchase interest rate as a number e.g. 19.99 (or null if not found).
+cashAdvanceRate: annual cash advance interest rate as a number e.g. 22.99 (or null if not found).
 confidence: "high" if obvious, "medium" if reasonable guess, "low" if uncertain.
 isNewCategory: true if you're suggesting a new category not in the list.
 Dates must be YYYY-MM-DD. Amounts must be positive numbers.
@@ -3794,6 +3780,10 @@ Include ALL transactions found in the statement regardless of date.`
     const transactions = Array.isArray(parsed) ? parsed : (parsed.transactions || []);
     const statementBalance = !Array.isArray(parsed) ? parsed.statementBalance : null;
     const minimumPayment = !Array.isArray(parsed) ? parsed.minimumPayment : null;
+    const dueDate = !Array.isArray(parsed) ? (parsed.dueDate || null) : null;
+    const statementDate = !Array.isArray(parsed) ? (parsed.statementDate || null) : null;
+    const purchaseRate = !Array.isArray(parsed) ? (parsed.purchaseRate || null) : null;
+    const cashAdvanceRate = !Array.isArray(parsed) ? (parsed.cashAdvanceRate || null) : null;
 
     // Find any new categories Claude suggested
     const newCats = [...new Set(
@@ -3835,13 +3825,25 @@ Include ALL transactions found in the statement regardless of date.`
       cardName.toLowerCase().includes(c.name.toLowerCase())
     );
     if (matchCard) {
-      // Use the actual statement balance if extracted, otherwise fall back to transaction sum
-      if (statementBalance) {
-        matchCard.balance = statementBalance;
-      }
+      // Write statement snapshot to cardStatements[month][cardId]
+      if (!cardStatements[importMonth]) cardStatements[importMonth] = {};
+      cardStatements[importMonth][matchCard.id] = {
+        balance: statementBalance || 0,
+        dueDate: dueDate || null,
+        statementDate: statementDate || new Date().toISOString().split('T')[0],
+        minPayment: minimumPayment || null,
+        purchaseRate: purchaseRate || null,
+        cashAdvanceRate: cashAdvanceRate || null,
+        importedAt: new Date().toISOString(),
+      };
+      // Only override rates on the card if the statement provided them
+      if (purchaseRate) matchCard.purchaseRate = purchaseRate;
+      if (cashAdvanceRate) matchCard.cashAdvanceRate = cashAdvanceRate;
       if (minimumPayment) matchCard.minPay = minimumPayment;
+      // Keep balance on the card object for backward compat with debt tab
+      if (statementBalance) matchCard.balance = statementBalance;
       matchCard.statementImported = true;
-      matchCard.statementDate = new Date().toISOString().split('T')[0];
+      matchCard.statementDate = statementDate || new Date().toISOString().split('T')[0];
     }
 
     saveState(); render();
@@ -4260,9 +4262,8 @@ function openCardModal() {
   document.getElementById('card-modal-save-btn').textContent = 'Add Card';
   document.getElementById('card-modal-delete-btn').style.display = 'none';
   document.getElementById('cf-id').value = '';
-  ['cf-name','cf-last4','cf-balance','cf-statement','cf-target','cf-apr','cf-minpay','cf-paid-amount','cf-carrying','cf-perks'].forEach(id => document.getElementById(id).value = '');
+  ['cf-name','cf-last4','cf-purchase-rate','cf-cash-rate','cf-target','cf-carrying','cf-perks'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('cf-color').value = '#1a1a18';
-  document.getElementById('cf-status').value = 'unpaid';
   document.getElementById('card-modal').classList.add('open');
 }
 
@@ -4277,16 +4278,12 @@ function openEditCardModal(id) {
   document.getElementById('cf-id').value = c.id;
   document.getElementById('cf-name').value = c.name;
   document.getElementById('cf-last4').value = c.last4 || '';
-  document.getElementById('cf-balance').value = c.balance;
-  document.getElementById('cf-statement').value = c.statement || '';
-  document.getElementById('cf-target').value = c.target;
-  document.getElementById('cf-apr').value = c.apr || '';
-  document.getElementById('cf-minpay').value = c.minPay || '';
-  document.getElementById('cf-paid-amount').value = c.paidAmount || '';
+  document.getElementById('cf-purchase-rate').value = c.purchaseRate || c.apr || '';
+  document.getElementById('cf-cash-rate').value = c.cashAdvanceRate || '';
+  document.getElementById('cf-target').value = c.target || '';
   document.getElementById('cf-carrying').value = c.carrying || '';
   document.getElementById('cf-perks').value = c.perks || '';
   document.getElementById('cf-color').value = c.color || '#1a1a18';
-  document.getElementById('cf-status').value = c.status || 'unpaid';
   document.getElementById('card-modal').classList.add('open');
 }
 
@@ -4296,23 +4293,19 @@ function saveCardModal() {
   const id = document.getElementById('cf-id').value;
   const name = document.getElementById('cf-name').value.trim();
   const last4 = document.getElementById('cf-last4').value.trim();
-  const balance = parseFloat(document.getElementById('cf-balance').value) || 0;
-  const statement = parseFloat(document.getElementById('cf-statement').value) || 0;
+  const purchaseRate = parseFloat(document.getElementById('cf-purchase-rate').value) || 0;
+  const cashAdvanceRate = parseFloat(document.getElementById('cf-cash-rate').value) || 0;
   const target = parseFloat(document.getElementById('cf-target').value) || 0;
-  const apr = parseFloat(document.getElementById('cf-apr').value) || 0;
-  const minPay = parseFloat(document.getElementById('cf-minpay').value) || 0;
-  const paidAmount = parseFloat(document.getElementById('cf-paid-amount').value) || 0;
   const carrying = parseFloat(document.getElementById('cf-carrying').value) || 0;
   const perks = document.getElementById('cf-perks').value.trim();
   const color = document.getElementById('cf-color').value;
-  const status = document.getElementById('cf-status').value;
   if (!name) return;
 
   if (id) {
     const c = creditCards.find(c => c.id === parseInt(id));
-    if (c) { c.name = name; c.last4 = last4; c.balance = balance; c.statement = statement; c.target = target; c.apr = apr; c.minPay = minPay; c.paidAmount = paidAmount; c.carrying = carrying; c.perks = perks; c.color = color; c.status = status; }
+    if (c) { c.name = name; c.last4 = last4; c.purchaseRate = purchaseRate; c.cashAdvanceRate = cashAdvanceRate; c.target = target; c.carrying = carrying; c.perks = perks; c.color = color; }
   } else {
-    creditCards.push({ id: nextCardId++, name, last4, balance, statement, target, apr, minPay, paidAmount, carrying, perks, color, status });
+    creditCards.push({ id: nextCardId++, name, last4, purchaseRate, cashAdvanceRate, target, carrying, perks, color, balance: 0 });
   }
   closeCardModal();
   saveState(); render();
@@ -4328,47 +4321,132 @@ function deleteCardFromModal() {
 }
 
 function renderCards() {
-  const totalBalance = creditCards.reduce((s, c) => s + c.balance, 0);
-  const totalTarget = creditCards.reduce((s, c) => s + c.target, 0);
+  // Get this month's statements
+  const monthStmts = cardStatements[currentMonth] || {};
+
+  // Build per-card payment status from billsStore
+  const monthBills = billsStore[currentMonth] || [];
+
+  // Summary stats from this month's statement data
+  const totalBalance = creditCards.reduce((s, c) => {
+    const stmt = monthStmts[c.id];
+    return s + (stmt ? stmt.balance : (c.balance || 0));
+  }, 0);
+  const totalTarget = creditCards.reduce((s, c) => s + (c.target || 0), 0);
   const totalCarrying = creditCards.reduce((s, c) => s + (c.carrying || 0), 0);
   const diff = totalTarget - totalBalance;
 
   document.getElementById('cc-stat-balance').textContent = fmt(totalBalance);
-  document.getElementById('cc-stat-target').textContent = fmt(totalTarget);
-  document.getElementById('cc-stat-diff').textContent = fmt(Math.abs(diff));
+  document.getElementById('cc-stat-target').textContent = totalTarget > 0 ? fmt(totalTarget) : '—';
+  document.getElementById('cc-stat-diff').textContent = totalTarget > 0 ? fmt(Math.abs(diff)) : '—';
   document.getElementById('cc-stat-diff').style.color = diff >= 0 ? 'var(--green)' : 'var(--red)';
-  document.getElementById('cc-stat-diff-label').textContent = diff >= 0 ? '▲ under budget' : '▼ over budget';
-  document.getElementById('cc-stat-carrying').textContent = fmt(totalCarrying);
+  document.getElementById('cc-stat-diff-label').textContent = totalTarget > 0 ? (diff >= 0 ? '▲ under budget' : '▼ over budget') : 'no targets set';
+  document.getElementById('cc-stat-carrying').textContent = totalCarrying > 0 ? fmt(totalCarrying) : '—';
   document.getElementById('cc-stat-carrying').style.color = totalCarrying > 0 ? 'var(--red)' : 'var(--green)';
   document.getElementById('cc-stat-carrying-sub').textContent = totalCarrying > 0 ? '⚠ Rolling to next month' : '✓ Fully paid';
 
-  document.getElementById('cc-grid').innerHTML = creditCards.map((c, i) => {
-    const cardId = c.id !== undefined ? c.id : i;
-    const pct = c.target > 0 ? Math.min(100, c.balance / c.target * 100) : 0;
-    const col = pct > 100 ? 'var(--red)' : pct > 80 ? 'var(--gold)' : 'var(--green)';
-    const statusColors = { paid: 'var(--green)', partial: 'var(--gold)', unpaid: 'var(--red)' };
-    const statusLabels = { paid: '✓ Paid in Full', partial: '◑ Partial Payment', unpaid: '○ Unpaid' };
-    const hasCarrying = (c.carrying || 0) > 0;
-    return `<div class="cc-card" style="${hasCarrying ? 'border-color:var(--red);border-width:2px' : ''}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+  document.getElementById('cc-grid').innerHTML = creditCards.map((c) => {
+    const cardId = c.id;
+    const stmt = monthStmts[cardId];
+    const balance = stmt ? stmt.balance : null;
+    const hasStatement = !!stmt;
+
+    // Payment status: find the bill in billsStore that matches this card
+    const cardBill = monthBills.find(b =>
+      b.name && (
+        b.name.toLowerCase().includes(c.name.toLowerCase()) ||
+        c.name.toLowerCase().includes(b.name.toLowerCase().replace(/payment|pmt|card/gi,'').trim())
+      )
+    );
+    const billStatus = cardBill ? getBillStatus(cardBill) : null;
+    const billPayments = cardBill ? (cardBill.payments || []) : [];
+    const totalPaid = billPayments.reduce((s, p) => s + p.amount, 0);
+
+    // Transactions for this card this month
+    const cardTxns = (transactionStore[currentMonth] || []).filter(t => {
+      const tCard = (t.card || '').toLowerCase();
+      const cName = c.name.toLowerCase();
+      return tCard === cName || tCard.includes(cName) || cName.includes(tCard);
+    });
+    const txnTotal = cardTxns.reduce((s, t) => s + t.amount, 0);
+
+    // Category breakdown
+    const catMap = {};
+    cardTxns.forEach(t => { catMap[t.category] = (catMap[t.category] || 0) + t.amount; });
+    const topCats = Object.entries(catMap).sort((a,b) => b[1]-a[1]).slice(0, 3);
+
+    // Interest rates — prefer statement data, fall back to card definition
+    const purchaseRate = (stmt && stmt.purchaseRate) || c.purchaseRate || c.apr || null;
+    const cashAdvanceRate = (stmt && stmt.cashAdvanceRate) || c.cashAdvanceRate || null;
+
+    // Due date from statement
+    const dueDate = stmt ? stmt.dueDate : null;
+    const stmtDate = stmt ? stmt.statementDate : null;
+
+    // Progress bar vs target
+    const pct = (c.target > 0 && balance != null) ? Math.min(100, balance / c.target * 100) : 0;
+    const barCol = pct > 100 ? 'var(--red)' : pct > 80 ? 'var(--gold)' : 'var(--green)';
+
+    // Payment status display
+    const statusHtml = () => {
+      if (!cardBill) return `<span style="font-size:12px;color:var(--ink-3)">No bill linked in Bills & Payments</span>`;
+      if (billStatus === 'paid') return `<span style="font-size:12px;font-weight:500;color:var(--green)">✓ Paid in full${cardBill.paidDate ? ' · ' + formatDate(cardBill.paidDate) : ''}</span>`;
+      if (billStatus === 'partial') return `<span style="font-size:12px;font-weight:500;color:var(--gold)">◑ Partial — ${fmt(totalPaid)} paid${balance != null ? ', ' + fmt(balance - totalPaid) + ' remaining' : ''}</span>`;
+      return `<span style="font-size:12px;font-weight:500;color:var(--red)">○ Unpaid${dueDate ? ' · Due ' + formatDate(dueDate) : ''}</span>`;
+    };
+
+    const accentStyle = c.color && c.color !== '#1a1a18' ? `border-top: 3px solid ${c.color}` : `border-top: 3px solid var(--accent)`;
+
+    return `<div class="cc-card" style="${accentStyle}${(c.carrying||0) > 0 ? ';border-color:var(--red)' : ''}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
         <div>
-          <div class="cc-name">${c.name}${c.last4 ? ` <span style="font-variant-numeric: tabular-nums;font-size:11px;color:var(--ink-3)">···${c.last4}</span>` : ''}</div>
-          <div class="cc-desc">${c.perks || '—'}</div>
+          <div class="cc-name">${c.name}${c.last4 ? ` <span style="font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums">···${c.last4}</span>` : ''}</div>
+          ${c.perks ? `<div class="cc-desc">${c.perks}</div>` : ''}
         </div>
         <button class="edit-btn" onclick="openEditCardModal(${cardId})">✎ Edit</button>
       </div>
-      <div class="cc-row">
-        <span class="cc-balance">${fmt(c.balance)}</span>
-        <span class="cc-target">target ${c.target > 0 ? fmt(c.target) : '—'}</span>
+
+      ${hasStatement ? `
+        <div style="margin-bottom:12px">
+          <div style="font-size:11px;color:var(--ink-3);margin-bottom:2px">Statement balance${stmtDate ? ' · closed ' + formatDate(stmtDate) : ''}</div>
+          <div style="font-size:26px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums">${fmt(balance)}</div>
+          ${c.target > 0 ? `<div class="cc-bar" style="margin-top:6px"><div class="cc-fill" style="width:${pct}%;background:${barCol}"></div></div>
+          <div style="font-size:11px;color:var(--ink-3);margin-top:3px">${fmt(txnTotal)} in purchases · target ${fmt(c.target)}</div>` :
+          `<div style="font-size:11px;color:var(--ink-3);margin-top:3px">${fmt(txnTotal)} in purchases · ${cardTxns.length} transaction${cardTxns.length!==1?'s':''}</div>`}
+        </div>
+      ` : `
+        <div style="margin-bottom:12px;padding:12px 14px;background:var(--paper-2);border-radius:8px;text-align:center">
+          <div style="font-size:12px;color:var(--ink-3);margin-bottom:6px">No statement imported for ${MONTHS[currentMonth]}</div>
+          ${cardTxns.length > 0 ? `<div style="font-size:13px;font-weight:500;color:var(--ink)">${fmt(txnTotal)} in ${cardTxns.length} transaction${cardTxns.length!==1?'s':''}</div>` : ''}
+        </div>
+      `}
+
+      <div style="padding:10px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:10px">
+        ${statusHtml()}
+        ${stmt && stmt.minPayment ? `<div style="font-size:11px;color:var(--ink-3);margin-top:3px">Minimum payment: ${fmt(stmt.minPayment)}</div>` : ''}
       </div>
-      ${c.statementImported ? `<div style="font-size:11px;color:var(--green);margin-bottom:6px">✓ Balance from statement${c.statementDate ? ' · ' + formatDate(c.statementDate) : ''}</div>` : `<div style="font-size:11px;color:var(--ink-3);margin-bottom:6px">Manual balance — upload statement to auto-update</div>`}
-      <div class="cc-bar"><div class="cc-fill" style="width:${c.target>0?pct:0}%;background:${col}"></div></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap;gap:6px">
-        <span style="font-size:12px;color:${statusColors[c.status||'unpaid']};font-weight:500">${statusLabels[c.status||'unpaid']}</span>
-        ${c.minPay ? `<span style="font-size:11px;color:var(--ink-3)">Min: ${fmt(c.minPay)}</span>` : ''}
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:${topCats.length > 0 ? '10' : '0'}px">
+        <div style="background:var(--paper-2);border-radius:7px;padding:8px 10px">
+          <div style="font-size:10px;color:var(--ink-3);margin-bottom:2px">Purchase rate</div>
+          <div style="font-size:14px;font-weight:500;color:var(--ink)">${purchaseRate ? purchaseRate + '%' : '—'}</div>
+        </div>
+        <div style="background:var(--paper-2);border-radius:7px;padding:8px 10px">
+          <div style="font-size:10px;color:var(--ink-3);margin-bottom:2px">Cash advance rate</div>
+          <div style="font-size:14px;font-weight:500;color:var(--ink)">${cashAdvanceRate ? cashAdvanceRate + '%' : '—'}</div>
+        </div>
       </div>
-      ${hasCarrying ? `<div style="margin-top:8px;padding:6px 10px;background:var(--red-light);border-radius:6px;font-size:12px;color:var(--red);font-weight:500">⚠ Carrying ${fmt(c.carrying)} to next month${c.apr ? ` · ~${fmt(c.carrying * c.apr/100/12)}/mo interest` : ''}</div>` : ''}
-      ${c.statement ? `<div style="margin-top:6px;font-size:11px;color:var(--ink-3)">Statement balance: ${fmt(c.statement)}</div>` : ''}
+
+      ${topCats.length > 0 ? `
+        <div style="font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Top spending</div>
+        ${topCats.map(([cat, amt]) => `
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+            <span style="color:var(--ink-2)">${cat}</span>
+            <span style="font-variant-numeric:tabular-nums;color:var(--ink)">${fmt(amt)}</span>
+          </div>`).join('')}
+      ` : ''}
+
+      ${(c.carrying||0) > 0 ? `<div style="margin-top:10px;padding:6px 10px;background:var(--red-light);border-radius:6px;font-size:12px;color:var(--red);font-weight:500">⚠ Carrying ${fmt(c.carrying)} to next month${purchaseRate ? ` · ~${fmt(c.carrying * purchaseRate/100/12)}/mo interest` : ''}</div>` : ''}
     </div>`;
   }).join('');
 }
