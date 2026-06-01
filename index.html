@@ -244,21 +244,85 @@
   .content { padding: 28px 32px; }
 
   /* ── RESPONSIVE ── */
+  /* ── MOBILE BOTTOM TAB BAR ── */
+  .mobile-tabs {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 64px;
+    background: var(--paper);
+    border-top: 1px solid var(--border);
+    z-index: 300;
+    align-items: center;
+    justify-content: space-around;
+    padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+  }
+  .mob-tab {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px; flex: 1; height: 100%; cursor: pointer;
+    color: var(--ink-3); font-size: 10px; font-weight: 500;
+    transition: color 0.15s; border: none; background: none; padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mob-tab.active { color: var(--accent); }
+  .mob-tab svg { width: 22px; height: 22px; }
+  .mob-tab-label { font-size: 10px; margin-top: 1px; }
+
+  /* Mobile "More" drawer */
+  .mob-more-sheet {
+    display: none;
+    position: fixed; inset: 0; z-index: 400;
+  }
+  .mob-more-sheet.open { display: block; }
+  .mob-more-overlay {
+    position: absolute; inset: 0; background: rgba(0,0,0,0.4);
+  }
+  .mob-more-drawer {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: var(--paper);
+    border-radius: 18px 18px 0 0;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+  }
+  .mob-more-handle {
+    width: 36px; height: 4px; background: var(--border);
+    border-radius: 2px; margin: 0 auto 16px;
+  }
+  .mob-more-title {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--ink-4); margin-bottom: 10px;
+  }
+  .mob-more-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  }
+  .mob-more-item {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 6px; padding: 14px 8px; border-radius: 12px;
+    background: var(--paper-2); cursor: pointer; border: none;
+    color: var(--ink); font-size: 11px; font-weight: 500;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mob-more-item.active { background: #fff0eb; color: var(--accent); }
+  .mob-more-item svg { width: 20px; height: 20px; }
+
   @media (max-width: 768px) {
     .sidebar {
       position: fixed;
-      width: 0;
+      width: 0 !important;
+      min-width: 0 !important;
       border-right: none;
+      overflow: hidden;
     }
     .sidebar.expanded {
-      width: var(--sidebar-expanded);
+      width: var(--sidebar-expanded) !important;
       border-right: 1px solid var(--border);
     }
-    .main { margin-left: 0; }
-    .menu-btn { display: flex; }
+    .main { margin-left: 0; padding-bottom: 68px; }
+    .menu-btn { display: none; }
     .topbar { padding: 0 12px; height: 56px; }
     .page-title { font-size: 15px; }
     .content { padding: 12px; }
+    .mobile-tabs { display: flex; }
 
     /* Stat grids */
     .stat-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; margin-bottom: 16px; }
@@ -955,6 +1019,69 @@
     </div>
   </nav>
 
+  <!-- MOBILE BOTTOM TAB BAR -->
+  <nav class="mobile-tabs" id="mobile-tabs">
+    <button class="mob-tab active" id="mobtab-dashboard" onclick="showView('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <span class="mob-tab-label">Dashboard</span>
+    </button>
+    <button class="mob-tab" id="mobtab-bills" onclick="showView('bills')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span class="mob-tab-label">Bills</span>
+    </button>
+    <button class="mob-tab" id="mobtab-income" onclick="showView('income')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <span class="mob-tab-label">Income</span>
+    </button>
+    <button class="mob-tab" id="mobtab-transactions" onclick="showView('transactions')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span class="mob-tab-label">Spending</span>
+    </button>
+    <button class="mob-tab" id="mobtab-more" onclick="openMobMore()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
+      <span class="mob-tab-label">More</span>
+    </button>
+  </nav>
+
+  <!-- MOBILE MORE DRAWER -->
+  <div class="mob-more-sheet" id="mob-more-sheet">
+    <div class="mob-more-overlay" onclick="closeMobMore()"></div>
+    <div class="mob-more-drawer">
+      <div class="mob-more-handle"></div>
+      <div class="mob-more-title">More</div>
+      <div class="mob-more-grid">
+        <button class="mob-more-item" id="mobmore-calendar" onclick="showView('calendar');closeMobMore()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Calendar
+        </button>
+        <button class="mob-more-item" id="mobmore-savings" onclick="showView('savings');closeMobMore()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16"/><path d="M3 21h18"/></svg>
+          Savings
+        </button>
+        <button class="mob-more-item" id="mobmore-cards" onclick="showView('cards');closeMobMore()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Cards
+        </button>
+        <button class="mob-more-item" id="mobmore-debt" onclick="showView('debt');closeMobMore()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Debt
+        </button>
+        <button class="mob-more-item" id="mobmore-subs" onclick="showView('subs');closeMobMore()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Subscriptions
+        </button>
+        <button class="mob-more-item" id="mobmore-projects" onclick="showView('projects');closeMobMore()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          Projects
+        </button>
+        <button class="mob-more-item" id="mobmore-annual" onclick="showView('annual');closeMobMore()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Annual
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- MAIN -->
   <main class="main">
     <div class="topbar">
@@ -1136,7 +1263,7 @@
         <!-- Budget vs Spending bars -->
         <div class="section">
           <div class="section-header">
-            <div class="section-title">Spending vs. Budget</div>
+            <div class="section-title">Spending vs. Budget <span id="budget-filter-badge" style="display:none;font-size:11px;font-weight:500;color:var(--accent);background:#fff0eb;border-radius:20px;padding:2px 10px;margin-left:6px;vertical-align:middle"></span></div>
             <button class="btn btn-ghost" onclick="openBudgetModal()">+ Add Category</button>
           </div>
           <div class="card">
@@ -2632,15 +2759,45 @@ function closeSidebar() {
   document.getElementById('sidebar-overlay').classList.remove('open');
 }
 
+// Primary tab views that get their own bottom tab button
+const MOB_PRIMARY_TABS = ['dashboard', 'bills', 'income', 'transactions'];
+
+function updateMobileTabs(id) {
+  // Update bottom tab active state
+  document.querySelectorAll('.mob-tab').forEach(t => t.classList.remove('active'));
+  const primaryTab = document.getElementById('mobtab-' + id);
+  if (primaryTab) {
+    primaryTab.classList.add('active');
+  } else {
+    // It's a "More" view — highlight the More button
+    document.getElementById('mobtab-more').classList.add('active');
+  }
+  // Update More drawer item active state
+  document.querySelectorAll('.mob-more-item').forEach(t => t.classList.remove('active'));
+  const moreItem = document.getElementById('mobmore-' + id);
+  if (moreItem) moreItem.classList.add('active');
+}
+
+function openMobMore() {
+  document.getElementById('mob-more-sheet').classList.add('open');
+}
+function closeMobMore() {
+  document.getElementById('mob-more-sheet').classList.remove('open');
+}
+
 function showView(id) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + id).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  event.currentTarget.classList.add('active');
+  if (event && event.currentTarget && event.currentTarget.classList.contains('nav-item')) {
+    event.currentTarget.classList.add('active');
+  }
+  updateMobileTabs(id);
   const titles = { dashboard:'Dashboard', income:'Income', bills:'Bills & Payments', budget:'Spending', transactions:'Spending', savings:'Savings', cards:'Credit Cards', debt:'Debt', subs:'Subscriptions', projects:'Projects', calendar:'Calendar', annual:'Annual View' };
   const monthStr = id === 'annual' ? '2026' : `${MONTHS[currentMonth]} 2026`;
   document.getElementById('pageTitle').innerHTML = `${titles[id]} <span id="monthDisplay">— ${monthStr}</span>`;
   if (id === 'calendar') { calMonth = currentMonth; calYear = 2026; renderCalendar(); }
+  if (id === 'annual') renderAnnual();
   if (window.innerWidth <= 768) closeSidebar();
 }
 
@@ -3568,17 +3725,21 @@ function setImportStatus(type, msg) {
 
 // Recalculate spending totals for each budget category from transactions
 function recalcBudgetSpending() {
-  const monthTxns = transactionStore[currentMonth] || [];
-  // Reset all transaction-sourced spending to zero first
+  const cardFilter = document.getElementById('txn-filter-card')?.value || '';
+  const monthTxns = (transactionStore[currentMonth] || [])
+    .filter(t => !cardFilter || t.card === cardFilter);
   budgetCategories.forEach(c => {
     c.txnSpent = monthTxns
       .filter(t => t.category === c.name)
       .reduce((s, t) => s + t.amount, 0);
+    // manualSpent only applies when not filtering by card
+    c._cardFiltered = !!cardFilter;
   });
 }
 
 function getEffectiveSpent(cat) {
-  // txnSpent from imported/manual transactions + manualSpent if explicitly set
+  // When filtering by card, only show transaction-sourced spending (no manual override)
+  if (cat._cardFiltered) return cat.txnSpent || 0;
   return (cat.txnSpent || 0) + (cat.manualSpent || 0);
 }
 
@@ -3804,6 +3965,16 @@ function renderTransactions() {
 function renderBudget() {
   populateCardSelects();
   recalcBudgetSpending();
+  const cardFilter = document.getElementById('txn-filter-card')?.value || '';
+  const badge = document.getElementById('budget-filter-badge');
+  if (badge) {
+    if (cardFilter) {
+      badge.textContent = cardFilter;
+      badge.style.display = 'inline';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
   const totalSpent = budgetCategories.reduce((s,c) => s+getEffectiveSpent(c), 0);
   const totalTarget = budgetCategories.reduce((s,c) => s+c.target, 0);
 
