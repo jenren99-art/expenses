@@ -1100,8 +1100,8 @@
     </div>
     <div class="auth-banner" id="auth-banner">⚠</div>
     <div id="mobile-signin-prompt" style="display:none;align-items:center;justify-content:space-between;gap:12px;background:var(--paper);border-bottom:1px solid var(--border);padding:10px 16px;font-size:13px;color:var(--ink)">
-      <span>📱 Tap to connect Google Drive and load your data.</span>
-      <button class="btn btn-primary" style="white-space:nowrap;flex-shrink:0" onclick="mobileSignIn()">Sign in →</button>
+      <span>🔄 Tap to sync with Google Drive.</span>
+      <button class="btn btn-primary" style="white-space:nowrap;flex-shrink:0" onclick="mobileSignIn()">Connect →</button>
     </div>
 
     <div class="content">
@@ -2260,11 +2260,9 @@ function lockScreen() {
 }
 
 function unlockWithGoogle() {
-  // Re-request Google token — prompts sign-in if session expired
   if (typeof google !== 'undefined' && tokenClient) {
-    tokenClient.requestAccessToken({ prompt: 'select_account' });
+    tokenClient.requestAccessToken({ prompt: IS_MOBILE ? 'select_account' : 'select_account' });
   } else {
-    // Auth not loaded — just reload the page
     location.reload();
   }
 }
@@ -2286,12 +2284,31 @@ function initLockScreen() {
   resetLockTimer();
 }
 
+const IS_MOBILE = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
 function initGoogleAuth() {
   if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID === 'YOUR_CLIENT_ID_HERE') {
     showAuthBanner('setup');
     initLocalFallback();
     return;
   }
+
+  // On mobile: always boot from local data immediately so the app is usable
+  // right away. Drive sync happens in the background after the user taps "Connect".
+  if (IS_MOBILE) {
+    initLocalFallback();
+    showSyncStatus('offline');
+    showMobileSignInPrompt();
+    // Still load the GSI script in the background so it's ready when tapped
+    _loadGsiScript();
+    return;
+  }
+
+  // Desktop: load GSI and attempt silent token immediately
+  _loadGsiScript(() => requestToken());
+}
+
+function _loadGsiScript(onReady) {
   const script = document.createElement('script');
   script.src = 'https://accounts.google.com/gsi/client';
   script.onload = () => {
@@ -2301,45 +2318,28 @@ function initGoogleAuth() {
       scope: DRIVE_SCOPE,
       callback: (resp) => {
         tokenRefreshPending = false;
-        clearTimeout(window._authTimeoutId);
         hideMobileSignInPrompt();
-        if (resp.error) { showAuthBanner('error'); initLocalFallback(); return; }
+        if (resp.error) { showAuthBanner('error'); if (!IS_MOBILE) initLocalFallback(); return; }
         const firstToken = !accessToken;
         accessToken = resp.access_token;
-        // Schedule token refresh 5 min before expiry (tokens last ~1hr)
         setTimeout(() => { accessToken = null; }, (resp.expires_in - 300) * 1000);
         showSyncStatus('connected');
-        // Unlock screen if it was locked
         if (isLocked) unlockScreen();
-        // Flush any callbacks waiting on the fresh token
         const cbs = afterRefreshCallbacks.splice(0);
         cbs.forEach(fn => fn());
-        // On first auth, load data from Drive
+        // On mobile the app is already running from local — sync from Drive now
         if (firstToken) loadFromDrive();
       },
     });
-    // On mobile Safari, requestAccessToken with no user gesture is silently blocked.
-    // Try the silent token request, but start a timeout — if auth hasn't resolved
-    // within 4 seconds, fall back to local data and show a manual sign-in prompt.
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if (isMobile) {
-      window._authTimeoutId = setTimeout(() => {
-        if (!accessToken) {
-          initLocalFallback();
-          showMobileSignInPrompt();
-        }
-      }, 4000);
-    }
-    requestToken();
+    if (onReady) onReady();
   };
-  script.onerror = () => { showAuthBanner('offline'); initLocalFallback(); };
+  script.onerror = () => { showAuthBanner('offline'); if (!IS_MOBILE) initLocalFallback(); };
   document.head.appendChild(script);
 }
 
 function showMobileSignInPrompt() {
   const el = document.getElementById('mobile-signin-prompt');
   if (el) el.style.display = 'flex';
-  showSyncStatus('offline');
 }
 
 function hideMobileSignInPrompt() {
@@ -2348,12 +2348,26 @@ function hideMobileSignInPrompt() {
 }
 
 function mobileSignIn() {
+  // This is called from a tap — user gesture allows the popup to open
   hideMobileSignInPrompt();
+  showSyncStatus('loading');
   if (tokenClient) {
     tokenRefreshPending = false;
-    tokenClient.requestAccessToken({ prompt: '' });
+    // Use 'select_account' so Safari opens the actual sign-in popup
+    tokenClient.requestAccessToken({ prompt: 'select_account' });
   } else {
-    location.reload();
+    // GSI script not ready yet — wait and retry
+    showMobileSignInPrompt();
+    showSyncStatus('offline');
+    const wait = setInterval(() => {
+      if (tokenClient) {
+        clearInterval(wait);
+        hideMobileSignInPrompt();
+        showSyncStatus('loading');
+        tokenRefreshPending = false;
+        tokenClient.requestAccessToken({ prompt: 'select_account' });
+      }
+    }, 300);
   }
 }
 
