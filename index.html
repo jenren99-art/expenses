@@ -1099,6 +1099,10 @@
       </div>
     </div>
     <div class="auth-banner" id="auth-banner">⚠</div>
+    <div id="mobile-signin-prompt" style="display:none;align-items:center;justify-content:space-between;gap:12px;background:var(--paper);border-bottom:1px solid var(--border);padding:10px 16px;font-size:13px;color:var(--ink)">
+      <span>📱 Tap to connect Google Drive and load your data.</span>
+      <button class="btn btn-primary" style="white-space:nowrap;flex-shrink:0" onclick="mobileSignIn()">Sign in →</button>
+    </div>
 
     <div class="content">
 
@@ -2297,6 +2301,8 @@ function initGoogleAuth() {
       scope: DRIVE_SCOPE,
       callback: (resp) => {
         tokenRefreshPending = false;
+        clearTimeout(window._authTimeoutId);
+        hideMobileSignInPrompt();
         if (resp.error) { showAuthBanner('error'); initLocalFallback(); return; }
         const firstToken = !accessToken;
         accessToken = resp.access_token;
@@ -2312,10 +2318,43 @@ function initGoogleAuth() {
         if (firstToken) loadFromDrive();
       },
     });
+    // On mobile Safari, requestAccessToken with no user gesture is silently blocked.
+    // Try the silent token request, but start a timeout — if auth hasn't resolved
+    // within 4 seconds, fall back to local data and show a manual sign-in prompt.
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+      window._authTimeoutId = setTimeout(() => {
+        if (!accessToken) {
+          initLocalFallback();
+          showMobileSignInPrompt();
+        }
+      }, 4000);
+    }
     requestToken();
   };
   script.onerror = () => { showAuthBanner('offline'); initLocalFallback(); };
   document.head.appendChild(script);
+}
+
+function showMobileSignInPrompt() {
+  const el = document.getElementById('mobile-signin-prompt');
+  if (el) el.style.display = 'flex';
+  showSyncStatus('offline');
+}
+
+function hideMobileSignInPrompt() {
+  const el = document.getElementById('mobile-signin-prompt');
+  if (el) el.style.display = 'none';
+}
+
+function mobileSignIn() {
+  hideMobileSignInPrompt();
+  if (tokenClient) {
+    tokenRefreshPending = false;
+    tokenClient.requestAccessToken({ prompt: '' });
+  } else {
+    location.reload();
+  }
 }
 
 function requestToken(afterRefresh) {
