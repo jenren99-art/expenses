@@ -2451,11 +2451,16 @@ async function findOrCreateFile() {
   return driveFileId;
 }
 
+function resetStores() {
+  // Clear all in-memory stores so initData can populate cleanly from scratch
+  for (let i = 0; i <= 11; i++) { billsStore[i] = []; incomeStore[i] = []; transactionStore[i] = []; }
+  subscriptions = []; creditCards = []; savings = []; budgetCategories = []; debts = []; projects = [];
+}
+
 async function loadFromDrive() {
   showSyncStatus('loading');
   try {
     await findOrCreateFile();
-    // Get file metadata to check size first
     const meta = await driveRequest(
       `https://www.googleapis.com/drive/v3/files/${driveFileId}?fields=size`
     );
@@ -2464,6 +2469,7 @@ async function loadFromDrive() {
 
     if (!metaData.size || metaData.size === '0') {
       console.log('Empty file — seeding with defaults');
+      resetStores();
       initData(null);
     } else {
       const resp = await driveRequest(
@@ -2471,6 +2477,7 @@ async function loadFromDrive() {
       );
       const text = await resp.text();
       console.log('Loaded data length:', text.length);
+      resetStores();
       try { initData(JSON.parse(text)); }
       catch(e) { console.error('Parse error:', e); initData(null); }
     }
