@@ -3690,6 +3690,29 @@ async function handlePdfUpload(event) {
   if (!cardName) { setImportStatus('error', 'Please select a card before uploading.'); return; }
   if (importMonthVal === '') { setImportStatus('error', 'Please select a statement month before uploading.'); return; }
 
+  // Check for existing import for this card + month
+  const matchCard = creditCards.find(c =>
+    c.name === cardName ||
+    c.name.toLowerCase().includes(cardName.toLowerCase()) ||
+    cardName.toLowerCase().includes(c.name.toLowerCase())
+  );
+  const existingStmt = matchCard && cardStatements[importMonth] && cardStatements[importMonth][matchCard.id];
+  if (existingStmt) {
+    const importedOn = existingStmt.importedAt ? new Date(existingStmt.importedAt).toLocaleDateString('en-CA') : 'previously';
+    const proceed = confirm(`A statement for ${cardName} in ${importMonthName} 2026 was already imported on ${importedOn}.\n\nProceeding will delete all existing transactions for this card in ${importMonthName} and replace them with the new import.\n\nContinue?`);
+    if (!proceed) { event.target.value = ''; return; }
+    // Delete existing transactions for this card in this month
+    if (transactionStore[importMonth]) {
+      transactionStore[importMonth] = transactionStore[importMonth].filter(t => {
+        const tCard = (t.card || '').toLowerCase();
+        const cName = cardName.toLowerCase();
+        return !(tCard === cName || tCard.includes(cName) || cName.includes(tCard));
+      });
+    }
+    // Clear the existing statement snapshot
+    delete cardStatements[importMonth][matchCard.id];
+  }
+
   setImportStatus('processing', `⏳ Reading ${file.name}… Claude is analyzing your transactions.`);
 
   try {
