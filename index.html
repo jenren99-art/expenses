@@ -2329,8 +2329,7 @@ function initGoogleAuth() {
   }
 
   // Desktop: load GSI and attempt silent token immediately
-  _loadGsiScript(() => requestToken());
-}
+  _loadGsiScript(() => requestToken());}
 
 function _loadGsiScript(onReady) {
   const script = document.createElement('script');
@@ -2451,12 +2450,6 @@ async function findOrCreateFile() {
   return driveFileId;
 }
 
-function resetStores() {
-  // Clear all in-memory stores so initData can populate cleanly from scratch
-  for (let i = 0; i <= 11; i++) { billsStore[i] = []; incomeStore[i] = []; transactionStore[i] = []; }
-  subscriptions = []; creditCards = []; savings = []; budgetCategories = []; debts = []; projects = [];
-}
-
 async function loadFromDrive() {
   showSyncStatus('loading');
   try {
@@ -2468,17 +2461,56 @@ async function loadFromDrive() {
     console.log('File metadata:', metaData);
 
     if (!metaData.size || metaData.size === '0') {
-      console.log('Empty file — seeding with defaults');
-      resetStores();
-      initData(null);
+      // Drive file is empty — prefer localStorage backup before falling back to defaults
+      console.warn('Drive file is empty — checking localStorage backup');
+      const localRaw = localStorage.getItem('expenses2026_backup');
+      if (localRaw) {
+        try {
+          const localData = JSON.parse(localRaw);
+          if (localData && localData.billsStore) {
+            console.log('Restoring from localStorage backup');
+            initData(localData);
+            // Re-save the recovered data to Drive immediately
+            showSyncStatus('saving');
+            const recoverPayload = JSON.stringify({ billsStore, nextId, subscriptions, creditCards, savings, budgetCategories, incomeStore, nextIncomeId, transactionStore, nextTxnId, debts, nextDebtId, projects, nextProjectId, nextLineItemId });
+            await driveRequest(
+              `https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`,
+              { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: recoverPayload }
+            );
+            console.log('Recovered data written back to Drive');
+          } else { initData(null); }
+        } catch(e) { console.error('localStorage parse error:', e); initData(null); }
+      } else {
+        console.log('No localStorage backup — seeding with defaults');
+        initData(null);
+      }
     } else {
       const resp = await driveRequest(
         `https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`
       );
       const text = await resp.text();
       console.log('Loaded data length:', text.length);
-      resetStores();
-      try { initData(JSON.parse(text)); }
+      try {
+        const parsed = JSON.parse(text);
+        // Sanity-check: if parsed data looks suspiciously empty, prefer localStorage
+        const hasBills = parsed.billsStore && Object.values(parsed.billsStore).some(a => a.length > 0);
+        const hasIncome = parsed.incomeStore && Object.values(parsed.incomeStore).some(a => a.length > 0);
+        const hasCards = parsed.creditCards && parsed.creditCards.length > 0;
+        const driveLooksValid = hasBills || hasIncome || hasCards;
+        if (!driveLooksValid) {
+          const localRaw = localStorage.getItem('expenses2026_backup');
+          if (localRaw) {
+            const localData = JSON.parse(localRaw);
+            const localHasBills = localData.billsStore && Object.values(localData.billsStore).some(a => a.length > 0);
+            if (localHasBills) {
+              console.warn('Drive data looks empty but localStorage has data — preferring localStorage');
+              initData(localData);
+            } else { initData(parsed); }
+          } else { initData(parsed); }
+        } else {
+          initData(parsed);
+        }
+      }
       catch(e) { console.error('Parse error:', e); initData(null); }
     }
     showSyncStatus('saved');
@@ -2490,13 +2522,30 @@ async function loadFromDrive() {
   }
 }
 
+// Returns true if the current in-memory state has meaningful data worth saving
+function dataLooksValid() {
+  const totalBills = Object.values(billsStore).reduce((s, arr) => s + (arr||[]).length, 0);
+  const totalIncome = Object.values(incomeStore).reduce((s, arr) => s + (arr||[]).length, 0);
+  const totalTxns = Object.values(transactionStore).reduce((s, arr) => s + (arr||[]).length, 0);
+  // Consider data valid if there's at least one bill, income entry, transaction,
+  // subscription, credit card, or savings account
+  return totalBills > 0 || totalIncome > 0 || totalTxns > 0 ||
+         subscriptions.length > 0 || creditCards.length > 0 || savings.length > 0;
+}
+
 async function writeToDrive() {
   if (!driveFileId) {
     try { await findOrCreateFile(); } catch(e) { console.error('findOrCreate failed:', e); showSyncStatus('error'); return; }
   }
+  // Safety check: never overwrite Drive with blank/default data
+  if (!dataLooksValid()) {
+    console.warn('writeToDrive blocked — data looks empty, refusing to overwrite Drive');
+    showSyncStatus('error');
+    return;
+  }
   showSyncStatus('saving');
   const payload = JSON.stringify({ billsStore, nextId, subscriptions, creditCards, savings, budgetCategories, incomeStore, nextIncomeId, transactionStore, nextTxnId, debts, nextDebtId, projects, nextProjectId, nextLineItemId });
-  console.log('Writing to Drive, fileId:', driveFileId, 'token present:', !!accessToken);
+  console.log('Writing to Drive, fileId:', driveFileId, 'payload size:', payload.length);
   try {
     const resp = await driveRequest(
       `https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`,
@@ -2518,6 +2567,8 @@ async function writeToDrive() {
 // Debounce saves — wait 1.5s after last change before writing
 function saveState() {
   saveLocalFallback(); // always keep local copy as backup
+  // Never write blank mobile-boot data to Drive — only save once Drive is connected
+  if (!accessToken && !driveFileId) return;
   pendingSave = true;
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => { pendingSave = false; writeToDrive(); }, 1500);
@@ -2540,6 +2591,8 @@ function initLocalFallback() {
 
 function initData(saved) {
   if (saved && saved.billsStore) {
+    // Clear all stores first so Drive data is a clean overwrite, not a merge
+    for (let i = 0; i <= 11; i++) { billsStore[i] = []; incomeStore[i] = []; transactionStore[i] = []; }
     Object.entries(saved.billsStore).forEach(([k, v]) => { billsStore[parseInt(k)] = v; });
     nextId = saved.nextId || 100;
     subscriptions = saved.subscriptions || JSON.parse(JSON.stringify(initialSubscriptions));
