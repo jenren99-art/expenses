@@ -5,11 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Expenses — Personal Finance Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYmciIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2Y1NmEyOCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNiMzM1MDAiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8Y2xpcFBhdGggaWQ9InJvdW5kIj4KICAgICAgPHJlY3Qgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxODAiIHJ4PSI0MCIgcnk9IjQwIi8+CiAgICA8L2NsaXBQYXRoPgogIDwvZGVmcz4KCiAgPCEtLSBCYWNrZ3JvdW5kIC0tPgogIDxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiByeD0iNDAiIGZpbGw9InVybCgjYmcpIi8+CgogIDwhLS0gQmFyIGNoYXJ0IGljb24gLSAzIHJpc2luZyBiYXJzIC0tPgogIDwhLS0gQmFyIDEgKHNob3J0KSAtLT4KICA8cmVjdCB4PSIyOCIgeT0iOTIiIHdpZHRoPSIzMCIgaGVpZ2h0PSI0OCIgcng9IjUiIGZpbGw9IndoaXRlIiBvcGFjaXR5PSIwLjkiLz4KICA8IS0tIEJhciAyIChtZWRpdW0pIC0tPgogIDxyZWN0IHg9Ijc0IiB5PSI2OCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjcyIiByeD0iNSIgZmlsbD0id2hpdGUiLz4KICA8IS0tIEJhciAzICh0YWxsKSAtLT4KICA8cmVjdCB4PSIxMjAiIHk9IjQwIiB3aWR0aD0iMzAiIGhlaWdodD0iMTAwIiByeD0iNSIgZmlsbD0id2hpdGUiLz4KCiAgPCEtLSBCYXNlbGluZSAtLT4KICA8cmVjdCB4PSIyMCIgeT0iMTQyIiB3aWR0aD0iMTQwIiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSJ3aGl0ZSIgb3BhY2l0eT0iMC40Ii8+CgogIDwhLS0gVXB3YXJkIHRyZW5kIGFycm93IGxpbmUgY29ubmVjdGluZyBiYXIgdG9wcyAtLT4KICA8cG9seWxpbmUgcG9pbnRzPSI0Myw4OCA4OSw2NCAxMzUsMzYiIAogICAgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI0LjUiIAogICAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBvcGFjaXR5PSIwLjU1Ii8+CiAgPCEtLSBBcnJvdyBoZWFkIC0tPgogIDxwb2x5bGluZSBwb2ludHM9IjEyMiwzNCAxMzUsMzYgMTMzLDQ5IgogICAgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI0LjUiCiAgICBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIG9wYWNpdHk9IjAuNTUiLz4KCiAgPCEtLSBTbWFsbCBkb2xsYXIgc2lnbiBib3R0b20tbGVmdCBmb3IgImV4cGVuc2VzIiBmbGF2b3VyIC0tPgogIDx0ZXh0IHg9IjIyIiB5PSIxNzIiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLCBzZXJpZiIgZm9udC1zaXplPSIyMiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiBvcGFjaXR5PSIwLjM1Ij4kPC90ZXh0Pgo8L3N2Zz4=">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Expenses">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   :root {
     --ink: #111111;
@@ -191,7 +186,7 @@
   .sidebar-overlay.open { display: block; }
 
   /* ── MAIN ── */
-  .main { flex: 1; overflow-x: hidden; margin-left: var(--sidebar-w); transition: margin-left 0.22s; }
+  .main { flex: 1; overflow-x: hidden; margin-left: var(--sidebar-w); transition: margin-left 0.22s; min-width: 0; }
 
   /* ── TOPBAR ── */
   .topbar {
@@ -206,6 +201,7 @@
     top: 0;
     z-index: 10;
     gap: 12px;
+    flex-wrap: nowrap;
   }
   .topbar-left { display: flex; align-items: center; gap: 12px; }
   .menu-btn {
@@ -248,82 +244,7 @@
   .content { padding: 28px 32px; }
 
   /* ── RESPONSIVE ── */
-  /* ── MOBILE BOTTOM TAB BAR ── */
-  .mobile-tabs {
-    display: none;
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    height: 64px;
-    background: var(--paper);
-    border-top: 1px solid var(--border);
-    z-index: 300;
-    align-items: center;
-    justify-content: space-around;
-    padding-bottom: env(safe-area-inset-bottom);
-    box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
-  }
-  .mob-tab {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 3px; flex: 1; height: 100%; cursor: pointer;
-    color: var(--ink-3); font-size: 10px; font-weight: 500;
-    transition: color 0.15s; border: none; background: none; padding: 0;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .mob-tab.active { color: var(--accent); }
-  .mob-tab svg { width: 22px; height: 22px; }
-  .mob-tab-label { font-size: 10px; margin-top: 1px; }
-
-  /* Mobile "More" drawer */
-  .mob-more-sheet {
-    display: none;
-    position: fixed; inset: 0; z-index: 400;
-  }
-  .mob-more-sheet.open { display: block; }
-  .mob-more-overlay {
-    position: absolute; inset: 0; background: rgba(0,0,0,0.4);
-  }
-  .mob-more-drawer {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    background: var(--paper);
-    border-radius: 18px 18px 0 0;
-    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
-  }
-  .mob-more-handle {
-    width: 36px; height: 4px; background: var(--border);
-    border-radius: 2px; margin: 0 auto 16px;
-  }
-  .mob-more-title {
-    font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--ink-4); margin-bottom: 10px;
-  }
-  .mob-more-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-  }
-  .mob-more-item {
-    display: flex; flex-direction: column; align-items: center;
-    gap: 6px; padding: 14px 8px; border-radius: 12px;
-    background: var(--paper-2); cursor: pointer; border: none;
-    color: var(--ink); font-size: 11px; font-weight: 500;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .mob-more-item.active { background: #fff0eb; color: var(--accent); }
-  .mob-more-item svg { width: 20px; height: 20px; }
-
-  /* Bills mobile list: hidden by default, shown on mobile via media query */
-  .bills-mobile-list { display: none; }
-
-  /* Mobile month nav arrows — hidden on desktop */
-  .mob-month-nav { display: none; gap: 2px; align-items: center; margin-left: 4px; }
-  .mob-month-btn {
-    background: none; border: none; cursor: pointer;
-    font-size: 22px; line-height: 1; color: var(--ink-3);
-    padding: 4px 6px; border-radius: 6px;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .mob-month-btn:active { background: var(--paper-2); color: var(--ink); }
-
   @media (max-width: 768px) {
-    .mob-month-nav { display: flex; }
     .sidebar {
       position: fixed;
       width: 0 !important;
@@ -334,13 +255,23 @@
     .sidebar.expanded {
       width: var(--sidebar-expanded) !important;
       border-right: 1px solid var(--border);
+      overflow: visible;
     }
-    .main { margin-left: 0; padding-bottom: 68px; }
-    .menu-btn { display: none; }
-    .topbar { padding: 0 12px; height: 56px; }
-    .page-title { font-size: 15px; }
+    .main { margin-left: 0 !important; }
+    .menu-btn { display: flex; }
+    .topbar {
+      padding: 0 12px;
+      height: auto;
+      min-height: 56px;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+    .topbar-left { flex: 1; min-width: 0; }
+    .page-title { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .topbar-actions { flex-shrink: 0; }
     .content { padding: 12px; }
-    .mobile-tabs { display: flex; }
 
     /* Stat grids */
     .stat-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; margin-bottom: 16px; }
@@ -357,14 +288,13 @@
 
     /* Topbar actions — hide less important buttons */
     .topbar-actions { gap: 6px; }
-    .topbar-actions .btn-ghost.hide-mobile { display: none; }
+    .hide-mobile { display: none !important; }
 
     /* CC grid */
     .cc-grid { grid-template-columns: 1fr !important; }
     .paycheque-grid { grid-template-columns: 1fr !important; }
     .tab-grid { grid-template-columns: 1fr !important; }
     .annual-grid { grid-template-columns: repeat(2, 1fr) !important; }
-    .annual-stats { grid-template-columns: repeat(2, 1fr) !important; }
 
     /* Line items */
     .line-item-row { grid-template-columns: 1fr 90px 70px !important; }
@@ -381,12 +311,9 @@
     .cal-event { font-size: 9px; padding: 1px 4px; }
     .cal-day-num { font-size: 11px; }
 
-    /* Budget grid — single column on mobile */
-    .budget-grid { grid-template-columns: 1fr !important; gap: 0 !important; margin-bottom: 0 !important; }
-
     /* Bills mobile cards */
     .bills-table-wrap { display: none; }
-    .bills-mobile-list { display: block !important; }
+    .bills-mobile-list { display: block; }
 
     /* Modal */
     .modal { padding: 20px 16px; }
@@ -401,12 +328,12 @@
   @media (max-width: 480px) {
     .stat-grid { grid-template-columns: 1fr !important; }
     .annual-grid { grid-template-columns: repeat(2, 1fr) !important; }
-    .annual-stats { grid-template-columns: repeat(2, 1fr) !important; }
     .topbar-actions .btn:not(.btn-primary) { display: none; }
     .page-title { font-size: 14px; }
   }
 
-  /* ── MOBILE BILL CARDS ── (default: hidden; revealed inside @media above) */
+  /* ── MOBILE BILL CARDS ── */
+  .bills-mobile-list { display: none; }
   .bill-mobile-card {
     background: var(--paper);
     border: 1px solid var(--border);
@@ -719,33 +646,28 @@
   .cal-more { font-size: 10px; color: var(--ink-3); padding: 1px 4px; }
 
   /* ── ANNUAL VIEW ── */
-  .annual-stats {
+  .annual-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 12px;
-    margin-bottom: 24px;
+    margin-bottom: 28px;
   }
-  .annual-stat {
-    background: var(--paper-2);
-    border-radius: 10px;
-    padding: 14px 16px;
+  .annual-month {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: var(--shadow);
   }
-  .annual-stat-label { font-size: 11px; color: var(--ink-3); margin-bottom: 4px; }
-  .annual-stat-value { font-size: 20px; font-weight: 600; color: var(--ink); }
-  .annual-stat-sub { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
-  .annual-stat-value.pos { color: var(--green); }
-  .annual-stat-value.neg { color: var(--red); }
-  .annual-chart-section { margin-bottom: 24px; }
-  .annual-chart-label {
-    font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--ink-4);
-    margin-bottom: 8px;
-  }
-  .annual-legend { display: flex; gap: 18px; margin-bottom: 10px; font-size: 12px; color: var(--ink-3); }
-  .annual-legend span { display: flex; align-items: center; gap: 6px; }
-  .annual-legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
-  .annual-chart-wrap { position: relative; width: 100%; }
-  .annual-net-wrap { position: relative; width: 100%; }
+  .annual-month:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .annual-month.current { border-color: var(--accent); background: #fff9f6; }
+  .am-name { font-variant-numeric: tabular-nums; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
+  .am-total {  font-size: 20px; color: var(--ink); margin-bottom: 4px; }
+  .am-meta { font-size: 11px; color: var(--ink-3); }
+  .am-bar { height: 3px; background: var(--paper-2); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+  .am-fill { height: 100%; background: var(--accent); border-radius: 2px; opacity: 0.6; }
 
   /* ── SUBSCRIPTIONS ── */
   .sub-list { }
@@ -1039,94 +961,23 @@
     </div>
   </nav>
 
-  <!-- MOBILE BOTTOM TAB BAR -->
-  <nav class="mobile-tabs" id="mobile-tabs">
-    <button class="mob-tab active" id="mobtab-dashboard" onclick="showView('dashboard')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-      <span class="mob-tab-label">Dashboard</span>
-    </button>
-    <button class="mob-tab" id="mobtab-bills" onclick="showView('bills')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      <span class="mob-tab-label">Bills</span>
-    </button>
-    <button class="mob-tab" id="mobtab-income" onclick="showView('income')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-      <span class="mob-tab-label">Income</span>
-    </button>
-    <button class="mob-tab" id="mobtab-transactions" onclick="showView('transactions')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      <span class="mob-tab-label">Spending</span>
-    </button>
-    <button class="mob-tab" id="mobtab-more" onclick="openMobMore()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
-      <span class="mob-tab-label">More</span>
-    </button>
-  </nav>
-
-  <!-- MOBILE MORE DRAWER -->
-  <div class="mob-more-sheet" id="mob-more-sheet">
-    <div class="mob-more-overlay" onclick="closeMobMore()"></div>
-    <div class="mob-more-drawer">
-      <div class="mob-more-handle"></div>
-      <div class="mob-more-title">More</div>
-      <div class="mob-more-grid">
-        <button class="mob-more-item" id="mobmore-calendar" onclick="showView('calendar');closeMobMore()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          Calendar
-        </button>
-        <button class="mob-more-item" id="mobmore-savings" onclick="showView('savings');closeMobMore()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16"/><path d="M3 21h18"/></svg>
-          Savings
-        </button>
-        <button class="mob-more-item" id="mobmore-cards" onclick="showView('cards');closeMobMore()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-          Cards
-        </button>
-        <button class="mob-more-item" id="mobmore-debt" onclick="showView('debt');closeMobMore()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          Debt
-        </button>
-        <button class="mob-more-item" id="mobmore-subs" onclick="showView('subs');closeMobMore()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-          Subscriptions
-        </button>
-        <button class="mob-more-item" id="mobmore-projects" onclick="showView('projects');closeMobMore()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-          Projects
-        </button>
-        <button class="mob-more-item" id="mobmore-annual" onclick="showView('annual');closeMobMore()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          Annual
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- MAIN -->
   <main class="main">
     <div class="topbar">
       <div class="topbar-left">
         <button class="menu-btn" id="menu-btn" onclick="toggleSidebar()">☰</button>
         <h1 class="page-title" id="pageTitle">Dashboard <span id="monthDisplay">— May 2026</span></h1>
-        <div class="mob-month-nav" id="mob-month-nav">
-          <button class="mob-month-btn" onclick="shiftMonth(-1)" title="Previous month">‹</button>
-          <button class="mob-month-btn" onclick="shiftMonth(1)" title="Next month">›</button>
-        </div>
       </div>
       <div class="topbar-actions">
         <span id="sync-status" style="font-variant-numeric: tabular-nums;font-size:11px;color:var(--ink-3);padding:6px 12px;background:var(--paper-2);border-radius:20px;border:1px solid var(--border)">◌ Connecting…</span>
         <button class="btn btn-ghost" onclick="openModal()">+ Add Bill</button>
-        <button class="btn btn-primary" onclick="markAllPaid()">✓ Mark All Paid</button>
+        <button class="btn btn-primary hide-mobile" onclick="markAllPaid()">✓ Mark All Paid</button>
         <button class="btn btn-ghost hide-mobile" onclick="exportData()" title="Export data backup">⬇ Export</button>
         <label class="btn btn-ghost hide-mobile" style="cursor:pointer" title="Import data backup">⬆ Import<input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)"></label>
         <button class="btn btn-ghost" onclick="resetState()" title="Reset all data" style="color:var(--ink-3);padding:8px 10px">↺</button>
       </div>
     </div>
     <div class="auth-banner" id="auth-banner">⚠</div>
-    <div id="mobile-signin-prompt" style="display:none;align-items:center;justify-content:space-between;gap:12px;background:var(--paper);border-bottom:1px solid var(--border);padding:10px 16px;font-size:13px;color:var(--ink)">
-      <span>🔄 Tap to sync with Google Drive.</span>
-      <button class="btn btn-primary" style="white-space:nowrap;flex-shrink:0" onclick="mobileSignIn()">Connect →</button>
-    </div>
 
     <div class="content">
 
@@ -1291,7 +1142,7 @@
         <!-- Budget vs Spending bars -->
         <div class="section">
           <div class="section-header">
-            <div class="section-title">Spending vs. Budget <span id="budget-filter-badge" style="display:none;font-size:11px;font-weight:500;color:var(--accent);background:#fff0eb;border-radius:20px;padding:2px 10px;margin-left:6px;vertical-align:middle"></span></div>
+            <div class="section-title">Spending vs. Budget</div>
             <button class="btn btn-ghost" onclick="openBudgetModal()">+ Add Category</button>
           </div>
           <div class="card">
@@ -1629,6 +1480,8 @@
 
         <!-- Calendar grid -->
         <div class="card" style="padding:0;overflow:hidden">
+          <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;min-width:0">
+          <div style="min-width:320px">
           <!-- Day headers -->
           <div style="display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--border)">
             <div style="padding:10px 0;text-align:center;font-variant-numeric: tabular-nums;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Sun</div>
@@ -1640,6 +1493,8 @@
             <div style="padding:10px 0;text-align:center;font-variant-numeric: tabular-nums;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);background:var(--paper-2)">Sat</div>
           </div>
           <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr)"></div>
+          </div>
+          </div>
         </div>
 
         <!-- Selected day detail -->
@@ -1654,53 +1509,14 @@
       <!-- ANNUAL VIEW -->
       <div class="view" id="view-annual">
         <div class="section">
-          <div class="section-title" style="margin-bottom:16px">2026 Overview</div>
-
-          <div class="annual-stats">
-            <div class="annual-stat">
-              <div class="annual-stat-label">YTD income</div>
-              <div class="annual-stat-value" id="ann-ytd-income">—</div>
-              <div class="annual-stat-sub" id="ann-ytd-income-sub"></div>
-            </div>
-            <div class="annual-stat">
-              <div class="annual-stat-label">YTD bills</div>
-              <div class="annual-stat-value" id="ann-ytd-bills">—</div>
-              <div class="annual-stat-sub" id="ann-ytd-bills-sub"></div>
-            </div>
-            <div class="annual-stat">
-              <div class="annual-stat-label">YTD net</div>
-              <div class="annual-stat-value" id="ann-ytd-net">—</div>
-              <div class="annual-stat-sub" id="ann-ytd-net-sub"></div>
-            </div>
-            <div class="annual-stat">
-              <div class="annual-stat-label">Avg monthly net</div>
-              <div class="annual-stat-value" id="ann-avg-net">—</div>
-              <div class="annual-stat-sub" id="ann-avg-net-sub"></div>
-            </div>
-          </div>
-
-          <div class="annual-chart-section">
-            <div class="annual-chart-label">Income vs bills — monthly</div>
-            <div class="annual-legend">
-              <span><span class="annual-legend-dot" style="background:#3a6ea8"></span>Income</span>
-              <span><span class="annual-legend-dot" style="background:#e8470a"></span>Bills</span>
-            </div>
-            <div class="annual-chart-wrap" style="height:240px">
-              <canvas id="ann-bar-chart" role="img" aria-label="Grouped bar chart showing monthly income and bills for 2026.">Monthly income vs bills for 2026.</canvas>
-            </div>
-          </div>
-
-          <div class="annual-chart-section">
-            <div class="annual-chart-label">Monthly net balance</div>
-            <div class="annual-net-wrap" style="height:130px">
-              <canvas id="ann-net-chart" role="img" aria-label="Line chart showing net balance per month for 2026.">Monthly net balance for 2026.</canvas>
-            </div>
-          </div>
-
-          <div class="annual-chart-label" style="margin-bottom:10px">Month-by-month breakdown</div>
-          <div class="card" style="padding:0;overflow:hidden">
+          <div class="section-title" style="margin-bottom:14px">2026 Overview</div>
+          <div class="annual-grid" id="annual-grid"></div>
+        </div>
+        <div class="section">
+          <div class="section-title" style="margin-bottom:14px">Year-to-Date Summary</div>
+          <div class="card">
             <table>
-              <thead><tr><th>Month</th><th class="amount">Income</th><th class="amount">Bills</th><th class="amount">Net</th><th>Status</th></tr></thead>
+              <thead><tr><th>Month</th><th>Total Bills</th><th>Paid</th><th>Savings</th><th>CC Spend</th><th>Status</th></tr></thead>
               <tbody id="annual-table"></tbody>
             </table>
           </div>
@@ -2044,12 +1860,12 @@
     </div>
     <div class="form-row-2">
       <div>
-        <label class="form-label">Purchase Interest Rate (APR %)</label>
-        <input class="form-input" id="cf-purchase-rate" type="number" placeholder="e.g. 19.99" step="0.01">
+        <label class="form-label">Current Balance (CAD)</label>
+        <input class="form-input" id="cf-balance" type="number" placeholder="0.00" step="0.01">
       </div>
       <div>
-        <label class="form-label">Cash Advance Rate (APR %)</label>
-        <input class="form-input" id="cf-cash-rate" type="number" placeholder="e.g. 22.99" step="0.01">
+        <label class="form-label">Statement Balance (CAD)</label>
+        <input class="form-input" id="cf-statement" type="number" placeholder="0.00" step="0.01">
       </div>
     </div>
     <div class="form-row-2">
@@ -2058,7 +1874,31 @@
         <input class="form-input" id="cf-target" type="number" placeholder="0.00" step="0.01">
       </div>
       <div>
-        <label class="form-label">Carrying Balance (if any)</label>
+        <label class="form-label">Interest Rate (APR %)</label>
+        <input class="form-input" id="cf-apr" type="number" placeholder="e.g. 19.99" step="0.01">
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div>
+        <label class="form-label">Minimum Payment</label>
+        <input class="form-input" id="cf-minpay" type="number" placeholder="0.00" step="0.01">
+      </div>
+      <div>
+        <label class="form-label">Payment Status</label>
+        <select class="form-input" id="cf-status">
+          <option value="unpaid">Unpaid</option>
+          <option value="partial">Partial Payment</option>
+          <option value="paid">Paid in Full</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div>
+        <label class="form-label">Amount Paid This Month</label>
+        <input class="form-input" id="cf-paid-amount" type="number" placeholder="0.00" step="0.01">
+      </div>
+      <div>
+        <label class="form-label">Carrying Balance</label>
         <input class="form-input" id="cf-carrying" type="number" placeholder="0.00" step="0.01">
       </div>
     </div>
@@ -2260,9 +2100,11 @@ function lockScreen() {
 }
 
 function unlockWithGoogle() {
+  // Re-request Google token — prompts sign-in if session expired
   if (typeof google !== 'undefined' && tokenClient) {
-    tokenClient.requestAccessToken({ prompt: IS_MOBILE ? 'select_account' : 'select_account' });
+    tokenClient.requestAccessToken({ prompt: 'select_account' });
   } else {
+    // Auth not loaded — just reload the page
     location.reload();
   }
 }
@@ -2284,30 +2126,12 @@ function initLockScreen() {
   resetLockTimer();
 }
 
-const IS_MOBILE = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
 function initGoogleAuth() {
   if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID === 'YOUR_CLIENT_ID_HERE') {
     showAuthBanner('setup');
     initLocalFallback();
     return;
   }
-
-  // On mobile: always boot from local data immediately so the app is usable
-  // right away. Drive sync happens in the background after the user taps "Connect".
-  if (IS_MOBILE) {
-    initLocalFallback();
-    showSyncStatus('offline');
-    showMobileSignInPrompt();
-    // Still load the GSI script in the background so it's ready when tapped
-    _loadGsiScript();
-    return;
-  }
-
-  // Desktop: load GSI and attempt silent token immediately
-  _loadGsiScript(() => requestToken());}
-
-function _loadGsiScript(onReady) {
   const script = document.createElement('script');
   script.src = 'https://accounts.google.com/gsi/client';
   script.onload = () => {
@@ -2317,57 +2141,25 @@ function _loadGsiScript(onReady) {
       scope: DRIVE_SCOPE,
       callback: (resp) => {
         tokenRefreshPending = false;
-        hideMobileSignInPrompt();
-        if (resp.error) { showAuthBanner('error'); if (!IS_MOBILE) initLocalFallback(); return; }
+        if (resp.error) { showAuthBanner('error'); initLocalFallback(); return; }
         const firstToken = !accessToken;
         accessToken = resp.access_token;
+        // Schedule token refresh 5 min before expiry (tokens last ~1hr)
         setTimeout(() => { accessToken = null; }, (resp.expires_in - 300) * 1000);
         showSyncStatus('connected');
+        // Unlock screen if it was locked
         if (isLocked) unlockScreen();
+        // Flush any callbacks waiting on the fresh token
         const cbs = afterRefreshCallbacks.splice(0);
         cbs.forEach(fn => fn());
-        // On mobile the app is already running from local — sync from Drive now
+        // On first auth, load data from Drive
         if (firstToken) loadFromDrive();
       },
     });
-    if (onReady) onReady();
+    requestToken();
   };
-  script.onerror = () => { showAuthBanner('offline'); if (!IS_MOBILE) initLocalFallback(); };
+  script.onerror = () => { showAuthBanner('offline'); initLocalFallback(); };
   document.head.appendChild(script);
-}
-
-function showMobileSignInPrompt() {
-  const el = document.getElementById('mobile-signin-prompt');
-  if (el) el.style.display = 'flex';
-}
-
-function hideMobileSignInPrompt() {
-  const el = document.getElementById('mobile-signin-prompt');
-  if (el) el.style.display = 'none';
-}
-
-function mobileSignIn() {
-  // This is called from a tap — user gesture allows the popup to open
-  hideMobileSignInPrompt();
-  showSyncStatus('loading');
-  if (tokenClient) {
-    tokenRefreshPending = false;
-    // Use 'select_account' so Safari opens the actual sign-in popup
-    tokenClient.requestAccessToken({ prompt: 'select_account' });
-  } else {
-    // GSI script not ready yet — wait and retry
-    showMobileSignInPrompt();
-    showSyncStatus('offline');
-    const wait = setInterval(() => {
-      if (tokenClient) {
-        clearInterval(wait);
-        hideMobileSignInPrompt();
-        showSyncStatus('loading');
-        tokenRefreshPending = false;
-        tokenClient.requestAccessToken({ prompt: 'select_account' });
-      }
-    }, 300);
-  }
 }
 
 function requestToken(afterRefresh) {
@@ -2430,6 +2222,7 @@ async function loadFromDrive() {
   showSyncStatus('loading');
   try {
     await findOrCreateFile();
+    // Get file metadata to check size first
     const meta = await driveRequest(
       `https://www.googleapis.com/drive/v3/files/${driveFileId}?fields=size`
     );
@@ -2437,56 +2230,15 @@ async function loadFromDrive() {
     console.log('File metadata:', metaData);
 
     if (!metaData.size || metaData.size === '0') {
-      // Drive file is empty — prefer localStorage backup before falling back to defaults
-      console.warn('Drive file is empty — checking localStorage backup');
-      const localRaw = localStorage.getItem('expenses2026_backup');
-      if (localRaw) {
-        try {
-          const localData = JSON.parse(localRaw);
-          if (localData && localData.billsStore) {
-            console.log('Restoring from localStorage backup');
-            initData(localData);
-            // Re-save the recovered data to Drive immediately
-            showSyncStatus('saving');
-            const recoverPayload = JSON.stringify({ billsStore, nextId, subscriptions, creditCards, cardStatements, savings, budgetCategories, incomeStore, nextIncomeId, transactionStore, nextTxnId, debts, nextDebtId, projects, nextProjectId, nextLineItemId });
-            await driveRequest(
-              `https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`,
-              { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: recoverPayload }
-            );
-            console.log('Recovered data written back to Drive');
-          } else { initData(null); }
-        } catch(e) { console.error('localStorage parse error:', e); initData(null); }
-      } else {
-        console.log('No localStorage backup — seeding with defaults');
-        initData(null);
-      }
+      console.log('Empty file — seeding with defaults');
+      initData(null);
     } else {
       const resp = await driveRequest(
         `https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`
       );
       const text = await resp.text();
       console.log('Loaded data length:', text.length);
-      try {
-        const parsed = JSON.parse(text);
-        // Sanity-check: if parsed data looks suspiciously empty, prefer localStorage
-        const hasBills = parsed.billsStore && Object.values(parsed.billsStore).some(a => a.length > 0);
-        const hasIncome = parsed.incomeStore && Object.values(parsed.incomeStore).some(a => a.length > 0);
-        const hasCards = parsed.creditCards && parsed.creditCards.length > 0;
-        const driveLooksValid = hasBills || hasIncome || hasCards;
-        if (!driveLooksValid) {
-          const localRaw = localStorage.getItem('expenses2026_backup');
-          if (localRaw) {
-            const localData = JSON.parse(localRaw);
-            const localHasBills = localData.billsStore && Object.values(localData.billsStore).some(a => a.length > 0);
-            if (localHasBills) {
-              console.warn('Drive data looks empty but localStorage has data — preferring localStorage');
-              initData(localData);
-            } else { initData(parsed); }
-          } else { initData(parsed); }
-        } else {
-          initData(parsed);
-        }
-      }
+      try { initData(JSON.parse(text)); }
       catch(e) { console.error('Parse error:', e); initData(null); }
     }
     showSyncStatus('saved');
@@ -2498,30 +2250,13 @@ async function loadFromDrive() {
   }
 }
 
-// Returns true if the current in-memory state has meaningful data worth saving
-function dataLooksValid() {
-  const totalBills = Object.values(billsStore).reduce((s, arr) => s + (arr||[]).length, 0);
-  const totalIncome = Object.values(incomeStore).reduce((s, arr) => s + (arr||[]).length, 0);
-  const totalTxns = Object.values(transactionStore).reduce((s, arr) => s + (arr||[]).length, 0);
-  // Consider data valid if there's at least one bill, income entry, transaction,
-  // subscription, credit card, or savings account
-  return totalBills > 0 || totalIncome > 0 || totalTxns > 0 ||
-         subscriptions.length > 0 || creditCards.length > 0 || savings.length > 0;
-}
-
 async function writeToDrive() {
   if (!driveFileId) {
     try { await findOrCreateFile(); } catch(e) { console.error('findOrCreate failed:', e); showSyncStatus('error'); return; }
   }
-  // Safety check: never overwrite Drive with blank/default data
-  if (!dataLooksValid()) {
-    console.warn('writeToDrive blocked — data looks empty, refusing to overwrite Drive');
-    showSyncStatus('error');
-    return;
-  }
   showSyncStatus('saving');
-  const payload = JSON.stringify({ billsStore, nextId, subscriptions, creditCards, cardStatements, savings, budgetCategories, incomeStore, nextIncomeId, transactionStore, nextTxnId, debts, nextDebtId, projects, nextProjectId, nextLineItemId });
-  console.log('Writing to Drive, fileId:', driveFileId, 'payload size:', payload.length);
+  const payload = JSON.stringify({ billsStore, nextId, subscriptions, creditCards, savings, budgetCategories, incomeStore, nextIncomeId, transactionStore, nextTxnId, debts, nextDebtId, projects, nextProjectId, nextLineItemId });
+  console.log('Writing to Drive, fileId:', driveFileId, 'token present:', !!accessToken);
   try {
     const resp = await driveRequest(
       `https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`,
@@ -2543,8 +2278,6 @@ async function writeToDrive() {
 // Debounce saves — wait 1.5s after last change before writing
 function saveState() {
   saveLocalFallback(); // always keep local copy as backup
-  // Never write blank mobile-boot data to Drive — only save once Drive is connected
-  if (!accessToken && !driveFileId) return;
   pendingSave = true;
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => { pendingSave = false; writeToDrive(); }, 1500);
@@ -2553,7 +2286,7 @@ function saveState() {
 // ── Local fallback (backup + offline) ──
 
 function saveLocalFallback() {
-  try { localStorage.setItem('expenses2026_backup', JSON.stringify({ billsStore, nextId, subscriptions, creditCards, cardStatements, savings, budgetCategories, incomeStore, nextIncomeId, transactionStore, nextTxnId, debts, nextDebtId, projects, nextProjectId, nextLineItemId })); }
+  try { localStorage.setItem('expenses2026_backup', JSON.stringify({ billsStore, nextId, subscriptions, creditCards, savings, budgetCategories, incomeStore, nextIncomeId, transactionStore, nextTxnId, debts, nextDebtId, projects, nextProjectId, nextLineItemId })); }
   catch(e) {}
 }
 
@@ -2567,16 +2300,12 @@ function initLocalFallback() {
 
 function initData(saved) {
   if (saved && saved.billsStore) {
-    // Clear all stores first so Drive data is a clean overwrite, not a merge
-    for (let i = 0; i <= 11; i++) { billsStore[i] = []; incomeStore[i] = []; transactionStore[i] = []; }
     Object.entries(saved.billsStore).forEach(([k, v]) => { billsStore[parseInt(k)] = v; });
     nextId = saved.nextId || 100;
     subscriptions = saved.subscriptions || JSON.parse(JSON.stringify(initialSubscriptions));
     creditCards = saved.creditCards || JSON.parse(JSON.stringify(initialCreditCards));
-    cardStatements = saved.cardStatements || {};
     savings = saved.savings || JSON.parse(JSON.stringify(initialSavings));
     budgetCategories = saved.budgetCategories || JSON.parse(JSON.stringify(initialBudgetCategories));
-    budgetCategories = budgetCategories.filter(c => !/tobacco|cigar/i.test(c.name));
     if (saved.incomeStore) Object.entries(saved.incomeStore).forEach(([k, v]) => { incomeStore[parseInt(k)] = v; });
     nextIncomeId = saved.nextIncomeId || 600;
     if (saved.transactionStore) Object.entries(saved.transactionStore).forEach(([k, v]) => { transactionStore[parseInt(k)] = v; });
@@ -2650,7 +2379,7 @@ function resetState() {
 }
 
 function exportData() {
-  const data = { billsStore, nextId, subscriptions, creditCards, cardStatements, savings, budgetCategories, incomeStore, nextIncomeId, transactionStore, nextTxnId, debts, nextDebtId, projects, nextProjectId, nextLineItemId };
+  const data = { billsStore, nextId, subscriptions, creditCards, savings, budgetCategories, incomeStore, nextIncomeId, transactionStore, nextTxnId, debts, nextDebtId, projects, nextProjectId, nextLineItemId };
   const json = JSON.stringify(data, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -2730,7 +2459,6 @@ let budgetCategories = [];
 
 const initialCreditCards = [];
 let creditCards = [];
-let cardStatements = {}; // cardStatements[monthIndex][cardId] = { balance, dueDate, statementDate, purchaseRate, cashAdvanceRate, minPayment }
 
 const initialSubscriptions = [];
 let subscriptions = [];
@@ -2874,45 +2602,15 @@ function closeSidebar() {
   document.getElementById('sidebar-overlay').classList.remove('open');
 }
 
-// Primary tab views that get their own bottom tab button
-const MOB_PRIMARY_TABS = ['dashboard', 'bills', 'income', 'transactions'];
-
-function updateMobileTabs(id) {
-  // Update bottom tab active state
-  document.querySelectorAll('.mob-tab').forEach(t => t.classList.remove('active'));
-  const primaryTab = document.getElementById('mobtab-' + id);
-  if (primaryTab) {
-    primaryTab.classList.add('active');
-  } else {
-    // It's a "More" view — highlight the More button
-    document.getElementById('mobtab-more').classList.add('active');
-  }
-  // Update More drawer item active state
-  document.querySelectorAll('.mob-more-item').forEach(t => t.classList.remove('active'));
-  const moreItem = document.getElementById('mobmore-' + id);
-  if (moreItem) moreItem.classList.add('active');
-}
-
-function openMobMore() {
-  document.getElementById('mob-more-sheet').classList.add('open');
-}
-function closeMobMore() {
-  document.getElementById('mob-more-sheet').classList.remove('open');
-}
-
 function showView(id) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + id).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  if (event && event.currentTarget && event.currentTarget.classList.contains('nav-item')) {
-    event.currentTarget.classList.add('active');
-  }
-  updateMobileTabs(id);
+  event.currentTarget.classList.add('active');
   const titles = { dashboard:'Dashboard', income:'Income', bills:'Bills & Payments', budget:'Spending', transactions:'Spending', savings:'Savings', cards:'Credit Cards', debt:'Debt', subs:'Subscriptions', projects:'Projects', calendar:'Calendar', annual:'Annual View' };
   const monthStr = id === 'annual' ? '2026' : `${MONTHS[currentMonth]} 2026`;
   document.getElementById('pageTitle').innerHTML = `${titles[id]} <span id="monthDisplay">— ${monthStr}</span>`;
   if (id === 'calendar') { calMonth = currentMonth; calYear = 2026; renderCalendar(); }
-  if (id === 'annual') renderAnnual();
   if (window.innerWidth <= 768) closeSidebar();
 }
 
@@ -2924,12 +2622,6 @@ function setMonth(idx) {
   const titleSpan = document.getElementById('monthDisplay');
   if (titleSpan) titleSpan.textContent = '— ' + MONTHS[idx] + ' 2026';
   render();
-}
-
-function shiftMonth(dir) {
-  const next = currentMonth + dir;
-  if (next < 0 || next > 11) return;
-  setMonth(next);
 }
 
 // ─── INCOME MODAL ────────────────────────────────────────────────────────────
@@ -3189,16 +2881,25 @@ function carryOverBills() {
     let newDue = '';
     if (b.due) {
       const [y, m, d] = b.due.substring(0,10).split('-').map(Number);
-      const next = new Date(y, m - 1 + 1, d); // advance 1 month
+      const next = new Date(y, m - 1 + 1, d);
       newDue = next.toISOString().split('T')[0];
     }
     billsStore[currentMonth].push({
-      ...JSON.parse(JSON.stringify(b)),
       id: nextId++,
+      name: b.name,
+      amount: b.amount,
+      due: newDue,
+      category: b.category || '',
+      notes: b.notes || '',
+      source: b.source || '',
+      // All payment data reset to clean state
       paid: false,
       paidDate: '',
-      due: newDue,
-      tag: '',
+      payments: [],
+      status: 'unpaid',
+      plannerAssigned: false,
+      plannerSourceId: null,
+      plannerMonth: null,
     });
   });
 
@@ -3388,12 +3089,12 @@ function updatePlanner() {
 
   // Bills assigned to this specific paycheque source
   const assignedToThis = sourceId
-    ? unpaidBills.filter(b => b.plannerSourceId === sourceId)
-    : unpaidBills.filter(b => b.plannerAssigned);
+    ? unpaidBills.filter(b => b.plannerSourceId === sourceId && b.plannerMonth === currentMonth)
+    : unpaidBills.filter(b => b.plannerAssigned && b.plannerMonth === currentMonth);
 
   const unassigned = unpaidBills.filter(b =>
-    sourceId ? b.plannerSourceId !== sourceId && !b.plannerAssigned :
-    !b.plannerAssigned
+    sourceId ? (b.plannerSourceId !== sourceId || b.plannerMonth !== currentMonth) && (!b.plannerAssigned || b.plannerMonth !== currentMonth) :
+    !b.plannerAssigned || b.plannerMonth !== currentMonth
   );
 
   // Calculate totals
@@ -3453,9 +3154,11 @@ function togglePlannerBill(billId, checked, sourceId) {
   if (checked) {
     b.plannerAssigned = true;
     b.plannerSourceId = sourceId;
+    b.plannerMonth = currentMonth;
   } else {
     b.plannerAssigned = false;
     b.plannerSourceId = null;
+    b.plannerMonth = null;
   }
   saveState();
   updatePlanner();
@@ -3492,7 +3195,7 @@ function renderBills() {
       <td>
         <strong>${b.name}</strong>
         <span style="margin-left:6px;font-size:11px;background:var(--paper-2);color:var(--ink-3);padding:2px 7px;border-radius:10px">${b.category}</span>
-        ${b.plannerAssigned ? `<span style="margin-left:4px;font-size:11px;background:#fff0eb;color:var(--accent);padding:2px 7px;border-radius:10px">💰 Assigned</span>` : ''}
+        ${b.plannerAssigned && b.plannerMonth === currentMonth ? `<span style="margin-left:4px;font-size:11px;background:#fff0eb;color:var(--accent);padding:2px 7px;border-radius:10px">💰 Assigned</span>` : ''}
         ${b.notes ? `<br><span style="font-size:11px;color:var(--ink-3)">${b.notes}</span>` : ''}
         ${payments.length > 0 ? `<div style="margin-top:5px;display:flex;flex-direction:column;gap:2px">
           ${payments.map(p => `<span style="font-size:11px;color:var(--green)">✓ ${fmt(p.amount)} paid ${formatDate(p.date)}${p.note?' · '+p.note:''} <span style="cursor:pointer;color:var(--ink-4)" onclick="deletePayment(${b.id},${p.id})">✕</span></span>`).join('')}
@@ -3690,29 +3393,6 @@ async function handlePdfUpload(event) {
   if (!cardName) { setImportStatus('error', 'Please select a card before uploading.'); return; }
   if (importMonthVal === '') { setImportStatus('error', 'Please select a statement month before uploading.'); return; }
 
-  // Check for existing import for this card + month
-  const matchCard = creditCards.find(c =>
-    c.name === cardName ||
-    c.name.toLowerCase().includes(cardName.toLowerCase()) ||
-    cardName.toLowerCase().includes(c.name.toLowerCase())
-  );
-  const existingStmt = matchCard && cardStatements[importMonth] && cardStatements[importMonth][matchCard.id];
-  if (existingStmt) {
-    const importedOn = existingStmt.importedAt ? new Date(existingStmt.importedAt).toLocaleDateString('en-CA') : 'previously';
-    const proceed = confirm(`A statement for ${cardName} in ${importMonthName} 2026 was already imported on ${importedOn}.\n\nProceeding will delete all existing transactions for this card in ${importMonthName} and replace them with the new import.\n\nContinue?`);
-    if (!proceed) { event.target.value = ''; return; }
-    // Delete existing transactions for this card in this month
-    if (transactionStore[importMonth]) {
-      transactionStore[importMonth] = transactionStore[importMonth].filter(t => {
-        const tCard = (t.card || '').toLowerCase();
-        const cName = cardName.toLowerCase();
-        return !(tCard === cName || tCard.includes(cName) || cName.includes(tCard));
-      });
-    }
-    // Clear the existing statement snapshot
-    delete cardStatements[importMonth][matchCard.id];
-  }
-
   setImportStatus('processing', `⏳ Reading ${file.name}… Claude is analyzing your transactions.`);
 
   try {
@@ -3758,10 +3438,6 @@ Return ONLY a JSON object with this exact structure, no other text, no markdown:
 {
   "statementBalance": 1234.56,
   "minimumPayment": 25.00,
-  "dueDate": "2026-06-21",
-  "statementDate": "2026-05-28",
-  "purchaseRate": 19.99,
-  "cashAdvanceRate": 22.99,
   "transactions": [
     {
       "description": "merchant name, cleaned up",
@@ -3776,10 +3452,6 @@ Return ONLY a JSON object with this exact structure, no other text, no markdown:
 
 statementBalance: the balance the cardholder needs to pay this month (positive number).
 minimumPayment: minimum payment required (positive number, or null if not found).
-dueDate: payment due date in YYYY-MM-DD format (or null if not found).
-statementDate: statement closing/cycle end date in YYYY-MM-DD format (or null if not found).
-purchaseRate: annual purchase interest rate as a number e.g. 19.99 (or null if not found).
-cashAdvanceRate: annual cash advance interest rate as a number e.g. 22.99 (or null if not found).
 confidence: "high" if obvious, "medium" if reasonable guess, "low" if uncertain.
 isNewCategory: true if you're suggesting a new category not in the list.
 Dates must be YYYY-MM-DD. Amounts must be positive numbers.
@@ -3803,10 +3475,6 @@ Include ALL transactions found in the statement regardless of date.`
     const transactions = Array.isArray(parsed) ? parsed : (parsed.transactions || []);
     const statementBalance = !Array.isArray(parsed) ? parsed.statementBalance : null;
     const minimumPayment = !Array.isArray(parsed) ? parsed.minimumPayment : null;
-    const dueDate = !Array.isArray(parsed) ? (parsed.dueDate || null) : null;
-    const statementDate = !Array.isArray(parsed) ? (parsed.statementDate || null) : null;
-    const purchaseRate = !Array.isArray(parsed) ? (parsed.purchaseRate || null) : null;
-    const cashAdvanceRate = !Array.isArray(parsed) ? (parsed.cashAdvanceRate || null) : null;
 
     // Find any new categories Claude suggested
     const newCats = [...new Set(
@@ -3848,25 +3516,13 @@ Include ALL transactions found in the statement regardless of date.`
       cardName.toLowerCase().includes(c.name.toLowerCase())
     );
     if (matchCard) {
-      // Write statement snapshot to cardStatements[month][cardId]
-      if (!cardStatements[importMonth]) cardStatements[importMonth] = {};
-      cardStatements[importMonth][matchCard.id] = {
-        balance: statementBalance || 0,
-        dueDate: dueDate || null,
-        statementDate: statementDate || new Date().toISOString().split('T')[0],
-        minPayment: minimumPayment || null,
-        purchaseRate: purchaseRate || null,
-        cashAdvanceRate: cashAdvanceRate || null,
-        importedAt: new Date().toISOString(),
-      };
-      // Only override rates on the card if the statement provided them
-      if (purchaseRate) matchCard.purchaseRate = purchaseRate;
-      if (cashAdvanceRate) matchCard.cashAdvanceRate = cashAdvanceRate;
+      // Use the actual statement balance if extracted, otherwise fall back to transaction sum
+      if (statementBalance) {
+        matchCard.balance = statementBalance;
+      }
       if (minimumPayment) matchCard.minPay = minimumPayment;
-      // Keep balance on the card object for backward compat with debt tab
-      if (statementBalance) matchCard.balance = statementBalance;
       matchCard.statementImported = true;
-      matchCard.statementDate = statementDate || new Date().toISOString().split('T')[0];
+      matchCard.statementDate = new Date().toISOString().split('T')[0];
     }
 
     saveState(); render();
@@ -3893,21 +3549,17 @@ function setImportStatus(type, msg) {
 
 // Recalculate spending totals for each budget category from transactions
 function recalcBudgetSpending() {
-  const cardFilter = document.getElementById('txn-filter-card')?.value || '';
-  const monthTxns = (transactionStore[currentMonth] || [])
-    .filter(t => !cardFilter || t.card === cardFilter);
+  const monthTxns = transactionStore[currentMonth] || [];
+  // Reset all transaction-sourced spending to zero first
   budgetCategories.forEach(c => {
     c.txnSpent = monthTxns
       .filter(t => t.category === c.name)
       .reduce((s, t) => s + t.amount, 0);
-    // manualSpent only applies when not filtering by card
-    c._cardFiltered = !!cardFilter;
   });
 }
 
 function getEffectiveSpent(cat) {
-  // When filtering by card, only show transaction-sourced spending (no manual override)
-  if (cat._cardFiltered) return cat.txnSpent || 0;
+  // txnSpent from imported/manual transactions + manualSpent if explicitly set
   return (cat.txnSpent || 0) + (cat.manualSpent || 0);
 }
 
@@ -4133,16 +3785,6 @@ function renderTransactions() {
 function renderBudget() {
   populateCardSelects();
   recalcBudgetSpending();
-  const cardFilter = document.getElementById('txn-filter-card')?.value || '';
-  const badge = document.getElementById('budget-filter-badge');
-  if (badge) {
-    if (cardFilter) {
-      badge.textContent = cardFilter;
-      badge.style.display = 'inline';
-    } else {
-      badge.style.display = 'none';
-    }
-  }
   const totalSpent = budgetCategories.reduce((s,c) => s+getEffectiveSpent(c), 0);
   const totalTarget = budgetCategories.reduce((s,c) => s+c.target, 0);
 
@@ -4285,8 +3927,9 @@ function openCardModal() {
   document.getElementById('card-modal-save-btn').textContent = 'Add Card';
   document.getElementById('card-modal-delete-btn').style.display = 'none';
   document.getElementById('cf-id').value = '';
-  ['cf-name','cf-last4','cf-purchase-rate','cf-cash-rate','cf-target','cf-carrying','cf-perks'].forEach(id => document.getElementById(id).value = '');
+  ['cf-name','cf-last4','cf-balance','cf-statement','cf-target','cf-apr','cf-minpay','cf-paid-amount','cf-carrying','cf-perks'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('cf-color').value = '#1a1a18';
+  document.getElementById('cf-status').value = 'unpaid';
   document.getElementById('card-modal').classList.add('open');
 }
 
@@ -4301,12 +3944,16 @@ function openEditCardModal(id) {
   document.getElementById('cf-id').value = c.id;
   document.getElementById('cf-name').value = c.name;
   document.getElementById('cf-last4').value = c.last4 || '';
-  document.getElementById('cf-purchase-rate').value = c.purchaseRate || c.apr || '';
-  document.getElementById('cf-cash-rate').value = c.cashAdvanceRate || '';
-  document.getElementById('cf-target').value = c.target || '';
+  document.getElementById('cf-balance').value = c.balance;
+  document.getElementById('cf-statement').value = c.statement || '';
+  document.getElementById('cf-target').value = c.target;
+  document.getElementById('cf-apr').value = c.apr || '';
+  document.getElementById('cf-minpay').value = c.minPay || '';
+  document.getElementById('cf-paid-amount').value = c.paidAmount || '';
   document.getElementById('cf-carrying').value = c.carrying || '';
   document.getElementById('cf-perks').value = c.perks || '';
   document.getElementById('cf-color').value = c.color || '#1a1a18';
+  document.getElementById('cf-status').value = c.status || 'unpaid';
   document.getElementById('card-modal').classList.add('open');
 }
 
@@ -4316,19 +3963,23 @@ function saveCardModal() {
   const id = document.getElementById('cf-id').value;
   const name = document.getElementById('cf-name').value.trim();
   const last4 = document.getElementById('cf-last4').value.trim();
-  const purchaseRate = parseFloat(document.getElementById('cf-purchase-rate').value) || 0;
-  const cashAdvanceRate = parseFloat(document.getElementById('cf-cash-rate').value) || 0;
+  const balance = parseFloat(document.getElementById('cf-balance').value) || 0;
+  const statement = parseFloat(document.getElementById('cf-statement').value) || 0;
   const target = parseFloat(document.getElementById('cf-target').value) || 0;
+  const apr = parseFloat(document.getElementById('cf-apr').value) || 0;
+  const minPay = parseFloat(document.getElementById('cf-minpay').value) || 0;
+  const paidAmount = parseFloat(document.getElementById('cf-paid-amount').value) || 0;
   const carrying = parseFloat(document.getElementById('cf-carrying').value) || 0;
   const perks = document.getElementById('cf-perks').value.trim();
   const color = document.getElementById('cf-color').value;
+  const status = document.getElementById('cf-status').value;
   if (!name) return;
 
   if (id) {
     const c = creditCards.find(c => c.id === parseInt(id));
-    if (c) { c.name = name; c.last4 = last4; c.purchaseRate = purchaseRate; c.cashAdvanceRate = cashAdvanceRate; c.target = target; c.carrying = carrying; c.perks = perks; c.color = color; }
+    if (c) { c.name = name; c.last4 = last4; c.balance = balance; c.statement = statement; c.target = target; c.apr = apr; c.minPay = minPay; c.paidAmount = paidAmount; c.carrying = carrying; c.perks = perks; c.color = color; c.status = status; }
   } else {
-    creditCards.push({ id: nextCardId++, name, last4, purchaseRate, cashAdvanceRate, target, carrying, perks, color, balance: 0 });
+    creditCards.push({ id: nextCardId++, name, last4, balance, statement, target, apr, minPay, paidAmount, carrying, perks, color, status });
   }
   closeCardModal();
   saveState(); render();
@@ -4344,132 +3995,47 @@ function deleteCardFromModal() {
 }
 
 function renderCards() {
-  // Get this month's statements
-  const monthStmts = cardStatements[currentMonth] || {};
-
-  // Build per-card payment status from billsStore
-  const monthBills = billsStore[currentMonth] || [];
-
-  // Summary stats from this month's statement data
-  const totalBalance = creditCards.reduce((s, c) => {
-    const stmt = monthStmts[c.id];
-    return s + (stmt ? stmt.balance : (c.balance || 0));
-  }, 0);
-  const totalTarget = creditCards.reduce((s, c) => s + (c.target || 0), 0);
+  const totalBalance = creditCards.reduce((s, c) => s + c.balance, 0);
+  const totalTarget = creditCards.reduce((s, c) => s + c.target, 0);
   const totalCarrying = creditCards.reduce((s, c) => s + (c.carrying || 0), 0);
   const diff = totalTarget - totalBalance;
 
   document.getElementById('cc-stat-balance').textContent = fmt(totalBalance);
-  document.getElementById('cc-stat-target').textContent = totalTarget > 0 ? fmt(totalTarget) : '—';
-  document.getElementById('cc-stat-diff').textContent = totalTarget > 0 ? fmt(Math.abs(diff)) : '—';
+  document.getElementById('cc-stat-target').textContent = fmt(totalTarget);
+  document.getElementById('cc-stat-diff').textContent = fmt(Math.abs(diff));
   document.getElementById('cc-stat-diff').style.color = diff >= 0 ? 'var(--green)' : 'var(--red)';
-  document.getElementById('cc-stat-diff-label').textContent = totalTarget > 0 ? (diff >= 0 ? '▲ under budget' : '▼ over budget') : 'no targets set';
-  document.getElementById('cc-stat-carrying').textContent = totalCarrying > 0 ? fmt(totalCarrying) : '—';
+  document.getElementById('cc-stat-diff-label').textContent = diff >= 0 ? '▲ under budget' : '▼ over budget';
+  document.getElementById('cc-stat-carrying').textContent = fmt(totalCarrying);
   document.getElementById('cc-stat-carrying').style.color = totalCarrying > 0 ? 'var(--red)' : 'var(--green)';
   document.getElementById('cc-stat-carrying-sub').textContent = totalCarrying > 0 ? '⚠ Rolling to next month' : '✓ Fully paid';
 
-  document.getElementById('cc-grid').innerHTML = creditCards.map((c) => {
-    const cardId = c.id;
-    const stmt = monthStmts[cardId];
-    const balance = stmt ? stmt.balance : null;
-    const hasStatement = !!stmt;
-
-    // Payment status: find the bill in billsStore that matches this card
-    const cardBill = monthBills.find(b =>
-      b.name && (
-        b.name.toLowerCase().includes(c.name.toLowerCase()) ||
-        c.name.toLowerCase().includes(b.name.toLowerCase().replace(/payment|pmt|card/gi,'').trim())
-      )
-    );
-    const billStatus = cardBill ? getBillStatus(cardBill) : null;
-    const billPayments = cardBill ? (cardBill.payments || []) : [];
-    const totalPaid = billPayments.reduce((s, p) => s + p.amount, 0);
-
-    // Transactions for this card this month
-    const cardTxns = (transactionStore[currentMonth] || []).filter(t => {
-      const tCard = (t.card || '').toLowerCase();
-      const cName = c.name.toLowerCase();
-      return tCard === cName || tCard.includes(cName) || cName.includes(tCard);
-    });
-    const txnTotal = cardTxns.reduce((s, t) => s + t.amount, 0);
-
-    // Category breakdown
-    const catMap = {};
-    cardTxns.forEach(t => { catMap[t.category] = (catMap[t.category] || 0) + t.amount; });
-    const topCats = Object.entries(catMap).sort((a,b) => b[1]-a[1]).slice(0, 3);
-
-    // Interest rates — prefer statement data, fall back to card definition
-    const purchaseRate = (stmt && stmt.purchaseRate) || c.purchaseRate || c.apr || null;
-    const cashAdvanceRate = (stmt && stmt.cashAdvanceRate) || c.cashAdvanceRate || null;
-
-    // Due date from statement
-    const dueDate = stmt ? stmt.dueDate : null;
-    const stmtDate = stmt ? stmt.statementDate : null;
-
-    // Progress bar vs target
-    const pct = (c.target > 0 && balance != null) ? Math.min(100, balance / c.target * 100) : 0;
-    const barCol = pct > 100 ? 'var(--red)' : pct > 80 ? 'var(--gold)' : 'var(--green)';
-
-    // Payment status display
-    const statusHtml = () => {
-      if (!cardBill) return `<span style="font-size:12px;color:var(--ink-3)">No bill linked in Bills & Payments</span>`;
-      if (billStatus === 'paid') return `<span style="font-size:12px;font-weight:500;color:var(--green)">✓ Paid in full${cardBill.paidDate ? ' · ' + formatDate(cardBill.paidDate) : ''}</span>`;
-      if (billStatus === 'partial') return `<span style="font-size:12px;font-weight:500;color:var(--gold)">◑ Partial — ${fmt(totalPaid)} paid${balance != null ? ', ' + fmt(balance - totalPaid) + ' remaining' : ''}</span>`;
-      return `<span style="font-size:12px;font-weight:500;color:var(--red)">○ Unpaid${dueDate ? ' · Due ' + formatDate(dueDate) : ''}</span>`;
-    };
-
-    const accentStyle = c.color && c.color !== '#1a1a18' ? `border-top: 3px solid ${c.color}` : `border-top: 3px solid var(--accent)`;
-
-    return `<div class="cc-card" style="${accentStyle}${(c.carrying||0) > 0 ? ';border-color:var(--red)' : ''}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+  document.getElementById('cc-grid').innerHTML = creditCards.map((c, i) => {
+    const cardId = c.id !== undefined ? c.id : i;
+    const pct = c.target > 0 ? Math.min(100, c.balance / c.target * 100) : 0;
+    const col = pct > 100 ? 'var(--red)' : pct > 80 ? 'var(--gold)' : 'var(--green)';
+    const statusColors = { paid: 'var(--green)', partial: 'var(--gold)', unpaid: 'var(--red)' };
+    const statusLabels = { paid: '✓ Paid in Full', partial: '◑ Partial Payment', unpaid: '○ Unpaid' };
+    const hasCarrying = (c.carrying || 0) > 0;
+    return `<div class="cc-card" style="${hasCarrying ? 'border-color:var(--red);border-width:2px' : ''}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
         <div>
-          <div class="cc-name">${c.name}${c.last4 ? ` <span style="font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums">···${c.last4}</span>` : ''}</div>
-          ${c.perks ? `<div class="cc-desc">${c.perks}</div>` : ''}
+          <div class="cc-name">${c.name}${c.last4 ? ` <span style="font-variant-numeric: tabular-nums;font-size:11px;color:var(--ink-3)">···${c.last4}</span>` : ''}</div>
+          <div class="cc-desc">${c.perks || '—'}</div>
         </div>
         <button class="edit-btn" onclick="openEditCardModal(${cardId})">✎ Edit</button>
       </div>
-
-      ${hasStatement ? `
-        <div style="margin-bottom:12px">
-          <div style="font-size:11px;color:var(--ink-3);margin-bottom:2px">Statement balance${stmtDate ? ' · closed ' + formatDate(stmtDate) : ''}</div>
-          <div style="font-size:26px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums">${fmt(balance)}</div>
-          ${c.target > 0 ? `<div class="cc-bar" style="margin-top:6px"><div class="cc-fill" style="width:${pct}%;background:${barCol}"></div></div>
-          <div style="font-size:11px;color:var(--ink-3);margin-top:3px">${fmt(txnTotal)} in purchases · target ${fmt(c.target)}</div>` :
-          `<div style="font-size:11px;color:var(--ink-3);margin-top:3px">${fmt(txnTotal)} in purchases · ${cardTxns.length} transaction${cardTxns.length!==1?'s':''}</div>`}
-        </div>
-      ` : `
-        <div style="margin-bottom:12px;padding:12px 14px;background:var(--paper-2);border-radius:8px;text-align:center">
-          <div style="font-size:12px;color:var(--ink-3);margin-bottom:6px">No statement imported for ${MONTHS[currentMonth]}</div>
-          ${cardTxns.length > 0 ? `<div style="font-size:13px;font-weight:500;color:var(--ink)">${fmt(txnTotal)} in ${cardTxns.length} transaction${cardTxns.length!==1?'s':''}</div>` : ''}
-        </div>
-      `}
-
-      <div style="padding:10px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:10px">
-        ${statusHtml()}
-        ${stmt && stmt.minPayment ? `<div style="font-size:11px;color:var(--ink-3);margin-top:3px">Minimum payment: ${fmt(stmt.minPayment)}</div>` : ''}
+      <div class="cc-row">
+        <span class="cc-balance">${fmt(c.balance)}</span>
+        <span class="cc-target">target ${c.target > 0 ? fmt(c.target) : '—'}</span>
       </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:${topCats.length > 0 ? '10' : '0'}px">
-        <div style="background:var(--paper-2);border-radius:7px;padding:8px 10px">
-          <div style="font-size:10px;color:var(--ink-3);margin-bottom:2px">Purchase rate</div>
-          <div style="font-size:14px;font-weight:500;color:var(--ink)">${purchaseRate ? purchaseRate + '%' : '—'}</div>
-        </div>
-        <div style="background:var(--paper-2);border-radius:7px;padding:8px 10px">
-          <div style="font-size:10px;color:var(--ink-3);margin-bottom:2px">Cash advance rate</div>
-          <div style="font-size:14px;font-weight:500;color:var(--ink)">${cashAdvanceRate ? cashAdvanceRate + '%' : '—'}</div>
-        </div>
+      ${c.statementImported ? `<div style="font-size:11px;color:var(--green);margin-bottom:6px">✓ Balance from statement${c.statementDate ? ' · ' + formatDate(c.statementDate) : ''}</div>` : `<div style="font-size:11px;color:var(--ink-3);margin-bottom:6px">Manual balance — upload statement to auto-update</div>`}
+      <div class="cc-bar"><div class="cc-fill" style="width:${c.target>0?pct:0}%;background:${col}"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap;gap:6px">
+        <span style="font-size:12px;color:${statusColors[c.status||'unpaid']};font-weight:500">${statusLabels[c.status||'unpaid']}</span>
+        ${c.minPay ? `<span style="font-size:11px;color:var(--ink-3)">Min: ${fmt(c.minPay)}</span>` : ''}
       </div>
-
-      ${topCats.length > 0 ? `
-        <div style="font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Top spending</div>
-        ${topCats.map(([cat, amt]) => `
-          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
-            <span style="color:var(--ink-2)">${cat}</span>
-            <span style="font-variant-numeric:tabular-nums;color:var(--ink)">${fmt(amt)}</span>
-          </div>`).join('')}
-      ` : ''}
-
-      ${(c.carrying||0) > 0 ? `<div style="margin-top:10px;padding:6px 10px;background:var(--red-light);border-radius:6px;font-size:12px;color:var(--red);font-weight:500">⚠ Carrying ${fmt(c.carrying)} to next month${purchaseRate ? ` · ~${fmt(c.carrying * purchaseRate/100/12)}/mo interest` : ''}</div>` : ''}
+      ${hasCarrying ? `<div style="margin-top:8px;padding:6px 10px;background:var(--red-light);border-radius:6px;font-size:12px;color:var(--red);font-weight:500">⚠ Carrying ${fmt(c.carrying)} to next month${c.apr ? ` · ~${fmt(c.carrying * c.apr/100/12)}/mo interest` : ''}</div>` : ''}
+      ${c.statement ? `<div style="margin-top:6px;font-size:11px;color:var(--ink-3)">Statement balance: ${fmt(c.statement)}</div>` : ''}
     </div>`;
   }).join('');
 }
@@ -4562,119 +4128,31 @@ function renderSubs() {
     </div>`).join('');
 }
 
-let annBarChart = null;
-let annNetChart = null;
-
 function renderAnnual() {
   const annualData = MONTHS.map((m, i) => {
     const bs = billsStore[i] || [];
-    const bills = bs.reduce((s,b) => s+b.amount, 0);
-    const inc = (incomeStore[i] || []).reduce((s,e) => s+e.amount, 0);
-    const sav = savings.reduce((s,sv) => s+(sv.monthly||0), 0);
-    const hasData = bs.length > 0 || inc > 0;
-    return { month: MONTHS_SHORT[i], bills, income: inc, savings: sav, net: inc - bills, hasData };
+    const total = bs.reduce((s,b) => s+b.amount, 0);
+    const paid = bs.filter(b=>b.paid).length;
+    return { month: MONTHS_SHORT[i], total, paid, count:bs.length, hasData: bs.length > 0 };
   });
+  const maxTotal = Math.max(...annualData.filter(d=>d.total>0).map(d=>d.total), 1);
 
-  // Only count months that have data for YTD stats
-  const datMonths = annualData.filter(d => d.hasData);
-  const ytdIncome = datMonths.reduce((s,d) => s+d.income, 0);
-  const ytdBills  = datMonths.reduce((s,d) => s+d.bills, 0);
-  const ytdNet    = ytdIncome - ytdBills;
-  const avgNet    = datMonths.length > 0 ? ytdNet / datMonths.length : 0;
+  document.getElementById('annual-grid').innerHTML = annualData.map((d,i) => `
+    <div class="annual-month ${i===currentMonth?'current':''}" onclick="setMonth(${i})">
+      <div class="am-name">${d.month} 2026</div>
+      <div class="am-total">${d.hasData ? fmt(d.total) : '—'}</div>
+      <div class="am-meta">${d.hasData ? `${d.paid}/${d.count} paid` : 'No data yet'}</div>
+      <div class="am-bar"><div class="am-fill" style="width:${d.total/maxTotal*100}%"></div></div>
+    </div>`).join('');
 
-  // Stat cards
-  const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  const setClass = (id, cls) => { const el = document.getElementById(id); if (el) { el.classList.remove('pos','neg'); if (cls) el.classList.add(cls); } };
-
-  setEl('ann-ytd-income', ytdIncome ? fmt(ytdIncome) : '—');
-  setEl('ann-ytd-income-sub', datMonths.length ? `${MONTHS_SHORT[0]} – ${datMonths[datMonths.length-1].month} 2026` : '');
-  setEl('ann-ytd-bills', ytdBills ? fmt(ytdBills) : '—');
-  setEl('ann-ytd-bills-sub', datMonths.length ? `Across ${datMonths.length} month${datMonths.length!==1?'s':''}` : '');
-  setEl('ann-ytd-net', ytdIncome||ytdBills ? (ytdNet>=0?'+':'')+fmt(ytdNet) : '—');
-  setClass('ann-ytd-net', ytdNet>0?'pos':ytdNet<0?'neg':'');
-  setEl('ann-ytd-net-sub', ytdNet >= 0 ? 'Surplus so far' : 'Deficit so far');
-  setEl('ann-avg-net', datMonths.length ? (avgNet>=0?'+':'')+fmt(Math.round(avgNet)) : '—');
-  setClass('ann-avg-net', avgNet>0?'pos':avgNet<0?'neg':'');
-  setEl('ann-avg-net-sub', 'Per month with data');
-
-  // Chart data — null for months with no data so Chart.js skips them
-  const incData  = annualData.map(d => d.hasData ? d.income  : null);
-  const billData = annualData.map(d => d.hasData ? d.bills   : null);
-  const netData  = annualData.map(d => d.hasData ? d.net     : null);
-  const labels   = MONTHS_SHORT;
-
-  // Bar chart
-  const barCanvas = document.getElementById('ann-bar-chart');
-  if (barCanvas) {
-    if (annBarChart) { annBarChart.destroy(); annBarChart = null; }
-    annBarChart = new Chart(barCanvas, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          { label: 'Income',  data: incData,  backgroundColor: '#3a6ea8', borderRadius: 3, barPercentage: 0.7 },
-          { label: 'Bills',   data: billData, backgroundColor: '#e8470a', borderRadius: 3, barPercentage: 0.7 }
-        ]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y) } } },
-        scales: {
-          x: { ticks: { autoSkip: false, maxRotation: 0, font: { size: 11 }, color: '#888' }, grid: { display: false } },
-          y: { ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k', font: { size: 11 }, color: '#888' }, grid: { color: 'rgba(0,0,0,0.05)' } }
-        }
-      }
-    });
-  }
-
-  // Net line chart
-  const netCanvas = document.getElementById('ann-net-chart');
-  if (netCanvas) {
-    if (annNetChart) { annNetChart.destroy(); annNetChart = null; }
-    annNetChart = new Chart(netCanvas, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Net',
-          data: netData,
-          borderColor: '#1a7a4a',
-          backgroundColor: 'rgba(26,122,74,0.07)',
-          pointBackgroundColor: (netData).map(v => v === null ? 'transparent' : v >= 0 ? '#1a7a4a' : '#e8470a'),
-          pointRadius: 4,
-          tension: 0.35,
-          fill: true,
-          spanGaps: false
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' Net: ' + (ctx.parsed.y>=0?'+':'') + fmt(ctx.parsed.y) } } },
-        scales: {
-          x: { ticks: { autoSkip: false, maxRotation: 0, font: { size: 11 }, color: '#888' }, grid: { display: false } },
-          y: { ticks: { callback: v => (v>=0?'+':'') + '$' + Math.abs(v/1000).toFixed(0) + 'k', font: { size: 11 }, color: '#888' }, grid: { color: 'rgba(0,0,0,0.05)' } }
-        }
-      }
-    });
-  }
-
-  // Table
-  document.getElementById('annual-table').innerHTML = annualData.map((d,i) => {
-    const isCurr = i === currentMonth;
-    const netPos = d.net >= 0;
-    return `<tr ${isCurr ? 'style="background:var(--paper-2)"' : ''}>
-      <td><strong>${d.month}</strong>${isCurr ? ' <span style="font-size:11px;color:var(--accent)">current</span>' : ''}<br><span style="font-size:11px;color:var(--ink-3);font-weight:400">${MONTHS[i]}</span></td>
-      <td class="amount">${d.hasData && d.income ? fmt(d.income) : '—'}</td>
-      <td class="amount">${d.hasData && d.bills  ? fmt(d.bills)  : '—'}</td>
-      <td class="amount" style="${d.hasData ? (netPos ? 'color:var(--green)' : 'color:var(--red)') : ''}">${d.hasData ? (d.net>=0?'+':'')+fmt(d.net) : '—'}</td>
-      <td>${!d.hasData
-        ? '<span style="color:var(--ink-4);font-size:12px">—</span>'
-        : netPos
-          ? '<span class="paid-chip paid">Surplus</span>'
-          : '<span class="paid-chip" style="background:var(--red-light);color:var(--red)">Deficit</span>'
-      }</td>
-    </tr>`;
-  }).join('');
+  document.getElementById('annual-table').innerHTML = annualData.map((d,i) => `<tr ${i===currentMonth?'style="background:var(--paper)"':''}>
+    <td><strong>${d.month}</strong>${i===currentMonth?' <span style="font-size:11px;color:var(--accent)">current</span>':''}</td>
+    <td class="amount">${d.hasData ? fmt(d.total) : '—'}</td>
+    <td style="font-size:12px;color:var(--ink-3)">${d.hasData ? `${d.paid}/${d.count}` : '—'}</td>
+    <td class="amount" style="color:var(--green)">$1,455</td>
+    <td style="font-size:12px;color:var(--ink-3)">${d.hasData ? fmt(creditCards.reduce((s,c)=>s+c.balance,0)) : '—'}</td>
+    <td>${d.hasData ? `<span class="paid-chip ${d.paid===d.count?'paid':'upcoming'}">${d.paid===d.count?'✓ Done':'In progress'}</span>` : '<span style="color:var(--ink-4);font-size:12px">—</span>'}</td>
+  </tr>`).join('');
 }
 
 // ─── DEBT MODAL & RENDER ─────────────────────────────────────────────────────
