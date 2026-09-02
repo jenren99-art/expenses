@@ -1,30 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23849E15'/%3E%3Cpath d='M2 12 L7 17 L16 4' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' opacity='0.55'/%3E%3Cpath d='M8 12 L13 17 L22 4' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Expenses — Personal Finance Tracker</title>
+<title>Tally — Personal Finance Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #111111;
-    --ink-2: #333333;
-    --ink-3: #888888;
-    --ink-4: #cccccc;
+    --ink: #2B2B23;
+    --ink-2: #4a4a3f;
+    --ink-3: #8a8578;
+    --ink-4: #c9c5b8;
     --paper: #ffffff;
-    --paper-2: #f5f5f5;
-    --paper-3: #ebebeb;
-    --accent: #e8470a;
-    --accent-2: #f07040;
-    --green: #1a7a4a;
-    --green-light: #edf7f2;
-    --red: #e8470a;
-    --red-light: #fef0eb;
+    --paper-2: #f7f5f0;
+    --paper-3: #ece9e2;
+    --accent: #849E15;
+    --accent-2: #a3c02a;
+    --sidebar-bg: #849E15;
+    --sidebar-text: rgba(255,255,255,0.7);
+    --sidebar-text-active: #ffffff;
+    --green: #4a6310;
+    --green-light: #eaf3de;
+    --red: #D8560E;
+    --red-light: #fdece0;
     --gold: #b07800;
     --gold-light: #fdf6e0;
-    --border: #e8e8e8;
-    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
-    --shadow-up: 0 -1px 3px rgba(0,0,0,0.04);
+    --blue: #6777B6;
+    --blue-light: #eceef8;
+    --pink: #D17089;
+    --pink-light: #fbedf1;
+    --border: #ece9e2;
+    --shadow: 0 1px 3px rgba(43,43,35,0.06), 0 4px 12px rgba(43,43,35,0.04);
+    --shadow-up: 0 -1px 3px rgba(43,43,35,0.04);
     --sidebar-w: 64px;
     --sidebar-expanded: 240px;
     --font-sans: 'Inter', 'DM Sans', sans-serif;
@@ -48,8 +56,8 @@
   .sidebar {
     width: var(--sidebar-w);
     min-width: var(--sidebar-w);
-    background: #fafafa;
-    border-right: 1px solid var(--border);
+    background: var(--sidebar-bg);
+    border-right: none;
     display: flex;
     flex-direction: column;
     position: fixed;
@@ -60,13 +68,13 @@
   }
   .sidebar:hover, .sidebar.expanded {
     width: var(--sidebar-expanded);
-    box-shadow: 4px 0 24px rgba(0,0,0,0.08);
+    box-shadow: 4px 0 24px rgba(43,43,35,0.18);
   }
   .sidebar-inner { width: var(--sidebar-expanded); display: flex; flex-direction: column; height: 100%; }
 
   .logo {
     padding: 20px 0 16px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid rgba(255,255,255,0.15);
     margin-bottom: 8px;
     display: flex;
     align-items: center;
@@ -77,16 +85,13 @@
   }
   .logo-icon {
     width: 28px; height: 28px;
-    background: var(--accent);
-    border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
-    font-size: 14px; color: #fff; font-weight: 700;
   }
   .logo-text { opacity: 0; transition: opacity 0.15s 0.05s; white-space: nowrap; overflow: hidden; }
   .sidebar:hover .logo-text, .sidebar.expanded .logo-text { opacity: 1; }
-  .logo-word { font-size: 15px; font-weight: 600; color: var(--ink); letter-spacing: -0.3px; display: block; }
-  .logo-sub { font-size: 11px; color: var(--ink-3); }
+  .logo-word { font-size: 16px; font-weight: 700; color: #fff; letter-spacing: -0.3px; display: block; }
+  .logo-sub { font-size: 11px; color: rgba(255,255,255,0.6); }
 
   .nav-section { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 4px 0; }
   .nav-label { display: none; }
@@ -95,7 +100,7 @@
     align-items: center;
     gap: 12px;
     padding: 10px 18px;
-    color: var(--ink-3);
+    color: var(--sidebar-text);
     cursor: pointer;
     transition: all 0.15s;
     font-size: 13.5px;
@@ -104,14 +109,14 @@
     white-space: nowrap;
     position: relative;
   }
-  .nav-item:hover { color: var(--ink); background: var(--paper-2); }
-  .nav-item.active { color: var(--accent); background: #fff0eb; }
+  .nav-item:hover { color: #fff; background: rgba(255,255,255,0.1); }
+  .nav-item.active { color: var(--sidebar-text-active); background: rgba(0,0,0,0.12); font-weight: 600; }
   .nav-item.active::before {
     content: '';
     position: absolute;
     left: 0; top: 6px; bottom: 6px;
     width: 3px;
-    background: var(--accent);
+    background: #fff;
     border-radius: 0 3px 3px 0;
   }
   .nav-icon {
@@ -122,12 +127,12 @@
     font-size: 16px;
     transition: background 0.15s;
   }
-  .nav-item.active .nav-icon { background: rgba(232,71,10,0.1); }
+  .nav-item.active .nav-icon { background: rgba(255,255,255,0.15); }
   .nav-label-text { opacity: 0; transition: opacity 0.12s 0.06s; overflow: hidden; }
   .sidebar:hover .nav-label-text, .sidebar.expanded .nav-label-text { opacity: 1; }
 
   .month-selector {
-    border-top: 1px solid var(--border);
+    border-top: 1px solid rgba(255,255,255,0.15);
     padding: 10px 0;
     flex-shrink: 0;
   }
@@ -136,7 +141,7 @@
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--ink-4);
+    color: rgba(255,255,255,0.5);
     padding: 6px 18px 4px;
     white-space: nowrap;
     opacity: 0;
@@ -147,7 +152,7 @@
   .month-btn {
     padding: 5px 18px;
     border-radius: 0;
-    color: var(--ink-4);
+    color: rgba(255,255,255,0.55);
     cursor: pointer;
     font-size: 12px;
     font-weight: 400;
@@ -164,11 +169,12 @@
     overflow: hidden;
   }
   .sidebar:hover .month-btn, .sidebar.expanded .month-btn { opacity: 1; max-height: 32px; padding: 5px 18px; }
-  .month-btn:hover { color: var(--ink); background: var(--paper-2); }
+  .month-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
   .month-btn.active {
-    color: var(--accent);
-    font-weight: 600;
+    color: #fff;
+    font-weight: 700;
     font-size: 12.5px;
+    background: rgba(0,0,0,0.15);
     /* Active month always visible even when collapsed */
     opacity: 1 !important;
     max-height: 36px !important;
@@ -819,11 +825,12 @@
     display: none;
     background: var(--gold-light);
     border-bottom: 1px solid rgba(184,134,11,0.25);
-    padding: 11px 36px;
+    padding: 11px 20px;
     font-size: 13px;
     color: var(--gold);
     gap: 8px;
     align-items: center;
+    flex-wrap: wrap;
   }
   .auth-banner code {
     background: rgba(184,134,11,0.15);
@@ -880,9 +887,14 @@
   <nav class="sidebar" id="sidebar">
     <div class="sidebar-inner">
       <div class="logo">
-        <div class="logo-icon">E</div>
+        <div class="logo-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M2 12 L7 17 L16 4" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+            <path d="M8 12 L13 17 L22 4" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
         <div class="logo-text">
-          <span class="logo-word">Expenses</span>
+          <span class="logo-word">Tally</span>
           <span class="logo-sub">2026</span>
         </div>
       </div>
@@ -1096,7 +1108,9 @@
             <div class="section-title">All Bills & Payments</div>
             <div style="display:flex;gap:8px;align-items:center">
               <span class="section-count" id="bills-count">0 bills</span>
-              <span style="font-variant-numeric: tabular-nums;font-size:12px;color:var(--ink-2);background:var(--paper-2);padding:3px 10px;border-radius:20px;border:1px solid var(--border)" id="bills-total">$0.00</span>
+              <span style="font-variant-numeric:tabular-nums;font-size:12px;background:var(--paper-2);padding:3px 10px;border-radius:20px;border:1px solid var(--border);color:var(--ink-2)" id="bills-total">$0.00 total</span>
+              <span style="font-variant-numeric:tabular-nums;font-size:12px;background:var(--green-light);padding:3px 10px;border-radius:20px;border:1px solid rgba(26,122,74,0.2);color:var(--green)" id="bills-paid-total">$0.00 paid</span>
+              <span style="font-variant-numeric:tabular-nums;font-size:12px;background:var(--red-light);padding:3px 10px;border-radius:20px;border:1px solid rgba(232,71,10,0.2);color:var(--red)" id="bills-unpaid-total">$0.00 unpaid</span>
               <button class="btn btn-ghost" id="bills-delete-selected-btn" onclick="deleteSelectedBills()" style="display:none;color:var(--red);border-color:var(--red)">✕ Delete Selected (<span id="bills-selected-count">0</span>)</button>
               <button class="btn btn-ghost" onclick="carryOverBills()" title="Copy all bills from previous month into this month">↩ Carry Over from Previous Month</button>
             </div>
@@ -2100,11 +2114,14 @@ function lockScreen() {
 }
 
 function unlockWithGoogle() {
-  // Re-request Google token — prompts sign-in if session expired
+  if (isMobileSafari()) {
+    unlockScreen();
+    connectDriveFromBanner();
+    return;
+  }
   if (typeof google !== 'undefined' && tokenClient) {
     tokenClient.requestAccessToken({ prompt: 'select_account' });
   } else {
-    // Auth not loaded — just reload the page
     location.reload();
   }
 }
@@ -2126,12 +2143,26 @@ function initLockScreen() {
   resetLockTimer();
 }
 
+function isMobileSafari() {
+  const ua = navigator.userAgent;
+  return /iP(ad|hone|od)/.test(ua) && /WebKit/.test(ua) && !/CriOS/.test(ua) && !/FxiOS/.test(ua);
+}
+
 function initGoogleAuth() {
   if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID === 'YOUR_CLIENT_ID_HERE') {
     showAuthBanner('setup');
     initLocalFallback();
     return;
   }
+
+  // Mobile Safari blocks popups not triggered by user gesture.
+  // Boot from localStorage immediately, then offer Drive sync via banner.
+  if (isMobileSafari()) {
+    initLocalFallback();
+    showAuthBanner('mobile');
+    return;
+  }
+
   const script = document.createElement('script');
   script.src = 'https://accounts.google.com/gsi/client';
   script.onload = () => {
@@ -2144,21 +2175,51 @@ function initGoogleAuth() {
         if (resp.error) { showAuthBanner('error'); initLocalFallback(); return; }
         const firstToken = !accessToken;
         accessToken = resp.access_token;
-        // Schedule token refresh 5 min before expiry (tokens last ~1hr)
         setTimeout(() => { accessToken = null; }, (resp.expires_in - 300) * 1000);
         showSyncStatus('connected');
-        // Unlock screen if it was locked
         if (isLocked) unlockScreen();
-        // Flush any callbacks waiting on the fresh token
+        // Hide mobile connect banner if visible
+        const banner = document.getElementById('auth-banner');
+        if (banner) banner.style.display = 'none';
         const cbs = afterRefreshCallbacks.splice(0);
         cbs.forEach(fn => fn());
-        // On first auth, load data from Drive
         if (firstToken) loadFromDrive();
       },
     });
     requestToken();
   };
   script.onerror = () => { showAuthBanner('offline'); initLocalFallback(); };
+  document.head.appendChild(script);
+}
+
+function connectDriveFromBanner() {
+  // Called by user tap on mobile — safe to trigger popup
+  const banner = document.getElementById('auth-banner');
+  if (banner) banner.innerHTML = '<span style="color:var(--ink-3)">Connecting to Google Drive…</span>';
+  const script = document.createElement('script');
+  script.src = 'https://accounts.google.com/gsi/client';
+  script.onload = () => {
+    google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: () => {} });
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: DRIVE_SCOPE,
+      callback: (resp) => {
+        tokenRefreshPending = false;
+        if (resp.error) { showAuthBanner('error'); return; }
+        const firstToken = !accessToken;
+        accessToken = resp.access_token;
+        setTimeout(() => { accessToken = null; }, (resp.expires_in - 300) * 1000);
+        showSyncStatus('connected');
+        if (isLocked) unlockScreen();
+        if (banner) banner.style.display = 'none';
+        const cbs = afterRefreshCallbacks.splice(0);
+        cbs.forEach(fn => fn());
+        if (firstToken) loadFromDrive();
+      },
+    });
+    tokenRefreshPending = true;
+    tokenClient.requestAccessToken({ prompt: 'select_account' });
+  };
   document.head.appendChild(script);
 }
 
@@ -2364,6 +2425,21 @@ function showAuthBanner(type) {
       <a href="https://console.cloud.google.com/" target="_blank" style="color:var(--accent)">Get one here →</a>
       Until then, data saves locally in this browser only.
     `;
+    banner.style.display = 'flex';
+  } else if (type === 'mobile') {
+    banner.innerHTML = `
+      <span>📱 Tap to sync your data with Google Drive</span>
+      <button onclick="connectDriveFromBanner()" style="margin-left:12px;padding:6px 16px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">Connect →</button>
+    `;
+    banner.style.display = 'flex';
+    banner.style.justifyContent = 'center';
+    banner.style.alignItems = 'center';
+    banner.style.gap = '0';
+  } else if (type === 'error') {
+    banner.innerHTML = `<strong>Google Drive connection failed.</strong> Your data is saved locally. <button onclick="connectDriveFromBanner()" style="margin-left:8px;padding:4px 12px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit">Retry →</button>`;
+    banner.style.display = 'flex';
+  } else if (type === 'offline') {
+    banner.innerHTML = `<strong>Working offline.</strong> Data saved locally — Drive sync unavailable.`;
     banner.style.display = 'flex';
   }
 }
@@ -3169,8 +3245,16 @@ function renderBills() {
   updatePlanner();
   const bs = bills();
   const billsTotal = bs.reduce((s,b) => s+b.amount, 0);
+  const paidTotal = bs.filter(b => getBillStatus(b) === 'paid').reduce((s,b) => s+b.amount, 0);
+  const partialPaidTotal = bs.filter(b => getBillStatus(b) === 'partial').reduce((s,b) => {
+    return s + (b.payments||[]).reduce((ps,p) => ps+p.amount, 0);
+  }, 0);
+  const unpaidTotal = billsTotal - paidTotal - partialPaidTotal;
+
   document.getElementById('bills-count').textContent = bs.length + ' bills';
-  document.getElementById('bills-total').textContent = fmt(billsTotal);
+  document.getElementById('bills-total').textContent = fmt(billsTotal) + ' total';
+  document.getElementById('bills-paid-total').textContent = fmt(paidTotal + partialPaidTotal) + ' paid';
+  document.getElementById('bills-unpaid-total').textContent = fmt(Math.max(0, unpaidTotal)) + ' unpaid';
   const btn = document.getElementById('bills-delete-selected-btn');
   if (btn) btn.style.display = 'none';
   const selectAll = document.getElementById('bills-select-all');
