@@ -318,8 +318,8 @@
     .cal-day-num { font-size: 11px; }
 
     /* Bills mobile cards */
-    .bills-table-wrap { display: none; }
-    .bills-mobile-list { display: block; }
+    .bills-table-wrap { display: none !important; }
+    .bills-mobile-list { display: block !important; }
 
     /* Modal */
     .modal { padding: 20px 16px; }
@@ -895,7 +895,7 @@
         </div>
         <div class="logo-text">
           <span class="logo-word">Tally</span>
-          <span class="logo-sub">2026</span>
+          <span class="logo-sub" id="logoYear">2026</span>
         </div>
       </div>
       <div class="nav-section">
@@ -978,7 +978,7 @@
     <div class="topbar">
       <div class="topbar-left">
         <button class="menu-btn" id="menu-btn" onclick="toggleSidebar()">☰</button>
-        <h1 class="page-title" id="pageTitle">Dashboard <span id="monthDisplay">— May 2026</span></h1>
+        <h1 class="page-title" id="pageTitle">Dashboard <span id="monthDisplay">— Loading…</span></h1>
       </div>
       <div class="topbar-actions">
         <span id="sync-status" style="font-variant-numeric: tabular-nums;font-size:11px;color:var(--ink-3);padding:6px 12px;background:var(--paper-2);border-radius:20px;border:1px solid var(--border)">◌ Connecting…</span>
@@ -1523,7 +1523,7 @@
       <!-- ANNUAL VIEW -->
       <div class="view" id="view-annual">
         <div class="section">
-          <div class="section-title" style="margin-bottom:14px">2026 Overview</div>
+          <div class="section-title" style="margin-bottom:14px" id="annual-overview-title">Overview</div>
           <div class="annual-grid" id="annual-grid"></div>
         </div>
         <div class="section">
@@ -2062,7 +2062,15 @@
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-let currentMonth = 4; // May = index 4
+const BASE_YEAR = 2026; // first year the app tracked — data saved under plain month-index keys (no year prefix) belongs to this year
+let currentYear = new Date().getFullYear();
+let currentMonth = new Date().getMonth(); // defaults to today's real-world month
+
+// Composite store key: 2026 (BASE_YEAR) keeps using plain month-index keys for backward
+// compatibility with data already saved in Google Drive. Any other year gets a "YYYY-M" key.
+function storeKey(year, month) {
+  return year === BASE_YEAR ? month : `${year}-${month}`;
+}
 
 const initialBills = [];
 
@@ -2359,17 +2367,27 @@ function initLocalFallback() {
 
 // ── Data initialisation ──
 
+// Keys like "0".."11" are plain month indices (BASE_YEAR data); keys like "2027-0"
+// are composite year-month keys for later years. parseInt() on a composite key would
+// wrongly collapse it (e.g. "2027-0" -> 2027), so only integer-looking keys get parsed.
+function restoreStore(store, savedObj) {
+  Object.entries(savedObj).forEach(([k, v]) => {
+    const key = /^\d+$/.test(k) ? parseInt(k) : k;
+    store[key] = v;
+  });
+}
+
 function initData(saved) {
   if (saved && saved.billsStore) {
-    Object.entries(saved.billsStore).forEach(([k, v]) => { billsStore[parseInt(k)] = v; });
+    restoreStore(billsStore, saved.billsStore);
     nextId = saved.nextId || 100;
     subscriptions = saved.subscriptions || JSON.parse(JSON.stringify(initialSubscriptions));
     creditCards = saved.creditCards || JSON.parse(JSON.stringify(initialCreditCards));
     savings = saved.savings || JSON.parse(JSON.stringify(initialSavings));
     budgetCategories = saved.budgetCategories || JSON.parse(JSON.stringify(initialBudgetCategories));
-    if (saved.incomeStore) Object.entries(saved.incomeStore).forEach(([k, v]) => { incomeStore[parseInt(k)] = v; });
+    if (saved.incomeStore) restoreStore(incomeStore, saved.incomeStore);
     nextIncomeId = saved.nextIncomeId || 600;
-    if (saved.transactionStore) Object.entries(saved.transactionStore).forEach(([k, v]) => { transactionStore[parseInt(k)] = v; });
+    if (saved.transactionStore) restoreStore(transactionStore, saved.transactionStore);
     nextTxnId = saved.nextTxnId || 700;
     debts = saved.debts || JSON.parse(JSON.stringify(initialDebts));
     nextDebtId = saved.nextDebtId || 800;
@@ -2578,7 +2596,7 @@ function formatDate(dateStr) {
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 
-function bills() { return billsStore[currentMonth] || []; }
+function bills() { return billsStore[storeKey(currentYear, currentMonth)] || []; }
 
 function togglePaid(id) {
   const b = bills().find(b => b.id === id);
@@ -2659,7 +2677,7 @@ function saveBillModal() {
 function deleteBillFromModal() {
   const id = parseInt(document.getElementById('f-id').value);
   if (!id || !confirm('Remove this bill?')) return;
-  billsStore[currentMonth] = billsStore[currentMonth].filter(b => b.id !== id);
+  billsStore[storeKey(currentYear, currentMonth)] = billsStore[storeKey(currentYear, currentMonth)].filter(b => b.id !== id);
   closeModal();
   saveState(); render();
 }
@@ -2684,25 +2702,27 @@ function showView(id) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   event.currentTarget.classList.add('active');
   const titles = { dashboard:'Dashboard', income:'Income', bills:'Bills & Payments', budget:'Spending', transactions:'Spending', savings:'Savings', cards:'Credit Cards', debt:'Debt', subs:'Subscriptions', projects:'Projects', calendar:'Calendar', annual:'Annual View' };
-  const monthStr = id === 'annual' ? '2026' : `${MONTHS[currentMonth]} 2026`;
+  const monthStr = id === 'annual' ? String(currentYear) : `${MONTHS[currentMonth]} ${currentYear}`;
   document.getElementById('pageTitle').innerHTML = `${titles[id]} <span id="monthDisplay">— ${monthStr}</span>`;
-  if (id === 'calendar') { calMonth = currentMonth; calYear = 2026; renderCalendar(); }
+  if (id === 'calendar') { calMonth = currentMonth; calYear = currentYear; renderCalendar(); }
   if (window.innerWidth <= 768) closeSidebar();
 }
 
-function setMonth(idx) {
-  if (idx === currentMonth) return;
-  if (!confirm(`Switch to ${MONTHS[idx]} 2026? Any unsaved edits in progress will be lost.`)) return;
+function setMonth(idx, year) {
+  if (year === undefined) year = currentYear;
+  if (idx === currentMonth && year === currentYear) return;
+  if (!confirm(`Switch to ${MONTHS[idx]} ${year}? Any unsaved edits in progress will be lost.`)) return;
   currentMonth = idx;
-  document.querySelectorAll('.month-btn').forEach((b,i) => b.classList.toggle('active', i === idx));
+  currentYear = year;
+  renderMonthList();
   const titleSpan = document.getElementById('monthDisplay');
-  if (titleSpan) titleSpan.textContent = '— ' + MONTHS[idx] + ' 2026';
+  if (titleSpan) titleSpan.textContent = '— ' + MONTHS[idx] + ' ' + year;
   render();
 }
 
 // ─── INCOME MODAL ────────────────────────────────────────────────────────────
 
-function income() { return incomeStore[currentMonth] || []; }
+function income() { return incomeStore[storeKey(currentYear, currentMonth)] || []; }
 
 function openIncomeModal() {
   document.getElementById('income-modal-title').textContent = 'Add Income';
@@ -2745,7 +2765,8 @@ function saveIncomeModal() {
     const e = income().find(e => e.id === parseInt(id));
     if (e) { e.source = source; e.type = type; e.amount = amount; e.date = date; e.bills = bills; e.notes = notes; }
   } else {
-    incomeStore[currentMonth].push({ id: nextIncomeId++, source, type, amount, date, bills, notes });
+    if (!incomeStore[storeKey(currentYear, currentMonth)]) incomeStore[storeKey(currentYear, currentMonth)] = [];
+    incomeStore[storeKey(currentYear, currentMonth)].push({ id: nextIncomeId++, source, type, amount, date, bills, notes });
   }
   closeIncomeModal();
   saveState(); render();
@@ -2754,7 +2775,7 @@ function saveIncomeModal() {
 function deleteIncomeFromModal() {
   const id = parseInt(document.getElementById('inc-id').value);
   if (!id || !confirm('Remove this income entry?')) return;
-  incomeStore[currentMonth] = incomeStore[currentMonth].filter(e => e.id !== id);
+  incomeStore[storeKey(currentYear, currentMonth)] = incomeStore[storeKey(currentYear, currentMonth)].filter(e => e.id !== id);
   closeIncomeModal();
   saveState(); render();
 }
@@ -2926,7 +2947,7 @@ function renderIncome() {
 
   // Annual table
   document.getElementById('income-annual-table').innerHTML = MONTHS.map((_, i) => { const m = MONTHS_SHORT[i];
-    const monthInc = incomeStore[i] || [];
+    const monthInc = incomeStore[storeKey(currentYear, i)] || [];
     const pays = monthInc.filter(e => e.type === 'Paycheque').reduce((s,e) => s+e.amount, 0);
     const oth = monthInc.filter(e => e.type !== 'Paycheque').reduce((s,e) => s+e.amount, 0);
     const tot = pays + oth;
@@ -2941,17 +2962,19 @@ function renderIncome() {
 
 function carryOverBills() {
   const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-  const prevBills = billsStore[prevMonth] || [];
+  const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+  const prevBills = billsStore[storeKey(prevYear, prevMonth)] || [];
   if (prevBills.length === 0) {
-    alert(`No bills found in ${MONTHS_SHORT[prevMonth]} to carry over.`);
+    alert(`No bills found in ${MONTHS_SHORT[prevMonth]} ${prevYear} to carry over.`);
     return;
   }
   if (bills().length > 0) {
-    if (!confirm(`This month already has ${bills().length} bill${bills().length !== 1 ? 's' : ''}. Add the ${prevBills.length} bills from ${MONTHS_SHORT[prevMonth]} on top?`)) return;
+    if (!confirm(`This month already has ${bills().length} bill${bills().length !== 1 ? 's' : ''}. Add the ${prevBills.length} bills from ${MONTHS_SHORT[prevMonth]} ${prevYear} on top?`)) return;
   } else {
-    if (!confirm(`Carry over ${prevBills.length} bill${prevBills.length !== 1 ? 's' : ''} from ${MONTHS_SHORT[prevMonth]}? They will be copied with paid status reset and dates advanced by one month.`)) return;
+    if (!confirm(`Carry over ${prevBills.length} bill${prevBills.length !== 1 ? 's' : ''} from ${MONTHS_SHORT[prevMonth]} ${prevYear}? They will be copied with paid status reset and dates advanced by one month.`)) return;
   }
 
+  if (!billsStore[storeKey(currentYear, currentMonth)]) billsStore[storeKey(currentYear, currentMonth)] = [];
   prevBills.forEach(b => {
     // Advance due date by one month if present
     let newDue = '';
@@ -2960,7 +2983,7 @@ function carryOverBills() {
       const next = new Date(y, m - 1 + 1, d);
       newDue = next.toISOString().split('T')[0];
     }
-    billsStore[currentMonth].push({
+    billsStore[storeKey(currentYear, currentMonth)].push({
       id: nextId++,
       name: b.name,
       amount: b.amount,
@@ -2980,7 +3003,7 @@ function carryOverBills() {
   });
 
   saveState(); render();
-  alert(`✓ ${prevBills.length} bill${prevBills.length !== 1 ? 's' : ''} carried over from ${MONTHS_SHORT[prevMonth]}. Review and update amounts and due dates as needed.`);
+  alert(`✓ ${prevBills.length} bill${prevBills.length !== 1 ? 's' : ''} carried over from ${MONTHS_SHORT[prevMonth]} ${prevYear}. Review and update amounts and due dates as needed.`);
 }
 
 function updateBillsSelectionUI() {
@@ -3006,27 +3029,28 @@ function deleteSelectedBills() {
   const selected = [...document.querySelectorAll('.bill-checkbox:checked')].map(cb => parseInt(cb.dataset.id));
   if (selected.length === 0) return;
   if (!confirm(`Delete ${selected.length} selected bill${selected.length !== 1 ? 's' : ''}? This cannot be undone.`)) return;
-  billsStore[currentMonth] = billsStore[currentMonth].filter(b => !selected.includes(b.id));
+  billsStore[storeKey(currentYear, currentMonth)] = billsStore[storeKey(currentYear, currentMonth)].filter(b => !selected.includes(b.id));
   saveState(); render();
 }
 
 function carryOverIncome() {
   const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-  const prevIncome = incomeStore[prevMonth] || [];
+  const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+  const prevIncome = incomeStore[storeKey(prevYear, prevMonth)] || [];
   if (prevIncome.length === 0) {
-    alert(`No income entries found in ${MONTHS[prevMonth]} to carry over.`);
+    alert(`No income entries found in ${MONTHS[prevMonth]} ${prevYear} to carry over.`);
     return;
   }
-  const current = incomeStore[currentMonth] || [];
+  const current = incomeStore[storeKey(currentYear, currentMonth)] || [];
   if (current.length > 0) {
-    if (!confirm(`This month already has ${current.length} income entr${current.length !== 1 ? 'ies' : 'y'}. Add the ${prevIncome.length} entries from ${MONTHS[prevMonth]} on top?`)) return;
+    if (!confirm(`This month already has ${current.length} income entr${current.length !== 1 ? 'ies' : 'y'}. Add the ${prevIncome.length} entries from ${MONTHS[prevMonth]} ${prevYear} on top?`)) return;
   } else {
-    if (!confirm(`Carry over ${prevIncome.length} income entr${prevIncome.length !== 1 ? 'ies' : 'y'} from ${MONTHS[prevMonth]}? Dates will be cleared — update them after.`)) return;
+    if (!confirm(`Carry over ${prevIncome.length} income entr${prevIncome.length !== 1 ? 'ies' : 'y'} from ${MONTHS[prevMonth]} ${prevYear}? Dates will be cleared — update them after.`)) return;
   }
 
-  if (!incomeStore[currentMonth]) incomeStore[currentMonth] = [];
+  if (!incomeStore[storeKey(currentYear, currentMonth)]) incomeStore[storeKey(currentYear, currentMonth)] = [];
   prevIncome.forEach(e => {
-    incomeStore[currentMonth].push({
+    incomeStore[storeKey(currentYear, currentMonth)].push({
       ...JSON.parse(JSON.stringify(e)),
       id: nextIncomeId++,
       date: '', // clear date — user should set the new pay date
@@ -3034,7 +3058,7 @@ function carryOverIncome() {
   });
 
   saveState(); render();
-  alert(`✓ ${prevIncome.length} income entr${prevIncome.length !== 1 ? 'ies' : 'y'} carried over from ${MONTHS_SHORT[prevMonth]}. Update the dates and amounts as needed.`);
+  alert(`✓ ${prevIncome.length} income entr${prevIncome.length !== 1 ? 'ies' : 'y'} carried over from ${MONTHS_SHORT[prevMonth]} ${prevYear}. Update the dates and amounts as needed.`);
 }
 
 // ─── PARTIAL PAYMENTS ────────────────────────────────────────────────────────
@@ -3422,7 +3446,7 @@ function deleteBudgetFromModal() {
 
 // ─── TRANSACTIONS ─────────────────────────────────────────────────────────────
 
-function txns() { return transactionStore[currentMonth] || []; }
+function txns() { return transactionStore[storeKey(currentYear, currentMonth)] || []; }
 
 // Populate card select dropdowns
 function populateCardSelects() {
@@ -3442,7 +3466,7 @@ function populateCardSelects() {
   const monthSel = document.getElementById('import-month-select');
   if (monthSel && monthSel.options.length <= 1) {
     monthSel.innerHTML = '<option value="">Statement month…</option>' +
-      MONTHS.map((m, i) => `<option value="${i}"${i === currentMonth ? ' selected' : ''}>${m} 2026</option>`).join('');
+      MONTHS.map((m, i) => `<option value="${i}"${i === currentMonth ? ' selected' : ''}>${m} ${currentYear}</option>`).join('');
   }
 }
 
@@ -3575,8 +3599,9 @@ Include ALL transactions found in the statement regardless of date.`
     // Add all transactions to the selected statement month
     let added = 0;
     transactions.forEach(t => {
-      if (!transactionStore[importMonth]) transactionStore[importMonth] = [];
-      transactionStore[importMonth].push({
+      const importKey = storeKey(currentYear, importMonth);
+      if (!transactionStore[importKey]) transactionStore[importKey] = [];
+      transactionStore[importKey].push({
         id: nextTxnId++,
         description: t.description,
         amount: parseFloat(t.amount) || 0,
@@ -3613,7 +3638,7 @@ Include ALL transactions found in the statement regardless of date.`
 
     const newCatMsg = newCats.length > 0 ? ` Added ${newCats.length} new categor${newCats.length > 1 ? 'ies' : 'y'}: ${newCats.join(', ')}.` : '';
     const balMsg = statementBalance ? ` Statement balance: ${fmt(statementBalance)}.` : '';
-    setImportStatus('success', `✓ Imported ${added} transactions from ${file.name} into ${importMonthName} 2026.${balMsg}${newCatMsg} Review them in the Transactions tab.`);
+    setImportStatus('success', `✓ Imported ${added} transactions from ${file.name} into ${importMonthName} ${currentYear}.${balMsg}${newCatMsg} Review them in the Transactions tab.`);
 
     // Reset file input
     event.target.value = '';
@@ -3633,7 +3658,7 @@ function setImportStatus(type, msg) {
 
 // Recalculate spending totals for each budget category from transactions
 function recalcBudgetSpending() {
-  const monthTxns = transactionStore[currentMonth] || [];
+  const monthTxns = transactionStore[storeKey(currentYear, currentMonth)] || [];
   // Reset all transaction-sourced spending to zero first
   budgetCategories.forEach(c => {
     c.txnSpent = monthTxns
@@ -3690,7 +3715,8 @@ function saveTxnModal() {
     const t = txns().find(t => t.id === parseInt(id));
     if (t) { t.description = description; t.amount = amount; t.date = date; t.category = category; t.card = card; }
   } else {
-    transactionStore[currentMonth].push({ id: nextTxnId++, description, amount, date, category, card, confidence: 'high', source: 'manual' });
+    if (!transactionStore[storeKey(currentYear, currentMonth)]) transactionStore[storeKey(currentYear, currentMonth)] = [];
+    transactionStore[storeKey(currentYear, currentMonth)].push({ id: nextTxnId++, description, amount, date, category, card, confidence: 'high', source: 'manual' });
   }
   recalcBudgetSpending();
   closeTxnModal();
@@ -3700,7 +3726,7 @@ function saveTxnModal() {
 function deleteTxnFromModal() {
   const id = parseInt(document.getElementById('txn-id').value);
   if (!id || !confirm('Remove this transaction?')) return;
-  transactionStore[currentMonth] = transactionStore[currentMonth].filter(t => t.id !== id);
+  transactionStore[storeKey(currentYear, currentMonth)] = transactionStore[storeKey(currentYear, currentMonth)].filter(t => t.id !== id);
   recalcBudgetSpending();
   closeTxnModal();
   saveState(); render();
@@ -3731,7 +3757,7 @@ function deleteSelectedTxns() {
   const selected = [...document.querySelectorAll('.txn-checkbox:checked')].map(cb => parseInt(cb.dataset.id));
   if (selected.length === 0) return;
   if (!confirm(`Delete ${selected.length} selected transaction${selected.length !== 1 ? 's' : ''}? This cannot be undone.`)) return;
-  transactionStore[currentMonth] = transactionStore[currentMonth].filter(t => !selected.includes(t.id));
+  transactionStore[storeKey(currentYear, currentMonth)] = transactionStore[storeKey(currentYear, currentMonth)].filter(t => !selected.includes(t.id));
   recalcBudgetSpending();
   saveState(); render();
 }
@@ -4213,8 +4239,10 @@ function renderSubs() {
 }
 
 function renderAnnual() {
+  const overviewTitleEl = document.getElementById('annual-overview-title');
+  if (overviewTitleEl) overviewTitleEl.textContent = currentYear + ' Overview';
   const annualData = MONTHS.map((m, i) => {
-    const bs = billsStore[i] || [];
+    const bs = billsStore[storeKey(currentYear, i)] || [];
     const total = bs.reduce((s,b) => s+b.amount, 0);
     const paid = bs.filter(b=>b.paid).length;
     return { month: MONTHS_SHORT[i], total, paid, count:bs.length, hasData: bs.length > 0 };
@@ -4222,8 +4250,8 @@ function renderAnnual() {
   const maxTotal = Math.max(...annualData.filter(d=>d.total>0).map(d=>d.total), 1);
 
   document.getElementById('annual-grid').innerHTML = annualData.map((d,i) => `
-    <div class="annual-month ${i===currentMonth?'current':''}" onclick="setMonth(${i})">
-      <div class="am-name">${d.month} 2026</div>
+    <div class="annual-month ${i===currentMonth?'current':''}" onclick="setMonth(${i}, ${currentYear})">
+      <div class="am-name">${d.month} ${currentYear}</div>
       <div class="am-total">${d.hasData ? fmt(d.total) : '—'}</div>
       <div class="am-meta">${d.hasData ? `${d.paid}/${d.count} paid` : 'No data yet'}</div>
       <div class="am-bar"><div class="am-fill" style="width:${d.total/maxTotal*100}%"></div></div>
@@ -4897,15 +4925,54 @@ function render() {
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 
-function init() {
-  const ml = document.getElementById('monthList');
-  MONTHS.forEach((m,i) => {
-    const btn = document.createElement('button');
-    btn.className = 'month-btn' + (i===4?' active':'');
-    btn.textContent = m + ' 2026';
-    btn.onclick = () => setMonth(i);
-    ml.appendChild(btn);
+// Which years to show in the sidebar month list: the base year, every year that
+// already has saved data, and whatever year is currently selected — always sorted.
+function availableYears() {
+  const years = new Set([BASE_YEAR, currentYear]);
+  Object.keys(billsStore).forEach(k => {
+    const m = /^(\d{4})-\d+$/.exec(k);
+    if (m) years.add(parseInt(m[1]));
   });
+  Object.keys(incomeStore).forEach(k => {
+    const m = /^(\d{4})-\d+$/.exec(k);
+    if (m) years.add(parseInt(m[1]));
+  });
+  Object.keys(transactionStore).forEach(k => {
+    const m = /^(\d{4})-\d+$/.exec(k);
+    if (m) years.add(parseInt(m[1]));
+  });
+  return Array.from(years).sort((a,b) => a - b);
+}
+
+function renderMonthList() {
+  const ml = document.getElementById('monthList');
+  ml.innerHTML = '';
+  const years = availableYears();
+  years.forEach(year => {
+    if (years.length > 1) {
+      const yearLabel = document.createElement('div');
+      yearLabel.className = 'month-label';
+      yearLabel.style.opacity = '1';
+      yearLabel.textContent = year;
+      ml.appendChild(yearLabel);
+    }
+    MONTHS.forEach((m,i) => {
+      const btn = document.createElement('button');
+      const isActive = i === currentMonth && year === currentYear;
+      btn.className = 'month-btn' + (isActive ? ' active' : '');
+      btn.textContent = m + ' ' + year;
+      btn.onclick = () => setMonth(i, year);
+      ml.appendChild(btn);
+    });
+  });
+}
+
+function init() {
+  renderMonthList();
+  const logoYearEl = document.getElementById('logoYear');
+  if (logoYearEl) logoYearEl.textContent = currentYear;
+  const titleSpan = document.getElementById('monthDisplay');
+  if (titleSpan) titleSpan.textContent = '— ' + MONTHS[currentMonth] + ' ' + currentYear;
   // Auth + load — renders after data is ready
   initGoogleAuth();
   // Start inactivity lock timer
